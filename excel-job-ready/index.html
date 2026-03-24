@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Job Ready – Learn Excel Skills That Companies Actually Use</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   DESIGN SYSTEM — PREMIUM DARK EMERALD
+══════════════════════════════════════════ */
+:root {
+  --bg:        #050d0a;
+  --bg2:       #071410;
+  --bg3:       #0a1c16;
+  --surface:   rgba(255,255,255,0.04);
+  --surface2:  rgba(255,255,255,0.07);
+  --border:    rgba(255,255,255,0.08);
+  --border2:   rgba(52,211,153,0.25);
+
+  --em:        #10b981;   /* emerald */
+  --em2:       #34d399;   /* emerald light */
+  --em3:       #6ee7b7;   /* emerald pale */
+  --em-glow:   rgba(16,185,129,0.35);
+  --em-glow2:  rgba(16,185,129,0.12);
+
+  --gold:      #f59e0b;
+  --gold-glow: rgba(245,158,11,0.2);
+
+  --text:      #f0fdf8;
+  --text2:     #a7f3d0;
+  --text3:     #6b9e8a;
+  --muted:     #3d6b58;
+
+  --r:         16px;
+  --r2:        24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── GLOBAL MESH BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 10%, rgba(16,185,129,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(16,185,129,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(16,185,129,0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TYPOGRAPHY ── */
+h1,h2,h3,.logo-text { font-family: 'Clash Display', 'Outfit', sans-serif; }
+
+.grad-text {
+  background: linear-gradient(135deg, var(--em2) 0%, var(--em3) 50%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── GLASS CARD ── */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.glass2 {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── GLOW ORBS ── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ══════════════════════════════
+   TOP BAR
+══════════════════════════════ */
+.top-bar {
+  background: linear-gradient(90deg, #064e35, #0d6b4a, #064e35);
+  color: var(--em3);
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+  z-index: 200;
+  border-bottom: 1px solid var(--border2);
+}
+.top-bar-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 3px 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Clash Display', monospace;
+  letter-spacing: 0.08em;
+  color: var(--em2);
+}
+.top-bar-dot { width: 6px; height: 6px; background: var(--em2); border-radius: 50%; animation: pulse 2s infinite; }
+
+/* ══════════════════════════════
+   NAV
+══════════════════════════════ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,13,10,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo { font-family: 'Clash Display', sans-serif; font-size: 1.15rem; font-weight: 700; }
+.nav-logo .logo-em { color: var(--em2); }
+.nav-logo .logo-plain { color: var(--text); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-pill { font-size: 0.75rem; color: var(--text3); font-weight: 500; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; }
+.nav-pill strong { color: var(--em2); }
+.nav-btn {
+  background: linear-gradient(135deg, var(--em), #059669);
+  color: white;
+  font-family: 'Clash Display', sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  padding: 9px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px var(--em-glow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.nav-btn:hover { box-shadow: 0 0 32px var(--em-glow); transform: translateY(-1px); }
+
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  padding: 100px 24px 80px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero .orb-1 { width: 500px; height: 500px; background: var(--em); top: -100px; right: -100px; opacity: 0.07; }
+.hero .orb-2 { width: 350px; height: 350px; background: var(--em); bottom: 0; left: -80px; opacity: 0.05; }
+
+/* grid lines */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.hero-inner { max-width: 880px; text-align: center; position: relative; z-index: 1; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.3);
+  border-radius: 100px; padding: 6px 20px;
+  font-size: 0.75rem; font-weight: 600; color: var(--em2);
+  margin-bottom: 32px; letter-spacing: 0.05em;
+  animation: fadeUp 0.7s ease both;
+}
+.pulse-dot { width: 7px; height: 7px; background: var(--em2); border-radius: 50%; animation: pulse 2s infinite; }
+
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.75)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes glowPulse { 0%,100%{box-shadow:0 0 20px var(--em-glow)} 50%{box-shadow:0 0 40px var(--em-glow), 0 0 60px var(--em-glow2)} }
+
+.hero h1 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 24px;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+.hero h1 .accent {
+  background: linear-gradient(135deg, var(--em2), var(--em3), #fff 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.08rem;
+  color: var(--text3);
+  max-width: 540px;
+  margin: 0 auto 40px;
+  font-weight: 400;
+  line-height: 1.8;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+
+.hero-pills {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; margin-bottom: 44px;
+  animation: fadeUp 0.7s 0.3s ease both;
+}
+.hero-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 16px;
+  font-size: 0.82rem; font-weight: 500; color: var(--text2);
+  display: flex; align-items: center; gap: 7px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.hero-pill:hover { border-color: var(--border2); background: var(--surface2); }
+.hero-pill::before { content: '✓'; color: var(--em2); font-weight: 700; }
+
+.hero-cta-wrap { animation: fadeUp 0.7s 0.4s ease both; }
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--em) 0%, #059669 100%);
+  color: white;
+  font-family: 'Clash Display', sans-serif;
+  font-weight: 600; font-size: 1.05rem;
+  padding: 18px 42px; border-radius: 14px;
+  text-decoration: none;
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 8px 32px var(--em-glow);
+  animation: glowPulse 3s ease infinite;
+  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.cta-btn::before {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shimmer 3s ease infinite;
+}
+.cta-btn:hover { transform: translateY(-3px); }
+.cta-arrow { font-size: 1.1rem; transition: transform 0.2s; }
+.cta-btn:hover .cta-arrow { transform: translateX(4px); }
+
+.hero-trust { font-size: 0.76rem; color: var(--text3); margin-top: 14px; animation: fadeUp 0.7s 0.45s ease both; }
+.hero-trust span { color: var(--em2); font-weight: 600; }
+
+.hero-stats {
+  display: flex; gap: 0; justify-content: center; flex-wrap: wrap;
+  margin-top: 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  animation: fadeUp 0.7s 0.5s ease both;
+  max-width: 720px;
+  margin-left: auto; margin-right: auto;
+}
+.stat {
+  flex: 1; min-width: 120px;
+  padding: 24px 16px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.stat:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.9rem; font-weight: 700;
+  color: var(--em2);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 0.72rem; color: var(--text3); letter-spacing: 0.03em; }
+
+/* ══════════════════════════════
+   PROOF STRIP
+══════════════════════════════ */
+.proof-strip {
+  background: rgba(16,185,129,0.04);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  position: relative; z-index: 1;
+}
+.proof-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 36px; flex-wrap: wrap;
+}
+.proof-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text3); }
+.proof-item strong { color: var(--text2); }
+.proof-sep { width: 1px; height: 20px; background: var(--border); }
+
+/* ══════════════════════════════
+   SECTION BASE
+══════════════════════════════ */
+.section { padding: 90px 24px; position: relative; z-index: 1; }
+.container { max-width: 980px; margin: 0 auto; }
+.section-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--em2);
+  margin-bottom: 14px;
+}
+.section-tag::before,
+.section-tag::after { content: ''; width: 20px; height: 1px; background: var(--em2); flex-shrink: 0; }
+h2 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.1; color: var(--text);
+  margin-bottom: 18px;
+}
+.section-lead { font-size: 1.05rem; color: var(--text3); line-height: 1.85; max-width: 580px; }
+/* Section header block — always centered */
+.sec-head { text-align: center; margin-bottom: 12px; }
+.sec-head .section-tag { justify-content: center; }
+.sec-head h2 { margin-left: auto; margin-right: auto; }
+.sec-head .section-lead { margin-left: auto; margin-right: auto; text-align: center; }
+
+/* ══════════════════════════════
+   VIDEO
+══════════════════════════════ */
+.video-section { background: var(--bg2); }
+.video-wrap {
+  max-width: 800px; margin: 40px auto 0;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--border2);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.1), 0 40px 100px rgba(0,0,0,0.6), 0 0 80px rgba(16,185,129,0.06);
+  position: relative;
+}
+.video-wrap::before, .video-wrap::after {
+  content: ''; position: absolute; width: 36px; height: 36px; z-index: 2; pointer-events: none;
+}
+.video-wrap::before { top:0;left:0;border-top:2px solid var(--em2);border-left:2px solid var(--em2);border-radius:20px 0 0 0; }
+.video-wrap::after  { bottom:0;right:0;border-bottom:2px solid var(--em2);border-right:2px solid var(--em2);border-radius:0 0 20px 0; }
+.video-wrap video { display:block;width:100%;height:auto; }
+.video-trust { display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:24px; }
+.vt-item { font-size:0.8rem;color:var(--text3);display:flex;align-items:center;gap:6px; }
+.vt-item::before { content:'✓';color:var(--em2);font-weight:700; }
+
+/* ══════════════════════════════
+   HOW IT WORKS
+══════════════════════════════ */
+.how-section { background: var(--bg3); }
+.steps-row { display:flex;gap:0;margin-top:48px;position:relative; }
+.steps-row::before {
+  content:'';position:absolute;
+  top:36px;left:calc(16.66% + 20px);right:calc(16.66% + 20px);
+  height:1px;
+  background:linear-gradient(90deg, var(--em), transparent 50%, var(--em));
+  opacity:0.4;
+}
+@media(max-width:640px){ .steps-row{flex-direction:column;gap:24px;} .steps-row::before{display:none;} }
+.step { flex:1;text-align:center;padding:0 20px;position:relative; }
+.step-circle {
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--em),#059669);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:white;
+  margin:0 auto 18px;
+  box-shadow:0 0 30px var(--em-glow);
+  position:relative;z-index:1;
+}
+.step h3 { font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;color:var(--text);margin-bottom:7px; }
+.step p { font-size:0.83rem;color:var(--text3);line-height:1.6; }
+
+/* ══════════════════════════════
+   TRANSFORMATION
+══════════════════════════════ */
+.transform-section { background: var(--bg); }
+
+/* Outer 3-column grid: [before] [arrow] [after] */
+.transform-grid {
+  display: grid;
+  grid-template-columns: 1fr 52px 1fr;
+  gap: 0 20px;
+  align-items: start;
+  margin-top: 52px;
+}
+@media(max-width:680px){
+  .transform-grid { grid-template-columns:1fr; gap:16px; }
+  .t-arrow { transform:rotate(90deg); }
+}
+
+/* Each card is itself a grid of rows — header row + 6 item rows */
+.t-col {
+  border-radius: var(--r2);
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto repeat(6, 1fr); /* header + 6 equal rows */
+}
+.t-before {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.22);
+}
+.t-before::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg,#ef4444,#f87171);
+}
+.t-after {
+  background: rgba(16,185,129,0.16);
+  border: 1px solid rgba(16,185,129,0.50);
+  box-shadow: 0 0 50px rgba(16,185,129,0.12);
+}
+.t-after::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg,var(--em),var(--em2));
+}
+
+/* Header label row */
+.t-label {
+  font-family:'Clash Display',sans-serif;
+  font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em;
+  padding: 22px 22px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 8px;
+}
+.t-before .t-label { color:#f87171; }
+.t-after  .t-label { color:var(--em2); }
+
+/* List — no gap, items fill grid rows evenly */
+.t-list {
+  list-style: none;
+  display: contents; /* each <li> becomes a direct grid child */
+}
+.t-list li {
+  font-size: 0.92rem; color: var(--text3); line-height: 1.45;
+  display: flex; align-items: center; gap: 11px;
+  padding: 0 22px;
+  min-height: 56px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.2s;
+}
+.t-list li:last-child { border-bottom: none; }
+.t-before .t-list li:hover { background: rgba(239,68,68,0.06); }
+.t-after  .t-list li:hover { background: rgba(16,185,129,0.06); }
+.t-list li span { font-size:1.1rem; flex-shrink:0; }
+
+/* Arrow column — true vertical center */
+.t-arrow {
+  display: flex; align-items: center; justify-content: center;
+  align-self: center;
+  font-size: 2.6rem; font-weight: 900; color: var(--em2); opacity: 0.8;
+}
+
+/* ══════════════════════════════
+   PROBLEM
+══════════════════════════════ */
+.problem-section { background:var(--bg2); }
+.prob-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:36px; }
+@media(max-width:580px){ .prob-grid { grid-template-columns:1fr; } }
+.prob-card {
+  border-radius:var(--r);padding:36px 28px;
+  background:var(--surface);border:1px solid var(--border);
+  font-size:1.08rem;color:var(--text2);line-height:1.6;
+  position:relative;overflow:hidden;
+  transition:border-color 0.2s,background 0.2s,transform 0.2s;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;
+  min-height:180px;gap:20px;
+}
+.prob-card:hover { border-color:var(--border2);background:var(--surface2);transform:translateY(-3px); }
+.prob-icon {
+  width:82px;height:55px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.82rem;
+  flex-shrink:0;
+}
+.prob-icon-1 { background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 20px rgba(99,102,241,0.4); }
+.prob-icon-2 { background:linear-gradient(135deg,#f59e0b,#ef4444);box-shadow:0 4px 20px rgba(245,158,11,0.4); }
+.prob-icon-3 { background:linear-gradient(135deg,#06b6d4,#3b82f6);box-shadow:0 4px 20px rgba(6,182,212,0.4); }
+.prob-icon-4 { background:linear-gradient(135deg,#ec4899,#f43f5e);box-shadow:0 4px 20px rgba(236,72,153,0.4); }
+.prob-note { margin-top:28px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15);border-radius:var(--r2);padding:26px 30px;color:var(--text3);font-size:0.95rem;line-height:1.8; }
+.prob-note strong { color:var(--em2); }
+
+/* ══════════════════════════════
+   SOLUTION
+══════════════════════════════ */
+.solution-section { background:var(--bg3); }
+.sol-grid { display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px; }
+@media(max-width:620px){.sol-grid{grid-template-columns:1fr}}
+.sol-head {
+  font-family:'Clash Display',sans-serif;font-size:0.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--em2);
+  margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.arrow-list { list-style:none;display:flex;flex-direction:column;gap:11px; }
+.arrow-list li {
+  display:flex;align-items:flex-start;gap:12px;
+  font-size:0.92rem;color:var(--text2);line-height:1.6;
+  padding:10px 12px;border-radius:10px;border:1px solid transparent;
+  transition:border-color 0.2s,background 0.2s;
+}
+.arrow-list li:hover { border-color:var(--border2);background:rgba(16,185,129,0.04); }
+.arrow-list li::before { content:'→';color:var(--em2);font-weight:700;flex-shrink:0;margin-top:2px; }
+.sol-box { background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:28px;height:100%; }
+
+/* ══════════════════════════════
+   MODULES
+══════════════════════════════ */
+.modules-section { background:var(--bg); }
+.mod-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:36px; }
+.mod-card {
+  border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;
+  background:var(--surface);position:relative;overflow:hidden;
+  transition:border-color 0.25s,background 0.25s,transform 0.25s,box-shadow 0.25s;
+}
+.mod-card:hover { border-color:var(--border2);background:var(--surface2);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 20px var(--em-glow2); }
+.mod-card.featured { border-color:rgba(16,185,129,0.35);background:rgba(16,185,129,0.06); }
+.mod-num { font-family:'Clash Display',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.14em;color:var(--em2);text-transform:uppercase;margin-bottom:7px; }
+.mod-card h3 { font-family:'Clash Display',sans-serif;font-size:0.97rem;font-weight:600;color:var(--text);margin-bottom:6px; }
+.mod-card p { font-size:0.82rem;color:var(--text3);line-height:1.5; }
+.mod-icon { position:absolute;top:16px;right:16px;font-size:1.3rem;opacity:0.25; }
+.mod-card.featured .mod-badge {
+  position:absolute;bottom:0;right:0;
+  background:linear-gradient(135deg,var(--em),#059669);
+  color:white;font-family:'Clash Display',sans-serif;
+  font-size:0.58rem;font-weight:700;letter-spacing:0.1em;
+  padding:4px 12px;border-radius:var(--r) 0 var(--r) 0;
+}
+
+/* ══════════════════════════════
+   WHO
+══════════════════════════════ */
+.who-section { background:var(--bg2); }
+.who-grid {
+  display: grid;
+  grid-template-columns: 1fr 52px 1fr;
+  gap: 0 20px;
+  align-items: start;
+  margin-top: 52px;
+}
+@media(max-width:680px){ .who-grid{grid-template-columns:1fr; gap:16px;} .who-arrow{transform:rotate(90deg);} }
+
+/* Each card is a grid: header row + 6 equal rows */
+.who-card {
+  border-radius: var(--r2);
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto repeat(6, 1fr);
+}
+.who-yes {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.45);
+  box-shadow: 0 0 50px rgba(16,185,129,0.15), inset 0 0 40px rgba(16,185,129,0.04);
+}
+.who-yes::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background: linear-gradient(90deg, var(--em), var(--em2));
+  box-shadow: 0 0 14px var(--em-glow);
+}
+.who-no {
+  background: rgba(239,68,68,0.03);
+  border: 1px solid rgba(239,68,68,0.17);
+}
+.who-no::before { display: none; }
+.who-head {
+  font-family:'Clash Display',sans-serif;
+  font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.14em;
+  padding: 22px 22px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 8px;
+}
+.who-yes .who-head { color: var(--em2); }
+.who-no  .who-head { color: #f87171; font-size: 0.85rem; }
+.check-list { list-style:none; display:contents; }
+.check-list li {
+  display: flex; align-items: center; gap: 11px;
+  line-height: 1.45;
+  padding: 0 22px;
+  min-height: 56px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.2s;
+}
+.check-list li:last-child { border-bottom: none; }
+.check-list li span { font-size:1.1rem; flex-shrink:0; }
+/* Perfect For — full brightness, bold */
+.who-yes .check-list li { font-size: 0.94rem; color: var(--text2); font-weight: 500; }
+.who-yes .check-list li:hover { background: rgba(16,185,129,0.07); }
+/* Not Ideal If — clearly visible but still secondary */
+.who-no .check-list li { font-size: 0.92rem; color: #fca5a5; font-weight: 400; opacity: 0.85; }
+.who-no .check-list li span { filter: grayscale(0.2); }
+.who-no .check-list li:hover { background: rgba(239,68,68,0.05); opacity: 1; }
+
+/* Centre arrow */
+.who-arrow {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--em2); opacity: 0.5;
+  padding-top: 62px;
+}
+
+/* ══════════════════════════════
+   FEATURES
+══════════════════════════════ */
+.features-section { background:var(--bg3); }
+.feat-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:36px; }
+.feat-item {
+  border:1px solid var(--border);border-radius:var(--r);padding:22px 18px;text-align:center;
+  background:var(--surface);
+  transition:border-color 0.2s,background 0.2s;
+}
+.feat-item:hover { border-color:var(--border2);background:var(--surface2); }
+.feat-icon { font-size:1.6rem;margin-bottom:10px;display:block; }
+.feat-item p { font-size:0.83rem;color:var(--text3);line-height:1.5; }
+
+/* ══════════════════════════════
+   INSTRUCTOR
+══════════════════════════════ */
+.instructor-section { background:var(--bg); }
+.instr-card {
+  background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);
+  padding:40px 44px;
+  max-width:720px;margin:36px auto 0;
+  box-shadow:0 0 60px rgba(16,185,129,0.07);
+  text-align:center;
+}
+@media(max-width:480px){.instr-card{padding:28px 20px;}}
+.instr-av {
+  width:110px;height:110px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--em),var(--em3));
+  display:grid;place-items:center;font-size:3rem;
+  border:2px solid var(--border2);
+  box-shadow:0 0 30px var(--em-glow);
+  margin:0 auto 20px;
+}
+.instr-name { font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:5px; }
+.instr-title { font-size:0.82rem;color:var(--em2);font-weight:600;margin-bottom:16px;letter-spacing:0.05em; }
+.instr-bio { font-size:0.92rem;color:var(--text3);line-height:1.85;max-width:500px;margin:0 auto; }
+.instr-stats {
+  display:flex;gap:0;margin-top:28px;flex-wrap:wrap;
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+}
+.instr-stat {
+  flex:1;padding:16px 12px;text-align:center;border-right:1px solid var(--border);
+}
+.instr-stat:last-child { border-right:none; }
+.instr-stat-num { font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;color:var(--em2);display:block; }
+.instr-stat-label { font-size:0.7rem;color:var(--text3);display:block;margin-top:2px; }
+
+/* ══════════════════════════════
+   RESULTS
+══════════════════════════════ */
+.results-section { background:var(--bg2); }
+.res-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-top:32px; }
+.res-item {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px 14px;text-align:center;font-size:0.85rem;font-weight:500;color:var(--text2);line-height:1.4;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.res-item:hover { border-color:var(--border2);box-shadow:0 0 16px var(--em-glow2); }
+.res-icon { font-size:1.5rem;margin-bottom:8px;display:block; }
+
+/* ══════════════════════════════
+   TESTIMONIALS
+══════════════════════════════ */
+.testi-section { background:var(--bg3); }
+.testi-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-top:36px; }
+.testi-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:28px;
+  position:relative;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.testi-card:hover { border-color:var(--border2);box-shadow:0 8px 30px rgba(0,0,0,0.3); }
+.testi-stars { color:#f59e0b;font-size:0.85rem;margin-bottom:10px;letter-spacing:2px; }
+.testi-result {
+  background:rgba(16,185,129,0.15);color:var(--em2);
+  font-family:'Clash Display',sans-serif;font-size:0.7rem;font-weight:700;
+  padding:4px 10px;border-radius:20px;display:inline-block;
+  border:1px solid rgba(16,185,129,0.25);margin-bottom:12px;
+}
+.testi-q { font-size:0.9rem;color:var(--text3);line-height:1.75;margin-bottom:18px;font-style:italic; }
+.testi-q::before { content:'"';font-size:3rem;color:var(--em2);line-height:0;vertical-align:-0.55em;margin-right:3px;font-family:Georgia,serif;opacity:0.5; }
+.testi-auth { font-family:'Clash Display',sans-serif;font-size:0.85rem;font-weight:600;color:var(--text2); }
+.testi-role { font-size:0.74rem;color:var(--text3);margin-top:2px; }
+
+/* ══════════════════════════════
+   BONUSES
+══════════════════════════════ */
+.bonuses-section { background:var(--bg); }
+.bonuses-section .section-tag { color:var(--gold); }
+.bonuses-section .section-tag::before { background:var(--gold); }
+.bon-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:32px; }
+.bon-card {
+  background:rgba(245,158,11,0.04);
+  border:1px solid rgba(245,158,11,0.18);
+  border-radius:var(--r);padding:24px 18px;text-align:center;
+  font-size:0.86rem;font-weight:500;color:var(--text2);line-height:1.5;
+  transition:border-color 0.2s,background 0.2s;
+  position:relative;
+}
+.bon-card:hover { border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08); }
+.bon-icon { font-size:2rem;margin-bottom:10px;display:block; }
+.bon-val { font-size:0.7rem;color:var(--gold);font-family:'Clash Display',sans-serif;font-weight:700;margin-top:7px; }
+.bon-card.new-bonus { border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.06); }
+.new-badge {
+  position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:white;
+  font-family:'Clash Display',sans-serif;font-size:0.58rem;font-weight:700;
+  padding:3px 10px;border-radius:20px;white-space:nowrap;
+}
+
+/* ══════════════════════════════
+   PRICING
+══════════════════════════════ */
+.pricing-section { background:var(--bg2); }
+.price-countdown {
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);
+  border-radius:var(--r);padding:14px 28px;
+  margin:0 auto 36px;max-width:500px;
+  font-family:'Clash Display',sans-serif;
+}
+.pc-label { font-size:0.78rem;font-weight:700;color:var(--gold); }
+.cboxes { display:flex;gap:8px;align-items:center; }
+.cbox {
+  background:var(--bg);color:var(--em2);
+  border:1px solid var(--border2);
+  border-radius:8px;padding:7px 12px;
+  font-size:1.1rem;font-weight:700;
+  font-family:'Clash Display',monospace;
+  min-width:48px;text-align:center;line-height:1;
+}
+.cbox-lbl { font-size:0.52rem;color:var(--text3);display:block;margin-top:2px; }
+.csep { font-size:1.2rem;font-weight:700;color:var(--muted); }
+
+.plans-grid { display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:16px;max-width:860px;margin:0 auto; }
+@media(max-width:700px){.plans-grid{grid-template-columns:1fr;max-width:400px;}}
+.plan-card {
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);
+  padding:30px 24px;text-align:center;position:relative;
+  transition:border-color 0.2s;
+}
+.plan-card.popular {
+  border-color:var(--border2);
+  background:rgba(16,185,129,0.05);
+  box-shadow:0 0 40px rgba(16,185,129,0.08),0 20px 60px rgba(0,0,0,0.4);
+  transform:scale(1.02);
+}
+@media(max-width:700px){.plan-card.popular{transform:none;}}
+.plan-tag {
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--em),#059669);color:white;
+  font-family:'Clash Display',sans-serif;font-size:0.62rem;font-weight:700;
+  letter-spacing:0.1em;padding:4px 18px;border-radius:20px;white-space:nowrap;
+}
+.plan-name { font-family:'Clash Display',sans-serif;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:10px; }
+.plan-orig { text-decoration:line-through;color:var(--muted);font-size:0.88rem; }
+.plan-price { font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;color:var(--em2);line-height:1;margin:5px 0 7px; }
+.plan-card.popular .plan-price { font-size:3rem; }
+.plan-desc { font-size:0.76rem;color:var(--text3);margin-bottom:20px;line-height:1.5; }
+.plan-feats { list-style:none;text-align:left;margin-bottom:22px;display:flex;flex-direction:column;gap:8px; }
+.plan-feats li { display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2); }
+.plan-feats li::before { content:'✓';color:var(--em2);font-weight:700;flex-shrink:0; }
+.plan-feats li.no { color:var(--muted); }
+.plan-feats li.no::before { content:'✗';color:var(--muted); }
+.plan-btn {
+  display:block;width:100%;text-align:center;
+  background:var(--surface2);color:var(--text3);
+  font-family:'Clash Display',sans-serif;font-weight:700;font-size:0.85rem;
+  padding:13px;border-radius:10px;text-decoration:none;
+  border:1px solid var(--border);
+  transition:border-color 0.2s,background 0.2s;
+}
+.plan-btn:hover { border-color:var(--border2);background:rgba(16,185,129,0.08);color:var(--text2); }
+.plan-card.popular .plan-btn {
+  background:linear-gradient(135deg,var(--em),#059669);color:white;
+  border:none;box-shadow:0 4px 20px var(--em-glow);
+  font-size:0.95rem;padding:15px;
+}
+.plan-card.popular .plan-btn:hover { box-shadow:0 8px 32px var(--em-glow); }
+.guarantee-row {
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;margin-top:24px;font-size:0.78rem;color:var(--text3);
+}
+
+/* ══════════════════════════════
+   FAQ
+══════════════════════════════ */
+.faq-section { background:var(--bg3); }
+.faq-wrap { max-width:680px;margin:36px auto 0; }
+.faq-item { border-bottom:1px solid var(--border); }
+.faq-q {
+  font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text);
+  padding:18px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  transition:color 0.2s;
+}
+.faq-q:hover { color:var(--em2); }
+.faq-ic { color:var(--em2);font-size:1.1rem;flex-shrink:0; }
+.faq-a { font-size:0.86rem;color:var(--text3);line-height:1.75;display:none;padding-bottom:18px; }
+
+/* ══════════════════════════════
+   FINAL CTA
+══════════════════════════════ */
+.final-cta {
+  background:linear-gradient(135deg, #041a10 0%, #07291a 50%, #041a10 100%);
+  padding:100px 24px;text-align:center;position:relative;overflow:hidden;
+}
+.final-cta .orb-f1 { width:400px;height:400px;background:var(--em);left:-100px;top:-100px;opacity:0.06; }
+.final-cta .orb-f2 { width:300px;height:300px;background:var(--em);right:-60px;bottom:-60px;opacity:0.05; }
+.final-cta h2 { color:var(--text);margin-bottom:14px;position:relative;z-index:1; }
+.final-cta p { color:var(--text3);font-size:1.05rem;max-width:460px;margin:0 auto 36px;position:relative;z-index:1; }
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+footer {
+  background:var(--bg2);
+  border-top:1px solid var(--border);
+  color:var(--text3);
+  font-size:0.8rem;
+  position:relative;z-index:1;
+}
+.footer-top {
+  max-width:1020px; margin:0 auto;
+  padding:52px 28px 36px;
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:40px; align-items:stretch;
+}
+@media(max-width:720px){ .footer-top{ grid-template-columns:1fr 1fr; } .footer-brand-col{ grid-column:1/-1; } }
+@media(max-width:440px){ .footer-top{ grid-template-columns:1fr; } }
+.footer-brand-col { display:flex; flex-direction:column; align-items:flex-start; }
+.footer-brand-inner { display:flex; flex-direction:column; gap:10px; flex:1; }
+.footer-logo { font-family:'Clash Display',sans-serif; font-size:1.25rem; font-weight:700; white-space:nowrap; }
+.footer-logo .fe { color:var(--em2); } .footer-logo .fp { color:var(--text); }
+.footer-tagline { font-size:0.78rem; color:var(--text3); line-height:1.8; width:165px; word-break:break-word; flex:1; }
+.footer-social { display:flex; gap:10px; margin-top:auto; }
+.footer-social a {
+  width:34px; height:34px; border-radius:8px;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none; transition:border-color 0.2s, background 0.2s, color 0.2s;
+  color: var(--text3);
+}
+.footer-social a:hover { border-color:var(--border2); background:var(--surface2); color:var(--em3); }
+.footer-col-title {
+  font-family:'Clash Display',sans-serif; font-size:0.65rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.16em; color:var(--em2); margin-bottom:16px;
+  display:flex; align-items:center; gap:8px;
+}
+.footer-col-title::after { content:''; flex:1; height:1px; background:rgba(52,211,153,0.15); }
+.footer-links { display:flex; flex-direction:column; gap:12px; flex:1; }
+.footer-links a, .footer-links label {
+  color:var(--text3); text-decoration:none; font-size:0.82rem;
+  transition:color 0.2s; display:flex; align-items:center; gap:8px; cursor:pointer; line-height:1;
+}
+.footer-col-wrapper { display:flex; flex-direction:column; height:100%; }
+.footer-links a:hover, .footer-links label:hover { color:var(--em3); }
+.footer-links a .fl-icon, .footer-links label .fl-icon {
+  width:22px; height:22px; border-radius:5px; background:var(--surface);
+  border:1px solid var(--border); display:flex; align-items:center;
+  justify-content:center; font-size:0.7rem; flex-shrink:0;
+}
+.footer-contact-item { display:flex; flex-direction:column; gap:2px; }
+.footer-contact-item span { font-size:0.7rem; color:var(--muted); }
+.footer-divider { height:1px; background:var(--border); margin:0 28px; max-width:1020px; margin-left:auto; margin-right:auto; }
+.footer-bottom {
+  max-width:1020px; margin:0 auto;
+  padding:16px 28px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  color:var(--muted); font-size:0.74rem;
+}
+.footer-bottom-right { display:flex; gap:18px; }
+.footer-bottom-right label { cursor:pointer; color:var(--muted); font-size:0.74rem; transition:color 0.2s; }
+.footer-bottom-right label:hover { color:var(--text3); }
+
+/* ══════════════════════════════
+   STICKY BAR
+══════════════════════════════ */
+.sticky-bar {
+  position:fixed;bottom:0;left:0;right:0;z-index:999;
+  background:rgba(5,13,10,0.97);
+  backdrop-filter:blur(24px);
+  border-top:1px solid var(--border2);
+  padding:0 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  transform:translateY(100%);transition:transform 0.4s ease;
+  height:68px;
+}
+.sticky-bar.visible { transform:translateY(0); }
+.sb-left { display:flex; align-items:center; gap:16px; flex:1; min-width:0; }
+.sb-badge {
+  background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25);
+  border-radius:8px; padding:6px 12px; flex-shrink:0;
+  font-family:'Clash Display',sans-serif; font-size:0.7rem; font-weight:700;
+  color:var(--em2); letter-spacing:0.05em; text-transform:uppercase;
+}
+.sb-info { display:flex; flex-direction:column; min-width:0; }
+.sb-title { font-family:'Clash Display',sans-serif;font-size:0.88rem;font-weight:700;color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb-sub { font-size:0.68rem;color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb-right { display:flex;align-items:center;gap:16px;flex-shrink:0; }
+.sb-price-wrap { display:flex; flex-direction:column; align-items:flex-end; }
+.sb-price { font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--em2);line-height:1; }
+.sb-price-label { font-size:0.62rem; color:var(--muted); margin-top:1px; }
+.sb-divider-v { width:1px; height:32px; background:var(--border); }
+.sb-btn {
+  background:linear-gradient(135deg,var(--em),#059669);color:white;
+  font-family:'Clash Display',sans-serif;font-weight:700;font-size:0.82rem;
+  padding:11px 26px;border-radius:10px;text-decoration:none;white-space:nowrap;
+  box-shadow:0 0 20px var(--em-glow);transition:box-shadow 0.2s,transform 0.2s;
+  display:flex; align-items:center; gap:6px;
+}
+.sb-btn:hover { box-shadow:0 0 32px var(--em-glow); transform:translateY(-1px); }
+.sb-close {
+  color:var(--muted);font-size:1rem;cursor:pointer;background:none;border:none;
+  padding:6px; border-radius:6px; transition:color 0.2s, background 0.2s; flex-shrink:0;
+}
+.sb-close:hover { color:var(--text); background:var(--surface); }
+@media(max-width:600px){
+  .sticky-bar{ padding:0 16px; height:auto; padding-top:12px; padding-bottom:12px; flex-wrap:wrap; justify-content:center; gap:12px; }
+  .sb-left{ justify-content:center; }
+  .sb-badge{ display:none; }
+  .sb-divider-v{ display:none; }
+}
+
+/* ══════════════════════════════
+   CALLBACK SECTION
+══════════════════════════════ */
+.callback-section { background: var(--bg2); }
+.callback-card {
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 40px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r2); padding: 40px; margin-top: 44px;
+  box-shadow: 0 0 60px rgba(16,185,129,0.06);
+}
+@media(max-width:680px){ .callback-card{ grid-template-columns:1fr; padding:28px; } }
+.cb-promise { display:flex; flex-direction:column; gap:18px; justify-content:center; }
+.cb-promise-item { display:flex; align-items:center; gap:12px; font-size:0.95rem; color:var(--text2); font-weight:500; }
+.cb-promise-item span { font-size:1.3rem; flex-shrink:0; }
+.callback-right { display:flex; flex-direction:column; gap:16px; }
+.cb-field { display:flex; flex-direction:column; }
+.cb-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--em2); margin-bottom:6px; }
+.cb-input {
+  width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:10px; padding:13px 16px; color:var(--text); font-family:'Outfit',sans-serif;
+  font-size:0.92rem; outline:none; transition:border-color 0.2s;
+}
+.cb-input:focus { border-color:var(--border2); }
+.cb-input::placeholder { color:var(--muted); }
+.cb-select option { background:#071410; color:var(--text); }
+.cb-btn {
+  width:100%; background:linear-gradient(135deg,var(--em),#059669); color:white;
+  font-family:'Clash Display',sans-serif; font-weight:700; font-size:1rem;
+  padding:15px; border-radius:12px; border:none; cursor:pointer;
+  box-shadow:0 0 24px var(--em-glow); transition:box-shadow 0.2s,transform 0.2s; margin-top:4px;
+}
+.cb-btn:hover { box-shadow:0 0 36px var(--em-glow); transform:translateY(-2px); }
+.cb-msg { padding:12px 16px; border-radius:10px; font-size:0.88rem; font-weight:500; }
+.cb-msg.success { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:var(--em2); }
+.cb-msg.error   { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color:#f87171; }
+
+/* ══════════════════════════════
+   ENROLL OPTIONS MODAL
+══════════════════════════════ */
+.enroll-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:8888;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
+  align-items:center; justify-content:center; padding:20px;
+}
+.enroll-modal-overlay.open { display:flex; }
+.enroll-modal {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:var(--r2); padding:36px 32px; max-width:460px; width:100%;
+  box-shadow:0 0 80px rgba(16,185,129,0.15); position:relative;
+}
+.em-close {
+  position:absolute; top:14px; right:16px;
+  background:none; border:none; color:var(--muted);
+  font-size:1.3rem; cursor:pointer; transition:color 0.2s; line-height:1;
+}
+.em-close:hover { color:var(--text); }
+.em-title { font-family:'Clash Display',sans-serif; font-size:1.4rem; font-weight:700; color:var(--text); margin-bottom:5px; }
+.em-sub { font-size:0.88rem; color:var(--text3); margin-bottom:26px; line-height:1.6; }
+.em-options { display:flex; flex-direction:column; gap:12px; }
+.em-opt {
+  display:flex; align-items:center; gap:16px;
+  border:1px solid var(--border); border-radius:var(--r); padding:16px 18px;
+  text-decoration:none; transition:border-color 0.2s,background 0.2s,transform 0.2s; cursor:pointer;
+}
+.em-opt:hover { border-color:var(--border2); background:var(--surface2); transform:translateY(-2px); }
+.em-opt-icon { width:46px; height:46px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+.em-opt-icon.pay { background:linear-gradient(135deg,#528FF0,#2563eb); box-shadow:0 4px 16px rgba(82,143,240,0.35); }
+.em-opt-icon.wa  { background:linear-gradient(135deg,#25D366,#128C7E); box-shadow:0 4px 16px rgba(37,211,102,0.35); }
+.em-opt-title { font-family:'Clash Display',sans-serif; font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+.em-opt-desc { font-size:0.76rem; color:var(--text3); }
+.em-divider { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:0.75rem; margin:4px 0; }
+.em-divider::before,.em-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ══════════════════════════════
+   WHATSAPP
+══════════════════════════════ */
+.wa-btn {
+  position:fixed;bottom:76px;right:20px;z-index:998;
+  width:58px;height:58px;background:#25D366;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,0.4);text-decoration:none;
+  transition:transform 0.2s,box-shadow 0.2s;
+  animation:float 4s ease infinite;
+}
+.wa-btn:hover { transform:scale(1.12);box-shadow:0 6px 32px rgba(37,211,102,0.55); }
+.wa-btn svg { width:28px;height:28px;fill:white; }
+.wa-tip {
+  position:absolute;right:70px;top:50%;transform:translateY(-50%);
+  background:var(--bg2);color:var(--text2);border:1px solid var(--border);
+  font-size:0.73rem;font-weight:600;font-family:'Clash Display',sans-serif;
+  padding:6px 12px;border-radius:8px;white-space:nowrap;
+  opacity:0;transition:opacity 0.2s;pointer-events:none;
+}
+.wa-tip::after { content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:var(--bg2);border-right:0; }
+.wa-btn:hover .wa-tip { opacity:1; }
+
+/* ══════════════════════════════
+   STUDENT LOGIN MODAL
+══════════════════════════════ */
+.student-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);
+  align-items:center; justify-content:center; padding:20px;
+}
+.student-modal-overlay.open { display:flex; }
+.student-modal {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:var(--r2); padding:0; max-width:420px; width:100%;
+  box-shadow:0 0 80px rgba(16,185,129,0.2); position:relative;
+  overflow:hidden;
+}
+.student-modal::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--em),var(--em2),var(--em3));
+}
+.sm-head {
+  padding:32px 28px 20px; text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.sm-logo-icon {
+  width:56px; height:56px; border-radius:16px;
+  background:linear-gradient(135deg,var(--em),#059669);
+  display:grid; place-items:center; font-size:1.5rem;
+  margin:0 auto 12px; box-shadow:0 0 24px var(--em-glow);
+}
+.sm-head h2 { font-family:'Clash Display',sans-serif; font-size:1.3rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+.sm-head p { font-size:0.82rem; color:var(--text3); }
+.sm-tabs {
+  display:flex; background:rgba(255,255,255,.04);
+  border-radius:10px; padding:4px; margin:20px 28px 0; gap:4px;
+}
+.sm-tab {
+  flex:1; padding:8px; text-align:center;
+  font-size:0.8rem; font-weight:600; font-family:'Clash Display',sans-serif;
+  border-radius:8px; cursor:pointer; transition:all .2s; color:var(--text3);
+  border:none; background:none;
+}
+.sm-tab.active { background:linear-gradient(135deg,var(--em),#059669); color:white; box-shadow:0 2px 10px var(--em-glow); }
+.sm-body { padding:20px 28px 28px; }
+.sm-field { margin-bottom:14px; }
+.sm-label { display:block; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--em2); margin-bottom:5px; }
+.sm-input {
+  width:100%; background:rgba(255,255,255,.05); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; color:var(--text);
+  font-family:'Outfit',sans-serif; font-size:0.9rem;
+  outline:none; transition:border-color .2s;
+}
+.sm-input:focus { border-color:var(--border2); }
+.sm-input::placeholder { color:var(--muted); }
+.sm-hint { font-size:0.7rem; color:var(--text3); margin-top:5px; line-height:1.5; }
+.sm-hint a { color:var(--em2); text-decoration:none; }
+.sm-btn {
+  width:100%; background:linear-gradient(135deg,var(--em),#059669);
+  color:white; font-family:'Clash Display',sans-serif; font-weight:700;
+  font-size:0.95rem; padding:13px; border-radius:12px; border:none;
+  cursor:pointer; box-shadow:0 0 20px var(--em-glow);
+  transition:all .2s; margin-top:6px; position:relative; overflow:hidden;
+}
+.sm-btn:hover { box-shadow:0 0 36px var(--em-glow); transform:translateY(-1px); }
+.sm-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+.sm-msg {
+  padding:10px 14px; border-radius:8px; font-size:0.82rem;
+  font-weight:500; margin-top:12px; display:none;
+}
+.sm-msg.error { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); color:#f87171; }
+.sm-msg.success { background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); color:var(--em2); }
+.sm-msg.show { display:block; }
+.sm-divider { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:0.72rem; margin:16px 0; }
+.sm-divider::before,.sm-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.sm-wa-link {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  font-size:0.78rem; color:var(--text3); text-decoration:none;
+  padding:10px; border-radius:10px; border:1px solid var(--border);
+  transition:all .2s; background:var(--surface);
+}
+.sm-wa-link:hover { border-color:rgba(37,211,102,.4); color:#25D366; background:rgba(37,211,102,.05); }
+.sm-close {
+  position:absolute; top:12px; right:14px;
+  background:none; border:none; color:var(--muted);
+  font-size:1.2rem; cursor:pointer; transition:color .2s; line-height:1; z-index:1;
+}
+.sm-close:hover { color:var(--text); }
+
+/* Spinner */
+.sm-spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Dashboard overlay — shown after login */
+.sm-dashboard {
+  display:none; padding:24px 28px 28px;
+}
+.sm-dashboard.show { display:block; }
+.sm-dash-header { text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.sm-dash-av { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--em),#059669); display:grid; place-items:center; font-size:1.3rem; margin:0 auto 10px; box-shadow:0 0 20px var(--em-glow); }
+.sm-dash-name { font-family:'Clash Display',sans-serif; font-size:1.1rem; font-weight:700; color:var(--text); }
+.sm-dash-sub { font-size:0.76rem; color:var(--em2); margin-top:2px; font-weight:500; }
+.sm-module-list { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; max-height:300px; overflow-y:auto; }
+.sm-module-list::-webkit-scrollbar { width:3px; }
+.sm-module-list::-webkit-scrollbar-thumb { background:var(--muted); border-radius:2px; }
+.sm-mod-item {
+  display:flex; align-items:center; gap:12px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; cursor:pointer;
+  text-decoration:none; transition:all .2s;
+}
+.sm-mod-item:hover { border-color:var(--border2); background:var(--surface2); transform:translateX(3px); }
+.sm-mod-item.done { background:rgba(16,185,129,.06); border-color:rgba(16,185,129,.2); }
+.sm-mod-num { width:28px; height:28px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); display:grid; place-items:center; font-family:'Clash Display',sans-serif; font-size:0.65rem; font-weight:700; color:var(--text3); flex-shrink:0; }
+.sm-mod-item.done .sm-mod-num { background:rgba(16,185,129,.15); border-color:rgba(16,185,129,.3); color:var(--em2); }
+.sm-mod-item.active-now .sm-mod-num { background:linear-gradient(135deg,var(--em),#059669); color:white; border:none; box-shadow:0 2px 8px var(--em-glow); }
+.sm-mod-info { flex:1; min-width:0; }
+.sm-mod-name { font-size:0.82rem; font-weight:600; color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sm-mod-item.done .sm-mod-name { color:var(--em2); }
+.sm-mod-meta { font-size:0.68rem; color:var(--text3); margin-top:1px; }
+.sm-mod-status { font-size:0.8rem; flex-shrink:0; }
+.sm-progress-row { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.sm-prog-bar-wrap { flex:1; height:6px; background:rgba(255,255,255,.08); border-radius:3px; overflow:hidden; }
+.sm-prog-bar { height:100%; background:linear-gradient(90deg,var(--em),var(--em2)); border-radius:3px; transition:width .5s; }
+.sm-prog-label { font-family:'Clash Display',sans-serif; font-size:0.85rem; font-weight:700; color:var(--em2); flex-shrink:0; }
+.sm-logout-btn { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text3); font-family:'Outfit',sans-serif; font-size:0.8rem; padding:10px; border-radius:10px; cursor:pointer; transition:all .2s; }
+.sm-logout-btn:hover { border-color:rgba(239,68,68,.3); color:#f87171; }
+
+/* Video player inside modal */
+.sm-video-player { display:none; }
+.sm-video-player.show { display:block; }
+.sm-video-wrap { position:relative; background:#000; border-radius:10px; overflow:hidden; margin-bottom:14px; }
+.sm-video-placeholder { aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; background:rgba(0,0,0,.8); cursor:pointer; }
+.sm-play-icon { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--em),#059669); display:grid; place-items:center; font-size:1.4rem; box-shadow:0 0 24px var(--em-glow); transition:transform .2s; }
+.sm-play-icon:hover { transform:scale(1.08); }
+.sm-video-title { font-size:0.82rem; color:var(--text2); text-align:center; padding:0 10px; }
+.sm-video-embed { width:100%; aspect-ratio:16/9; border:none; border-radius:10px; display:none; }
+.sm-video-embed.show { display:block; }
+.sm-back-btn { display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--text3); font-size:0.78rem; cursor:pointer; margin-bottom:12px; font-family:'Outfit',sans-serif; padding:0; transition:color .2s; }
+.sm-back-btn:hover { color:var(--em2); }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <span class="top-bar-dot"></span>
+  🎉 Launch Offer — Price increasing soon!
+  <span class="top-bar-timer">⏱ <span id="topbar-cd">00:00:00</span></span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="skill2job-homepage.html" class="nav-logo" style="text-decoration:none;">
+    <span class="logo-em">Excel</span><span class="logo-plain">JobReady</span>
+  </a>
+  <div class="nav-right">
+    <span class="nav-pill">👥 <strong>2,800+</strong> enrolled</span>
+    <a href="javascript:void(0)" onclick="openStudentModal()" style="font-size:0.75rem;color:var(--text3);font-weight:500;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;text-decoration:none;transition:all 0.2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(52,211,153,0.4)';this.style.color='var(--em2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">🎓 Student Login</a>
+    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="nav-btn">Enroll Now</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="pulse-dot"></span> Real Office Skills · Not Just Theory</div>
+    <h1>Learn Excel Skills That<br><span class="accent">Companies Actually Use</span></h1>
+    <p class="hero-sub">A practical Excel course designed to make you job-ready — with real office files, reports, and data skills that employers demand.</p>
+    <div class="hero-pills">
+      <div class="hero-pill">Zero to Professional Level</div>
+      <div class="hero-pill">Real Job-Type Files</div>
+      <div class="hero-pill">Speed, Accuracy & Confidence</div>
+      <div class="hero-pill">Students & Working Professionals</div>
+    </div>
+    <div class="hero-cta-wrap">
+      <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="cta-btn">Get Instant Access <span class="cta-arrow">→</span></a>
+    </div>
+    <p class="hero-trust">🛡️ <span>Money-back guarantee</span> &nbsp;·&nbsp; No monthly fees &nbsp;·&nbsp; Lifetime access</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">2,800+</div><div class="stat-label">Students Enrolled</div></div>
+      <div class="stat"><div class="stat-num">9</div><div class="stat-label">Practical Modules</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Lifetime Access</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Free Bonuses</div></div>
+      <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">Avg Rating</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF STRIP -->
+<div class="proof-strip">
+  <div class="proof-inner">
+    <div class="proof-item">⭐ <strong>4.9/5</strong> Average Rating</div>
+    <div class="proof-sep"></div>
+    <div class="proof-item">🎓 <strong>2,800+</strong> Students Trained</div>
+    <div class="proof-sep"></div>
+    <div class="proof-item">💼 Used in <strong>MIS, Accounts, HR & Sales</strong></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item">🗣️ Taught in <strong>Simple Hinglish</strong></div>
+  </div>
+</div>
+
+<!-- VIDEO -->
+<section class="section video-section">
+  <div class="container" style="text-align:center">
+    <div class="section-tag">Course Preview</div>
+    <h2>See <span class="grad-text">What You'll Learn</span></h2>
+    <div class="video-wrap">
+      <video controls preload="metadata">
+        <source src="course-preview.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-trust">
+      <div class="vt-item">Practical, real-office approach</div>
+      <div class="vt-item">Simple Hinglish explanation</div>
+      <div class="vt-item">Job-focused curriculum</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+  <div class="container" style="text-align:center">
+    <div class="section-tag">How It Works</div>
+    <h2>3 Steps to <span class="grad-text">Excel Mastery</span></h2>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-circle">1</div>
+        <h3>Enroll Today</h3>
+        <p>One-time payment. Instant access to all 9 modules and bonus materials</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">2</div>
+        <h3>Watch & Practice</h3>
+        <p>Follow along with real office files. Complete exercises after every lesson</p>
+      </div>
+      <div class="step">
+        <div class="step-circle">3</div>
+        <h3>Get Job Ready</h3>
+        <p>Earn your certificate and walk into interviews with real Excel confidence</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRANSFORMATION -->
+<section class="section transform-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Transformation</div>
+      <h2>Your Excel Journey — <span class="grad-text">Before & After</span></h2>
+    </div>
+    <div class="transform-grid">
+      <div class="t-col t-before">
+        <div class="t-label">✗ Before This Course</div>
+        <ul class="t-list">
+          <li><span>😰</span>Scared of formulas like VLOOKUP</li>
+          <li><span>⏳</span>Simple reports take hours to finish</li>
+          <li><span>🎲</span>Copying from YouTube with no structure</li>
+          <li><span>😬</span>Nervous in Excel interview rounds</li>
+          <li><span>🚫</span>Cannot build dashboards or pivot tables</li>
+          <li><span>🐢</span>Slow, error-prone spreadsheet work</li>
+        </ul>
+      </div>
+      <div class="t-arrow">→</div>
+      <div class="t-col t-after">
+        <div class="t-label">✓ After This Course</div>
+        <ul class="t-list">
+          <li><span>💡</span>Use VLOOKUP & XLOOKUP with confidence</li>
+          <li><span>⚡</span>Build professional reports in minutes</li>
+          <li><span>🎯</span>Structured learning — zero gaps</li>
+          <li><span>🏆</span>Clear Excel interview rounds confidently</li>
+          <li><span>📊</span>Create dashboards your manager loves</li>
+          <li><span>🚀</span>Fast, accurate, and professional</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section problem-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">The Problem</div>
+      <h2>Do any of these <span class="grad-text">feel familiar?</span></h2>
+    </div>
+    <div class="prob-grid">
+      <div class="prob-card">
+        <div class="prob-icon prob-icon-1">😕</div>
+        You know basic Excel but<br>still feel confused at work
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon prob-icon-2">🤯</div>
+        Formulas look scary and<br>impossible to remember
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon prob-icon-3">⏳</div>
+        Simple reports take you<br>hours to finish
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon prob-icon-4">😰</div>
+        Excel interview questions<br>make you nervous
+      </div>
+    </div>
+    <div class="prob-note">
+      Most people learn Excel from <strong>random YouTube videos</strong> but never become confident. They know buttons but not real work. That's why jobs still feel difficult — no structure, no practice, no guidance.
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="section solution-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">The Solution</div>
+      <h2>Excel the way <span class="grad-text">real offices use it</span></h2>
+      <p class="section-lead">Excel Job Ready teaches you Excel the way it's actually used in offices, accounts, MIS, HR, and business reporting — not just software features.</p>
+    </div>
+    <div class="sol-grid">
+      <div>
+        <p class="sol-head">Why this beats free videos</p>
+        <ul class="arrow-list">
+          <li>Structured step-by-step learning path</li>
+          <li>Real practice files from office scenarios</li>
+          <li>Office-style tasks you'll face on the job</li>
+          <li>Teacher guidance and doubt clearing</li>
+          <li>Clear path: beginner → job-ready</li>
+        </ul>
+      </div>
+      <div class="sol-box glass">
+        <p class="sol-head">You will learn to</p>
+        <ul class="arrow-list">
+          <li>Build professional reports fast</li>
+          <li>Use VLOOKUP and Pivot Tables with confidence</li>
+          <li>Clean and analyze real data sets</li>
+          <li>Create dashboards management loves</li>
+          <li>Clear Excel rounds in interviews</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section class="section modules-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Curriculum</div>
+      <h2>9 Modules. <span class="grad-text">One Clear Path.</span></h2>
+      <p class="section-lead">Everything structured from the ground up — so you always know what you're learning and why.</p>
+    </div>
+    <div class="mod-grid">
+      <div class="mod-card"><div class="mod-icon">📐</div><div class="mod-num">Module 01</div><h3>Excel Basics</h3><p>Cells, rows, columns, formatting, shortcuts, and file handling</p></div>
+      <div class="mod-card"><div class="mod-icon">🔢</div><div class="mod-num">Module 02</div><h3>Essential Formulas</h3><p>SUM, AVERAGE, COUNT, IF, nested IF, logical formulas</p></div>
+      <div class="mod-card"><div class="mod-icon">🔍</div><div class="mod-num">Module 03</div><h3>Lookup & Reference</h3><p>VLOOKUP, HLOOKUP, XLOOKUP, INDEX, MATCH</p></div>
+      <div class="mod-card"><div class="mod-icon">🧹</div><div class="mod-num">Module 04</div><h3>Data Cleaning</h3><p>Remove duplicates, text formulas, date handling, data validation</p></div>
+      <div class="mod-card"><div class="mod-icon">📊</div><div class="mod-num">Module 05</div><h3>Data Analysis</h3><p>Sorting, filtering, conditional formatting for insights</p></div>
+      <div class="mod-card"><div class="mod-icon">🔄</div><div class="mod-num">Module 06</div><h3>Pivot Tables</h3><p>Create reports in minutes, analyze large data easily</p></div>
+      <div class="mod-card"><div class="mod-icon">📈</div><div class="mod-num">Module 07</div><h3>Charts & Dashboards</h3><p>Professional charts, visual reports, management dashboards</p></div>
+      <div class="mod-card"><div class="mod-icon">⚡</div><div class="mod-num">Module 08</div><h3>Automation Basics</h3><p>Basic macros and advanced tools to save you hours</p></div>
+      <div class="mod-card featured"><div class="mod-icon">💼</div><div class="mod-num">Module 09</div><h3>Real Job Practice</h3><p>Invoice data, sales reports, attendance sheets, MIS reports</p><div class="mod-badge">CAPSTONE</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section class="section who-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Is This For You?</div>
+      <h2>Who will <span class="grad-text">benefit most</span></h2>
+    </div>
+    <div class="who-grid">
+      <div class="who-card who-yes">
+        <div class="who-head">✓ Perfect For</div>
+        <ul class="check-list">
+          <li><span>🎓</span>Students who want job-ready skills</li>
+          <li><span>💼</span>Job seekers preparing for interviews</li>
+          <li><span>📈</span>Office staff who want a promotion</li>
+          <li><span>🧮</span>Accountants and MIS executives</li>
+          <li><span>🏪</span>Small business owners</li>
+          <li><span>😟</span>Beginners who fear Excel</li>
+        </ul>
+      </div>
+      <div class="who-arrow">→</div>
+      <div class="who-card who-no">
+        <div class="who-head">✗ Not Ideal If</div>
+        <ul class="check-list">
+          <li><span>📖</span>You only want theory, no practice</li>
+          <li><span>🙅</span>You are not willing to do exercises</li>
+          <li><span>⚡</span>You expect results without any effort</li>
+          <li><span>🏆</span>You are already an advanced Excel user</li>
+          <li><span>🔧</span>You need VBA or macro-only training</li>
+          <li><span>🌐</span>You need English-only instruction</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Course Features</div>
+      <h2>Everything you need <span class="grad-text">to succeed</span></h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-item"><span class="feat-icon">♾️</span><p>Lifetime access, no expiry</p></div>
+      <div class="feat-item"><span class="feat-icon">🎬</span><p>Step-by-step recorded classes</p></div>
+      <div class="feat-item"><span class="feat-icon">📁</span><p>Practice files included</p></div>
+      <div class="feat-item"><span class="feat-icon">🏅</span><p>Certificate after completion</p></div>
+      <div class="feat-item"><span class="feat-icon">📱</span><p>Mobile & laptop friendly</p></div>
+      <div class="feat-item"><span class="feat-icon">🗣️</span><p>Simple Hinglish language</p></div>
+      <div class="feat-item"><span class="feat-icon">💬</span><p>Doubt clearing support</p></div>
+      <div class="feat-item"><span class="feat-icon">🎯</span><p>Job-focused curriculum</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUCTOR -->
+<section class="section instructor-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Your Instructor</div>
+      <h2>Learn from <span class="grad-text">real office experience</span></h2>
+    </div>
+    <div class="instr-card">
+      <div class="instr-av">👨‍💼</div>
+      <div class="instr-name">Your Excel Trainer</div>
+      <div class="instr-title">Excel & MIS Expert · Corporate Trainer</div>
+      <p class="instr-bio">Real office and teaching experience in Excel and business reporting. Simple, practical, example-based teaching style. Every lesson is built around real tasks you'll face at work — not textbook theory.</p>
+      <div class="instr-stats">
+        <div class="instr-stat"><span class="instr-stat-num">7+</span><span class="instr-stat-label">Years Experience</span></div>
+        <div class="instr-stat"><span class="instr-stat-num">2,800+</span><span class="instr-stat-label">Students Taught</span></div>
+        <div class="instr-stat"><span class="instr-stat-num">4.9★</span><span class="instr-stat-label">Avg Rating</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="section results-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Results</div>
+      <h2>What changes <span class="grad-text">after this course</span></h2>
+    </div>
+    <div class="res-grid">
+      <div class="res-item"><span class="res-icon">⚡</span>Faster work speed</div>
+      <div class="res-item"><span class="res-icon">🎯</span>Better accuracy</div>
+      <div class="res-item"><span class="res-icon">💪</span>Interview confidence</div>
+      <div class="res-item"><span class="res-icon">📊</span>Professional reports</div>
+      <div class="res-item"><span class="res-icon">🚀</span>Career growth</div>
+      <div class="res-item"><span class="res-icon">💰</span>Salary improvement</div>
+      <div class="res-item"><span class="res-icon">⏰</span>Daily time saving</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testi-section">
+  <div class="container">
+    <div class="section-tag">Student Stories</div>
+    <h2>Real results, <span class="grad-text">real people</span></h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <span class="testi-result">✓ Got promoted at work</span>
+        <p class="testi-q">Before this course, Excel scared me. Now I handle MIS reports and dashboards without any help. My manager noticed and I got a promotion within 2 months.</p>
+        <div class="testi-auth">Rohit S.</div>
+        <div class="testi-role">Office Executive · Delhi</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <span class="testi-result">✓ Cleared interview round</span>
+        <p class="testi-q">I was failing every Excel test in interviews. After this course I cleared the Excel round in 3 companies. The VLOOKUP and Pivot Table practice made all the difference.</p>
+        <div class="testi-auth">Neha P.</div>
+        <div class="testi-role">Job Seeker → Now MIS Executive · Pune</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <span class="testi-result">✓ Now 3x faster at work</span>
+        <p class="testi-q">Very practical course. Not boring theory — real office files and real tasks. I now complete reports in 20 minutes that used to take me 2 hours. Best investment I made.</p>
+        <div class="testi-auth">Aman K.</div>
+        <div class="testi-role">Accounts Assistant · Mumbai</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BONUSES -->
+<section class="section bonuses-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">🎁 Bonuses Included</div>
+      <h2>Extra value, <span class="grad-text">no extra cost</span></h2>
+    </div>
+    <div class="bon-grid">
+      <div class="bon-card"><span class="bon-icon">⌨️</span>Excel Shortcuts PDF<div class="bon-val">Worth ₹99 — FREE</div></div>
+      <div class="bon-card"><span class="bon-icon">🎤</span>Interview Excel Questions Guide<div class="bon-val">Worth ₹199 — FREE</div></div>
+      <div class="bon-card"><span class="bon-icon">📄</span>Resume Excel Skills Guide<div class="bon-val">Worth ₹199 — FREE</div></div>
+      <div class="bon-card"><span class="bon-icon">📝</span>Extra Practice Sheets<div class="bon-val">Worth ₹399 — FREE</div></div>
+      <div class="bon-card new-bonus">
+        <div class="new-badge">🆕 NEW</div>
+        <span class="bon-icon">📘</span>
+        Excel Formulas & Summary Ebook
+        <div style="font-size:0.75rem;color:var(--text3);margin-top:4px;">All key formulas in one place</div>
+        <div class="bon-val">Worth ₹149 — FREE with course</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-section" id="pricing">
+  <div class="container" style="text-align:center">
+    <div class="section-tag">Pricing</div>
+    <h2>One-Time Investment. <span class="grad-text">Lifetime of Value.</span></h2>
+
+    <div class="price-countdown">
+      <span class="pc-label">⚡ Offer Ends In:</span>
+      <div class="cboxes">
+        <div class="cbox"><span id="cd-h">00</span><span class="cbox-lbl">HRS</span></div>
+        <span class="csep">:</span>
+        <div class="cbox"><span id="cd-m">00</span><span class="cbox-lbl">MIN</span></div>
+        <span class="csep">:</span>
+        <div class="cbox"><span id="cd-s">00</span><span class="cbox-lbl">SEC</span></div>
+      </div>
+    </div>
+
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-name">Basic</div>
+        <div class="plan-orig">₹2,999</div>
+        <div class="plan-price">₹599</div>
+        <div class="plan-desc">Course only — good start</div>
+        <ul class="plan-feats">
+          <li>All 9 course modules</li>
+          <li>Practice files</li>
+          <li>Certificate</li>
+          <li class="no">Bonus materials</li>
+          <li class="no">Doubt clearing support</li>
+          <li class="no">Priority support</li>
+        </ul>
+        <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="plan-btn">Get Basic Access</a>
+      </div>
+
+      <div class="plan-card popular">
+        <div class="plan-tag">⭐ MOST POPULAR</div>
+        <div class="plan-name">Complete</div>
+        <div class="plan-orig">₹4,999</div>
+        <div class="plan-price">₹799</div>
+        <div class="plan-desc">Everything you need to become job-ready</div>
+        <ul class="plan-feats">
+          <li>All 9 course modules</li>
+          <li>Practice files</li>
+          <li>Certificate</li>
+          <li>All 4 bonus materials</li>
+          <li>📘 Excel Formulas Ebook (₹149 FREE)</li>
+          <li>Doubt clearing support</li>
+          <li class="no">Priority support</li>
+        </ul>
+        <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="plan-btn">Get Instant Access →</a>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Premium</div>
+        <div class="plan-orig">₹7,999</div>
+        <div class="plan-price">₹2,999</div>
+        <div class="plan-desc">Full course + personal guidance</div>
+        <ul class="plan-feats">
+          <li>All 9 course modules</li>
+          <li>Practice files</li>
+          <li>Certificate</li>
+          <li>All 4 bonus materials</li>
+          <li>Doubt clearing support</li>
+          <li>Priority 1-on-1 support</li>
+        </ul>
+        <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="plan-btn">Get Premium Access</a>
+      </div>
+    </div>
+
+    <div class="guarantee-row">
+      🛡️ <strong style="color:var(--text2)">Money-back guarantee</strong> — not satisfied? Full refund. No questions asked.
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section">
+  <div class="container" style="text-align:center">
+    <div class="section-tag">FAQs</div>
+    <h2>Common questions <span class="grad-text">answered</span></h2>
+    <div class="faq-wrap" style="text-align:left">
+      <div class="faq-item"><div class="faq-q">Is this course for beginners? <span class="faq-ic">+</span></div><p class="faq-a">Yes, the course starts from the very basic level. No prior Excel knowledge is required.</p></div>
+      <div class="faq-item"><div class="faq-q">How long does it take to complete? <span class="faq-ic">+</span></div><p class="faq-a">You can complete it at your own speed — no deadline. Most students finish in 3–4 weeks at 1 hour per day.</p></div>
+      <div class="faq-item"><div class="faq-q">Will I receive a certificate? <span class="faq-ic">+</span></div><p class="faq-a">Yes, you receive a certificate of completion which you can add to your resume and LinkedIn profile.</p></div>
+      <div class="faq-item"><div class="faq-q">Can I learn on mobile? <span class="faq-ic">+</span></div><p class="faq-a">Yes, the course works on both mobile and laptop. Learn anywhere, anytime.</p></div>
+      <div class="faq-item"><div class="faq-q">Is there a job guarantee? <span class="faq-ic">+</span></div><p class="faq-a">No job guarantee, but full job skill preparation so you are ready for the workplace.</p></div>
+      <div class="faq-item"><div class="faq-q">Is doubt clearing support available? <span class="faq-ic">+</span></div><p class="faq-a">Yes, doubt clearing support is provided throughout your learning journey.</p></div>
+      <div class="faq-item"><div class="faq-q">How long will I have access? <span class="faq-ic">+</span></div><p class="faq-a">Lifetime access. Once enrolled, the course is yours forever.</p></div>
+      <div class="faq-item"><div class="faq-q">What if I want a refund? <span class="faq-ic">+</span></div><p class="faq-a">We offer a money-back guarantee. Email us at <a href="/cdn-cgi/l/email-protection#0a7961636666386065686b634a6d676b636624696567">📧 <span class="__cf_email__" data-cfemail="d6a5bdbfbabae4bcb9b4b7bf96b1bbb7bfbaf8b5b9bb">[email&#160;protected]</span></a> or call <a href="tel:+918826340509" style="color:var(--em2)">+91 88263 40509</a> and we'll process your refund.</p></div>
+      <div class="faq-item"><div class="faq-q">Which language is used? <span class="faq-ic">+</span></div><p class="faq-a">Simple Hinglish — easy to understand for most Indian learners.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CALLBACK SECTION -->
+<section class="section callback-section">
+  <div class="container">
+    <div class="sec-head">
+      <div class="section-tag">Not Sure Yet?</div>
+      <h2>Request a <span class="grad-text">Free Callback</span></h2>
+      <p class="section-lead">Have questions before enrolling? Leave your details and we'll call you back within 2 hours.</p>
+    </div>
+
+    <div class="callback-card">
+      <div class="callback-left">
+        <div class="cb-promise">
+          <div class="cb-promise-item"><span>⚡</span> We call back within 2 hours</div>
+          <div class="cb-promise-item"><span>🎯</span> Get all your doubts cleared</div>
+          <div class="cb-promise-item"><span>🆓</span> Completely free, no obligation</div>
+          <div class="cb-promise-item"><span>🗣️</span> Talk in Hindi or English</div>
+        </div>
+      </div>
+      <div class="callback-right">
+        <div class="cb-field">
+          <label class="cb-label">Your Name</label>
+          <input type="text" id="cb-name" class="cb-input" placeholder="Enter your full name">
+        </div>
+        <div class="cb-field">
+          <label class="cb-label">Phone Number</label>
+          <input type="tel" id="cb-phone" class="cb-input" placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="cb-field">
+          <label class="cb-label">Best Time to Call</label>
+          <select id="cb-time" class="cb-input cb-select">
+            <option value="">Select a time slot</option>
+            <option>Morning (9 AM – 12 PM)</option>
+            <option>Afternoon (12 PM – 4 PM)</option>
+            <option>Evening (4 PM – 8 PM)</option>
+          </select>
+        </div>
+        <div id="cb-msg" class="cb-msg" style="display:none"></div>
+        <button class="cb-btn" onclick="submitCallback()">
+          <span id="cb-btn-text">📞 Request Callback</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="orb orb-f1"></div>
+  <div class="orb orb-f2"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <h2>Don't let Excel hold back <span class="grad-text">your career.</span></h2>
+    <p>Join 2,800+ students already building real Excel skills. Your next opportunity is waiting.</p>
+    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="cta-btn" style="animation:none">Get Instant Access <span class="cta-arrow">→</span></a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand-col">
+      <div class="footer-brand-inner">
+        <div class="footer-logo"><span class="fe">Excel</span><span class="fp">JobReady</span></div>
+        <div class="footer-tagline">Excel skills that get you hired. For students, freshers &amp; office pros across India.</div>
+        <div class="footer-social">
+        <a href="#" title="Facebook" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="#" title="Instagram" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="#" title="LinkedIn" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" title="X (Twitter)" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+      </div><!-- end footer-brand-inner -->
+    </div><!-- end footer-brand-col -->
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-title">Contact Us</div>
+      <div class="footer-links">
+        <a href="/cdn-cgi/l/email-protection#6f1c040603035d05000d0e062f08020e0603410c0002">
+          <span class="fl-icon">📧</span> <span class="__cf_email__" data-cfemail="f98a92909595cb93969b9890b99e94989095d79a9694">[email&#160;protected]</span>
+        </a>
+        <a href="tel:+918826340509">
+          <span class="fl-icon">📞</span> +91 88263 40509
+        </a>
+        <a href="https://wa.me/918826340509?text=Hi%2C%20I%20want%20to%20know%20more%20about%20Excel%20Job%20Ready%20course" target="_blank" rel="noopener noreferrer">
+          <span class="fl-icon">💬</span> WhatsApp Us
+        </a>
+        <a href="https://t.me/skill2jobai" target="_blank" rel="noopener noreferrer">
+          <span class="fl-icon">✈️</span> Telegram
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col-title">Quick Links</div>
+      <div class="footer-links">
+        <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')">
+          <span class="fl-icon">🎓</span> Enroll Now
+        </a>
+        <label for="privacy-toggle">
+          <span class="fl-icon">🔒</span> Privacy Policy
+        </label>
+        <label for="terms-toggle">
+          <span class="fl-icon">📜</span> Terms & Conditions
+        </label>
+        <label for="refund-toggle">
+          <span class="fl-icon">🛡️</span> Refund Policy
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-divider"></div>
+
+  <div class="footer-bottom">
+    <span>© 2025 Excel Job Ready. All rights reserved.</span>
+    <div class="footer-bottom-right">
+      <label for="privacy-toggle">Privacy</label>
+      <label for="terms-toggle">Terms</label>
+      <label for="refund-toggle">Refunds</label>
+    </div>
+  </div>
+</footer>
+
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="sb-left">
+    <div class="sb-badge">🎓 Limited Offer</div>
+    <div class="sb-info">
+      <span class="sb-title">Excel Job Ready — Complete Course</span>
+      <span class="sb-sub">9 Modules · 5 Bonuses · Lifetime Access · Certificate</span>
+    </div>
+  </div>
+  <div class="sb-right">
+    <div class="sb-price-wrap">
+      <span class="sb-price">₹799</span>
+      <span class="sb-price-label">One-time payment</span>
+    </div>
+    <div class="sb-divider-v"></div>
+    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="sb-btn">Enroll Now →</a>
+    <button class="sb-close" onclick="document.getElementById('stickyBar').style.display='none'">✕</button>
+  </div>
+</div>
+
+<!-- WHATSAPP -->
+<a href="https://wa.me/918826340509?text=Hi%2C%20I%20want%20to%20know%20more%20about%20Excel%20Job%20Ready%20course" target="_blank" rel="noopener noreferrer" class="wa-btn" onclick="window.open('https://wa.me/918826340509?text=Hi%2C%20I%20want%20to%20know%20more%20about%20Excel%20Job%20Ready%20course','_blank'); return false;">
+  <span class="wa-tip">Have a question?</span>
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+
+// FAQ
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    const a = item.querySelector('.faq-a');
+    const ic = item.querySelector('.faq-ic');
+    const open = a.style.display === 'block';
+    document.querySelectorAll('.faq-a').forEach(x => x.style.display = 'none');
+    document.querySelectorAll('.faq-ic').forEach(x => x.textContent = '+');
+    if (!open) { a.style.display = 'block'; ic.textContent = '−'; }
+  });
+});
+
+// COUNTDOWN
+function getEnd() {
+  let e = sessionStorage.getItem('ejr2_end');
+  if (!e) { e = Date.now() + 48*3600000; sessionStorage.setItem('ejr2_end', e); }
+  return parseInt(e);
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function tick() {
+  const d = Math.max(0, getEnd() - Date.now());
+  const h = Math.floor(d/3600000);
+  const m = Math.floor((d%3600000)/60000);
+  const s = Math.floor((d%60000)/1000);
+  ['cd-h','cd-m','cd-s'].forEach((id,i) => { const el=document.getElementById(id); if(el) el.textContent=pad([h,m,s][i]); });
+  const tb=document.getElementById('topbar-cd'); if(tb) tb.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+tick(); setInterval(tick,1000);
+
+// STICKY BAR
+const sb = document.getElementById('stickyBar');
+window.addEventListener('scroll', () => {
+  sb && (window.scrollY > 500 ? sb.classList.add('visible') : sb.classList.remove('visible'));
+}, { passive: true });
+
+// CALLBACK FORM
+function submitCallback() {
+  const name  = document.getElementById('cb-name').value.trim();
+  const phone = document.getElementById('cb-phone').value.trim();
+  const time  = document.getElementById('cb-time').value;
+  const msg   = document.getElementById('cb-msg');
+  const btn   = document.getElementById('cb-btn-text');
+
+  if (!name || !phone) {
+    msg.className = 'cb-msg error';
+    msg.textContent = '⚠️ Please enter your name and phone number.';
+    msg.style.display = 'block'; return;
+  }
+  if (phone.replace(/\D/g,'').length < 10) {
+    msg.className = 'cb-msg error';
+    msg.textContent = '⚠️ Please enter a valid 10-digit phone number.';
+    msg.style.display = 'block'; return;
+  }
+
+  // Send to WhatsApp
+  const waText = `Hi%2C%20I%20want%20a%20callback%20for%20Excel%20Job%20Ready%20course.%0AName%3A%20${encodeURIComponent(name)}%0APhone%3A%20${encodeURIComponent(phone)}%0APreferred%20Time%3A%20${encodeURIComponent(time||'Anytime')}`;
+  window.open(`https://wa.me/918826340509?text=${waText}`, '_blank');
+
+  // Send to Email
+  const mailSubject = encodeURIComponent('Callback Request — Excel Job Ready');
+  const mailBody = encodeURIComponent(`Callback Request\n\nName: ${name}\nPhone: ${phone}\nPreferred Time: ${time||'Anytime'}`);
+  window.open(`mailto:skill2jobai@gmail.com?subject=${mailSubject}&body=${mailBody}`, '_blank');
+
+  btn.textContent = '✅ Request Sent!';
+  msg.className = 'cb-msg success';
+  msg.textContent = '✅ We\'ve received your request! We\'ll call you back within 2 hours.';
+  msg.style.display = 'block';
+  document.getElementById('cb-name').value = '';
+  document.getElementById('cb-phone').value = '';
+  document.getElementById('cb-time').value = '';
+}
+
+// Close enroll modal on overlay click
+document.getElementById('enrollModal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+}); // END DOMContentLoaded
+
+function showPage(name) {
+  document.getElementById('page-' + name).style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  window.scrollTo(0, 0);
+}
+function hidePage(name) {
+  document.getElementById('page-' + name).style.display = 'none';
+  document.body.style.overflow = '';
+}
+</script>
+<!-- REFUND POLICY OVERLAY -->
+<input type="checkbox" id="refund-toggle" style="display:none;">
+<input type="checkbox" id="privacy-toggle" style="display:none;">
+<input type="checkbox" id="terms-toggle" style="display:none;">
+<style>
+#page-refund { display:none; }
+#refund-toggle:checked ~ #page-refund { display:block; }
+body:has(#refund-toggle:checked) { overflow:hidden; }
+#page-privacy { display:none; }
+#privacy-toggle:checked ~ #page-privacy { display:block; }
+body:has(#privacy-toggle:checked) { overflow:hidden; }
+#page-terms { display:none; }
+#terms-toggle:checked ~ #page-terms { display:block; }
+body:has(#terms-toggle:checked) { overflow:hidden; }
+</style>
+<div id="page-refund" style="position:fixed; inset:0; z-index:9999; background:#050d0a; overflow-y:auto; font-family:'Outfit',sans-serif; color:#f0fdf8;">
+
+<style>
+.sp-nav{position:sticky;top:0;background:rgba(5,13,10,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;z-index:10;}
+.sp-logo{font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;}
+.sp-logo .le{color:#34d399;} .sp-logo .lp{color:#f0fdf8;}
+.sp-back{display:flex;align-items:center;gap:8px;font-family:'Clash Display',sans-serif;font-size:0.82rem;font-weight:600;color:#6b9e8a;cursor:pointer;background:none;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 16px;transition:all 0.2s;}
+.sp-back:hover{color:#34d399;border-color:rgba(52,211,153,0.3);}
+.sp-hero{padding:64px 24px 48px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.08);background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(16,185,129,0.07) 0%,transparent 60%);}
+.sp-tag{display:inline-flex;align-items:center;gap:7px;font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#34d399;margin-bottom:14px;}
+.sp-tag::before,.sp-tag::after{content:'';width:20px;height:1px;background:#34d399;}
+.sp-hero h1{font-family:'Clash Display',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.03em;color:#f0fdf8;margin-bottom:10px;}
+.sp-hero h1 span{background:linear-gradient(135deg,#34d399,#6ee7b7,#fff 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sp-hero p{font-size:0.92rem;color:#6b9e8a;max-width:440px;margin:0 auto;}
+.sp-updated{display:inline-block;margin-top:12px;font-size:0.72rem;color:#3d6b58;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px 14px;}
+.sp-body{max-width:740px;margin:0 auto;padding:52px 24px 80px;}
+.sp-guarantee{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.3);border-radius:24px;padding:26px 30px;margin-bottom:40px;display:flex;gap:16px;align-items:flex-start;}
+.sp-guarantee-icon{font-size:2rem;flex-shrink:0;}
+.sp-guarantee h3{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:#34d399;margin-bottom:6px;}
+.sp-guarantee p{font-size:0.9rem;color:#6b9e8a;line-height:1.75;}
+.sp-sec{margin-bottom:36px;}
+.sp-sec h2{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:#f0fdf8;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;}
+.sp-si{width:30px;height:30px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;font-size:0.88rem;flex-shrink:0;}
+.sp-sec p{font-size:0.9rem;color:#6b9e8a;line-height:1.85;margin-bottom:10px;}
+.sp-sec strong{color:#a7f3d0;}
+.sp-sec a{color:#34d399;text-decoration:none;}
+.sp-sec a:hover{text-decoration:underline;}
+.sp-list{list-style:none;display:flex;flex-direction:column;gap:9px;margin:12px 0;}
+.sp-list li{display:flex;align-items:flex-start;gap:10px;font-size:0.9rem;color:#6b9e8a;line-height:1.65;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
+.sp-list li::before{content:'✓';color:#34d399;font-weight:700;flex-shrink:0;}
+.sp-list.x li::before{content:'✗';color:#f87171;}
+.sp-steps{list-style:none;display:flex;flex-direction:column;gap:12px;margin:12px 0;counter-reset:sp;}
+.sp-steps li{display:flex;align-items:flex-start;gap:14px;font-size:0.9rem;color:#6b9e8a;line-height:1.65;counter-increment:sp;}
+.sp-steps li::before{content:counter(sp);font-family:'Clash Display',sans-serif;font-weight:700;font-size:0.8rem;color:#34d399;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.sp-contact{background:rgba(255,255,255,0.04);border:1px solid rgba(52,211,153,0.25);border-radius:20px;padding:26px 28px;margin-top:14px;display:flex;flex-wrap:wrap;gap:20px;}
+.sp-ci{display:flex;align-items:center;gap:10px;font-size:0.88rem;}
+.sp-ci a{color:#34d399;text-decoration:none;font-weight:500;}
+.sp-ci a:hover{text-decoration:underline;}
+.sp-cl{font-size:0.7rem;color:#3d6b58;display:block;margin-bottom:2px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;}
+.sp-cico{width:34px;height:34px;border-radius:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
+.sp-divider{height:1px;background:rgba(255,255,255,0.08);margin:36px 0;}
+</style>
+
+  <nav class="sp-nav">
+    <div class="sp-logo" style="cursor:pointer;" onclick="document.getElementById('refund-toggle').checked=false;"><span class="le">Excel</span><span class="lp">JobReady</span></div>
+    <label for="refund-toggle" class="sp-back">← Back to Course</label>
+  </nav>
+
+  <div class="sp-hero">
+    <div class="sp-tag">Legal</div>
+    <h1>Refund <span>Policy</span></h1>
+    <p>We want you to feel confident enrolling. Here's everything you need to know about refunds.</p>
+    <span class="sp-updated">Last updated: March 2026</span>
+  </div>
+
+  <div class="sp-body">
+
+    <div class="sp-guarantee">
+      <div class="sp-guarantee-icon">🛡️</div>
+      <div>
+        <h3>Our Promise to You</h3>
+        <p>If you are not satisfied with the course, we offer a full refund — no questions asked — within the refund window. We believe in the quality of this course and stand behind it completely.</p>
+      </div>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">📅</span> Refund Window</h2>
+      <p>You are eligible for a <strong>full refund within 7 days</strong> of your purchase date. Your refund request must be submitted before the 7-day window expires, regardless of how much of the course you have completed.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">✅</span> You Are Eligible for a Refund If</h2>
+      <ul class="sp-list">
+        <li>You request a refund within 7 days of purchase</li>
+        <li>The course content was not as described on the sales page</li>
+        <li>You experienced a genuine technical issue that prevented access</li>
+        <li>You were charged more than once for the same order</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">❌</span> Refunds Will Not Be Issued If</h2>
+      <ul class="sp-list x">
+        <li>More than 7 days have passed since the date of purchase</li>
+        <li>You have completed more than 50% of the course content</li>
+        <li>You changed your mind after downloading all bonus materials</li>
+        <li>The reason is lack of time or personal schedule issues</li>
+        <li>A duplicate request has already been processed</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">📋</span> How to Request a Refund</h2>
+      <ol class="sp-steps">
+        <li>Email <a href="/cdn-cgi/l/email-protection#1d6e767471712f77727f7c745d7a707c7471337e7270">📧 <span class="__cf_email__" data-cfemail="681b030104045a02070a0901280f05090104460b0705">[email&#160;protected]</span></a> with subject: <strong>"Refund Request — Excel Job Ready"</strong></li>
+        <li>Include your <strong>full name</strong> and <strong>email address</strong> used during purchase</li>
+        <li>Briefly mention the reason for your refund request</li>
+        <li>Our team will review and respond within <strong>2 business days</strong></li>
+        <li>Approved refunds processed within <strong>5–7 business days</strong> to your original payment method</li>
+      </ol>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">💳</span> Refund Processing Time</h2>
+      <p>Once approved, the refund will be credited back to your original payment method. Please allow <strong>5–7 business days</strong> depending on your bank or payment provider. You will receive an email confirmation once processed.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🎁</span> Bonus Materials & Downloads</h2>
+      <p>If you have already downloaded bonus materials before requesting a refund, we may still process the refund at our discretion. We request that you delete all downloaded materials upon receiving your refund.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🔄</span> Course Transfer Policy</h2>
+      <p>If you are not satisfied but do not wish to request a refund, we can <strong>transfer your enrollment</strong> to a friend or family member. Email us with the new learner's details and we will update access accordingly.</p>
+    </div>
+
+    <div class="sp-divider"></div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">💬</span> Contact Us for Refunds</h2>
+      <p>Have a question? We typically respond within 24 hours.</p>
+      <div class="sp-contact">
+        <div class="sp-ci"><div class="sp-cico">📧</div><div><span class="sp-cl">Email</span><a href="/cdn-cgi/l/email-protection#35465e5c5959075f5a57545c755258545c591b565a58">📧 <span class="__cf_email__" data-cfemail="fb8890929797c99194999a92bb9c969a9297d5989496">[email&#160;protected]</span></a></div></div>
+        <div class="sp-ci"><div class="sp-cico">📞</div><div><span class="sp-cl">Phone</span><a href="tel:+918826340509">+91 88263 40509</a></div></div>
+        <div class="sp-ci"><div class="sp-cico">💬</div><div><span class="sp-cl">WhatsApp</span><a href="https://wa.me/918826340509?text=Hi%2C%20I%20have%20a%20refund%20query" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ENROLL OPTIONS MODAL -->
+<div class="enroll-modal-overlay" id="enrollModal">
+  <div class="enroll-modal">
+    <button class="em-close" onclick="document.getElementById('enrollModal').classList.remove('open')">✕</button>
+    <div class="em-title">🚀 Choose How to Enroll</div>
+    <div class="em-sub">Dono options safe hain — instant access milega payment ke baad.</div>
+    <div class="em-options">
+
+      <!-- Plan selector -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:4px;">
+        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--em2);margin-bottom:10px;">Select Plan</div>
+        <div style="display:flex;flex-direction:column;gap:7px;" id="planSelector">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid var(--border);transition:all .2s;" onmouseover="this.style.borderColor='rgba(52,211,153,.3)'" onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='var(--border)'">
+            <input type="radio" name="plan" value="basic" style="accent-color:var(--em);">
+            <span style="flex:1;font-size:0.85rem;color:var(--text2);">Basic</span>
+            <span style="font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text);"><s style="font-size:.72rem;color:var(--muted);font-weight:400;">₹2,999</s> ₹599</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid rgba(16,185,129,.35);background:rgba(16,185,129,.04);transition:all .2s;">
+            <input type="radio" name="plan" value="complete" checked style="accent-color:var(--em);">
+            <span style="flex:1;font-size:0.85rem;color:var(--em2);font-weight:600;">Complete ⭐</span>
+            <span style="font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:700;color:var(--em2);"><s style="font-size:.72rem;color:var(--muted);font-weight:400;">₹4,999</s> ₹799</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid var(--border);transition:all .2s;" onmouseover="this.style.borderColor='rgba(52,211,153,.3)'" onmouseout="if(!this.querySelector('input').checked)this.style.borderColor='var(--border)'">
+            <input type="radio" name="plan" value="premium" style="accent-color:var(--em);">
+            <span style="flex:1;font-size:0.85rem;color:var(--text2);">Premium 💎</span>
+            <span style="font-family:'Clash Display',sans-serif;font-size:0.95rem;font-weight:700;color:var(--text);"><s style="font-size:.72rem;color:var(--muted);font-weight:400;">₹7,999</s> ₹2,999</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Pay Online -->
+      <a href="#" onclick="handleEnrollPay(event)" class="em-opt" id="payOnlineBtn">
+        <div class="em-opt-icon pay">💳</div>
+        <div>
+          <div class="em-opt-title">Pay Online — Instant Access</div>
+          <div class="em-opt-desc">UPI · Card · Net Banking · Secure via Razorpay</div>
+        </div>
+      </a>
+
+      <div class="em-divider">or</div>
+
+      <!-- WhatsApp Enroll -->
+      <a href="#" onclick="handleEnrollWA(event)" class="em-opt">
+        <div class="em-opt-icon wa">💬</div>
+        <div>
+          <div class="em-opt-title">Enroll via WhatsApp</div>
+          <div class="em-opt-desc">Message karo — hum personally guide karenge</div>
+        </div>
+      </a>
+
+    </div>
+    <p style="font-size:0.7rem;color:var(--muted);text-align:center;margin-top:16px;">🛡️ Money-back guarantee &nbsp;·&nbsp; Lifetime access &nbsp;·&nbsp; No hidden fees</p>
+  </div>
+</div>
+
+<!-- END REFUND OVERLAY -->
+
+<!-- PRIVACY POLICY OVERLAY -->
+<div id="page-privacy" style="position:fixed;inset:0;z-index:9999;background:#050d0a;overflow-y:auto;font-family:'Outfit',sans-serif;color:#f0fdf8;">
+  <nav class="sp-nav">
+    <div class="sp-logo" style="cursor:pointer;" onclick="document.getElementById('privacy-toggle').checked=false;"><span class="le">Excel</span><span class="lp">JobReady</span></div>
+    <label for="privacy-toggle" class="sp-back">← Back to Course</label>
+  </nav>
+  <div class="sp-hero">
+    <div class="sp-tag">Legal</div>
+    <h1>Privacy <span>Policy</span></h1>
+    <p>We value your privacy. Here's how we collect, use, and protect your information.</p>
+    <span class="sp-updated">Last updated: March 2026</span>
+  </div>
+  <div class="sp-body">
+
+    <div class="sp-guarantee">
+      <div class="sp-guarantee-icon">🔒</div>
+      <div>
+        <h3>Your Privacy Matters</h3>
+        <p>Excel Job Ready is committed to protecting your personal information. We collect only what is necessary to deliver the course and will never sell your data to third parties.</p>
+      </div>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">📋</span> Information We Collect</h2>
+      <p>When you enroll in the course, we may collect the following information:</p>
+      <ul class="sp-list">
+        <li>Full name and email address provided during registration</li>
+        <li>Payment information (processed securely — we do not store card details)</li>
+        <li>Device and browser type for technical support purposes</li>
+        <li>Course progress and completion data</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🎯</span> How We Use Your Information</h2>
+      <ul class="sp-list">
+        <li>To provide access to the course and course materials</li>
+        <li>To send important course updates and announcements</li>
+        <li>To respond to your support queries and refund requests</li>
+        <li>To issue your certificate of completion</li>
+        <li>To improve our course content and student experience</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🚫</span> What We Never Do</h2>
+      <ul class="sp-list x">
+        <li>We never sell your personal data to third parties</li>
+        <li>We never share your information with advertisers</li>
+        <li>We never send spam or unsolicited promotional emails</li>
+        <li>We never store your payment card details on our servers</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🍪</span> Cookies</h2>
+      <p>Our website may use basic cookies to remember your session and improve your browsing experience. These cookies do not track you across other websites and can be disabled in your browser settings at any time.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🔐</span> Data Security</h2>
+      <p>We take reasonable precautions to protect your personal information. Your data is stored securely and access is restricted to authorised personnel only. All payment transactions are processed through secure, encrypted payment gateways.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">👤</span> Your Rights</h2>
+      <ul class="sp-list">
+        <li>You can request a copy of the data we hold about you at any time</li>
+        <li>You can request deletion of your personal data after course completion</li>
+        <li>You can unsubscribe from our emails at any time via the unsubscribe link</li>
+        <li>You can contact us to correct any inaccurate information we hold</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">✏️</span> Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. Any significant changes will be communicated via email. Continued use of the course after updates constitutes acceptance of the revised policy.</p>
+    </div>
+
+    <div class="sp-divider"></div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">💬</span> Contact Us</h2>
+      <p>For any privacy-related questions, reach out to us directly.</p>
+      <div class="sp-contact">
+        <div class="sp-ci"><div class="sp-cico">📧</div><div><span class="sp-cl">Email</span><a href="/cdn-cgi/l/email-protection#cbb8a0a2a7a7f9a1a4a9aaa28baca6aaa2a7e5a8a4a6">📧 <span class="__cf_email__" data-cfemail="01726a686d6d336b6e63606841666c60686d2f626e6c">[email&#160;protected]</span></a></div></div>
+        <div class="sp-ci"><div class="sp-cico">📞</div><div><span class="sp-cl">Phone</span><a href="tel:+918826340509">+91 88263 40509</a></div></div>
+        <div class="sp-ci"><div class="sp-cico">💬</div><div><span class="sp-cl">WhatsApp</span><a href="https://wa.me/918826340509" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- END PRIVACY OVERLAY -->
+
+<!-- TERMS & CONDITIONS OVERLAY -->
+<div id="page-terms" style="position:fixed;inset:0;z-index:9999;background:#050d0a;overflow-y:auto;font-family:'Outfit',sans-serif;color:#f0fdf8;">
+  <nav class="sp-nav">
+    <div class="sp-logo" style="cursor:pointer;" onclick="document.getElementById('terms-toggle').checked=false;"><span class="le">Excel</span><span class="lp">JobReady</span></div>
+    <label for="terms-toggle" class="sp-back">← Back to Course</label>
+  </nav>
+  <div class="sp-hero">
+    <div class="sp-tag">Legal</div>
+    <h1>Terms & <span>Conditions</span></h1>
+    <p>Please read these terms carefully before enrolling in the course.</p>
+    <span class="sp-updated">Last updated: March 2026</span>
+  </div>
+  <div class="sp-body">
+
+    <div class="sp-guarantee">
+      <div class="sp-guarantee-icon">📜</div>
+      <div>
+        <h3>Agreement to Terms</h3>
+        <p>By enrolling in Excel Job Ready, you agree to these Terms & Conditions. If you do not agree, please do not purchase or access the course.</p>
+      </div>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">📚</span> Course Access & License</h2>
+      <ul class="sp-list">
+        <li>Upon purchase, you receive a personal, non-transferable license to access the course</li>
+        <li>Access is granted for lifetime personal use only</li>
+        <li>You may not share your login credentials with others</li>
+        <li>One enrollment is valid for one individual learner only</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">©️</span> Intellectual Property</h2>
+      <p>All course content — including videos, PDFs, practice files, and written materials — is the intellectual property of Excel Job Ready. You may <strong>not</strong>:</p>
+      <ul class="sp-list x">
+        <li>Copy, reproduce, or redistribute any course content</li>
+        <li>Upload course materials to any platform or sharing website</li>
+        <li>Use the content for commercial purposes or resale</li>
+        <li>Record or screenshot course videos for redistribution</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">💳</span> Payments & Pricing</h2>
+      <ul class="sp-list">
+        <li>All prices are listed in Indian Rupees (INR)</li>
+        <li>Payment must be completed before course access is granted</li>
+        <li>We reserve the right to change pricing at any time</li>
+        <li>Promotional prices are valid only during the offer period</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🔄</span> Refunds</h2>
+      <p>Refund requests are governed by our <strong>Refund Policy</strong>. A 7-day refund window applies from the date of purchase. Please refer to the Refund Policy page for full details and eligibility criteria.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">⚠️</span> Disclaimer</h2>
+      <p>Excel Job Ready provides educational content only. We do not guarantee:</p>
+      <ul class="sp-list x">
+        <li>Employment, salary increase, or promotion as a result of the course</li>
+        <li>That course content will meet every individual's specific requirements</li>
+        <li>Uninterrupted or error-free access to course materials at all times</li>
+      </ul>
+      <p style="margin-top:12px;">Results vary based on individual effort, practice, and application of skills learned.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">🚫</span> Prohibited Conduct</h2>
+      <ul class="sp-list x">
+        <li>Attempting to hack, disrupt, or damage the course platform</li>
+        <li>Sharing course access or login details with others</li>
+        <li>Using the course content to create a competing product</li>
+        <li>Posting abusive or inappropriate content in any course community</li>
+      </ul>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">⚖️</span> Governing Law</h2>
+      <p>These Terms & Conditions are governed by the laws of India. Any disputes shall be subject to the jurisdiction of the courts in Delhi, India.</p>
+    </div>
+
+    <div class="sp-sec">
+      <h2><span class="sp-si">✏️</span> Changes to These Terms</h2>
+      <p>We reserve the right to update these Terms & Conditions at any time. Continued use of the course after any changes constitutes acceptance of the updated terms. We will notify enrolled students of significant changes via email.</p>
+    </div>
+
+    <div class="sp-divider"></div>
+
+    <div cl
+
+<!-- STUDENT LOGIN MODAL -->
+<div class="student-modal-overlay" id="studentModal">
+  <div class="student-modal">
+    <button class="sm-close" onclick="closeStudentModal()">✕</button>
+
+    <!-- LOGIN / ACTIVATE FORMS -->
+    <div id="smForms">
+      <div class="sm-head">
+        <div class="sm-logo-icon">📊</div>
+        <h2>Student Portal</h2>
+        <p>Apne course videos access karo</p>
+      </div>
+      <div style="padding:0 28px">
+        <div class="sm-tabs">
+          <button class="sm-tab active" id="smTabLogin" onclick="smSwitchTab('login')">🔑 Login</button>
+          <button class="sm-tab" id="smTabActivate" onclick="smSwitchTab('activate')">🎫 Activate</button>
+        </div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="sm-body" id="smFormLogin">
+        <div class="sm-field">
+          <label class="sm-label">Email Address</label>
+          <input type="email" class="sm-input" id="smEmail" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="sm-field">
+          <label class="sm-label">Password</label>
+          <input type="password" class="sm-input" id="smPass" placeholder="Your password" autocomplete="current-password">
+          <p class="sm-hint">Pehli baar? <a href="javascript:void(0)" onclick="smSwitchTab('activate')">Course activate karo →</a></p>
+        </div>
+        <button class="sm-btn" id="smLoginBtn" onclick="smDoLogin()">🔑 Login</button>
+        <div class="sm-msg" id="smLoginMsg"></div>
+        <div class="sm-divider">ya</div>
+        <a href="https://wa.me/918826340509?text=Hi%2C%20I%20need%20my%20login%20details%20for%20Excel%20Job%20Ready" target="_blank" class="sm-wa-link">
+          💬 WhatsApp pe help lo →
+        </a>
+      </div>
+
+      <!-- ACTIVATE FORM -->
+      <div class="sm-body" id="smFormActivate" style="display:none">
+        <div class="sm-field">
+          <label class="sm-label">Your Name</label>
+          <input type="text" class="sm-input" id="smActName" placeholder="Full name">
+        </div>
+        <div class="sm-field">
+          <label class="sm-label">Email Address</label>
+          <input type="email" class="sm-input" id="smActEmail" placeholder="your@email.com">
+        </div>
+        <div class="sm-field">
+          <label class="sm-label">Access Code</label>
+          <input type="text" class="sm-input" id="smActCode" placeholder="EJR-XXXX-XXXX" style="text-transform:uppercase">
+          <p class="sm-hint">📞 Payment ke baad aapko WhatsApp pe code milega.<br>
+          <a href="https://wa.me/918826340509?text=Hi%2C%20I%20paid%20for%20Excel%20Job%20Ready%20and%20need%20my%20access%20code" target="_blank">Code nahi mila? WhatsApp karo →</a></p>
+        </div>
+        <button class="sm-btn" id="smActBtn" onclick="smDoActivate()">🚀 Activate Course</button>
+        <div class="sm-msg" id="smActMsg"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD (after login) -->
+    <div class="sm-dashboard" id="smDashboard">
+      <div class="sm-dash-header">
+        <div class="sm-dash-av">👤</div>
+        <div class="sm-dash-name" id="smDashName">Student</div>
+        <div class="sm-dash-sub">✅ Course Access Active</div>
+      </div>
+      <div class="sm-progress-row">
+        <div class="sm-prog-bar-wrap"><div class="sm-prog-bar" id="smProgBar" style="width:0%"></div></div>
+        <div class="sm-prog-label" id="smProgPct">0%</div>
+      </div>
+      <div class="sm-module-list" id="smModuleList"></div>
+      <button class="sm-logout-btn" onclick="smLogout()">← Logout</button>
+    </div>
+
+    <!-- VIDEO PLAYER (inside modal) -->
+    <div class="sm-video-player" id="smVideoPlayer">
+      <div class="sm-body" style="padding-top:16px">
+        <button class="sm-back-btn" onclick="smBackToDash()">← Back to modules</button>
+        <div class="sm-video-wrap">
+          <div class="sm-video-placeholder" id="smVPlaceholder" onclick="smStartVideo()">
+            <div class="sm-play-icon">▶</div>
+            <div class="sm-video-title" id="smVTitle">Click to play</div>
+          </div>
+          <iframe class="sm-video-embed" id="smVEmbed" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button onclick="smMarkDone()" id="smMarkDoneBtn" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text3);font-family:'Outfit',sans-serif;font-size:0.8rem;padding:9px;border-radius:10px;cursor:pointer;transition:all .2s;">☐ Mark as Done</button>
+          <button onclick="smNextMod()" style="flex:1;background:linear-gradient(135deg,var(--em),#059669);color:white;font-family:'Clash Display',sans-serif;font-weight:700;font-size:0.82rem;padding:9px;border-radius:10px;border:none;cursor:pointer;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════
+   RAZORPAY LINKS — Replace when you get them
+══════════════════════════════ */
+const RAZORPAY_LINKS = {
+  basic:    'YOUR_RAZORPAY_BASIC_LINK',     // ₹599 plan
+  complete: 'YOUR_RAZORPAY_COMPLETE_LINK',  // ₹799 plan
+  premium:  'YOUR_RAZORPAY_PREMIUM_LINK'    // ₹2,999 plan
+};
+
+/* ══════════════════════════════
+   COURSE MODULES — Video IDs add karo
+══════════════════════════════ */
+const SM_MODULES = [
+  { id:1, icon:'📐', name:'Excel Basics', duration:'45 min', videoId:'YOUR_YT_ID' },
+  { id:2, icon:'🔢', name:'Formulas & Functions', duration:'55 min', videoId:'YOUR_YT_ID' },
+  { id:3, icon:'🔍', name:'Lookup & Reference', duration:'60 min', videoId:'YOUR_YT_ID' },
+  { id:4, icon:'🧹', name:'Data Cleaning', duration:'40 min', videoId:'YOUR_YT_ID' },
+  { id:5, icon:'📊', name:'Data Analysis', duration:'45 min', videoId:'YOUR_YT_ID' },
+  { id:6, icon:'🔄', name:'Pivot Tables', duration:'50 min', videoId:'YOUR_YT_ID' },
+  { id:7, icon:'📈', name:'Charts & Dashboards', duration:'55 min', videoId:'YOUR_YT_ID' },
+  { id:8, icon:'⚡', name:'Automation Basics', duration:'40 min', videoId:'YOUR_YT_ID' },
+  { id:9, icon:'💼', name:'Real Job Practice ⭐', duration:'70 min', videoId:'YOUR_YT_ID' },
+];
+
+/* ══════════════════════════════
+   ACCESS CODE VERIFICATION
+   (Demo mode until Firebase/Apps Script is set up)
+══════════════════════════════ */
+const DEMO_CODES = ['EJR-DEMO-2024','EJR-TEST-1234'];
+
+function smVerify(email, password, code, isActivation) {
+  // DEMO MODE — replace this with Firebase call later
+  if (isActivation) {
+    const valid = DEMO_CODES.includes(code.toUpperCase()) && email.includes('@') && password.length >= 6;
+    return { valid, name: email.split('@')[0] };
+  } else {
+    // Login: check localStorage
+    const saved = JSON.parse(localStorage.getItem('ejr_user') || 'null');
+    if (saved && saved.email === email && saved.password === password) {
+      return { valid: true, name: saved.name };
+    }
+    return { valid: false };
+  }
+}
+
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let smState = {
+  user: null,
+  currentMod: 0,
+  completed: []
+};
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+(function smInit() {
+  const saved = localStorage.getItem('ejr_user');
+  if (saved) {
+    try {
+      smState.user = JSON.parse(saved);
+      smState.completed = JSON.parse(localStorage.getItem('ejr_completed') || '[]');
+    } catch(e) {}
+  }
+})();
+
+/* ══════════════════════════════
+   MODAL OPEN/CLOSE
+══════════════════════════════ */
+function openStudentModal() {
+  const overlay = document.getElementById('studentModal');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (smState.user) {
+    smShowDashboard();
+  } else {
+    smSwitchTab('login');
+  }
+}
+
+function closeStudentModal() {
+  document.getElementById('studentModal').classList.remove('open');
+  document.body.style.overflow = '';
+  // Stop any playing video
+  const embed = document.getElementById('smVEmbed');
+  if (embed) embed.src = '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('studentModal');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) closeStudentModal();
+    });
+  }
+});
+
+/* ══════════════════════════════
+   TAB SWITCH
+══════════════════════════════ */
+function smSwitchTab(tab) {
+  document.getElementById('smTabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('smTabActivate').classList.toggle('active', tab === 'activate');
+  document.getElementById('smFormLogin').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('smFormActivate').style.display = tab === 'activate' ? 'block' : 'none';
+  // Hide dashboard/video
+  document.getElementById('smForms').style.display = 'block';
+  document.getElementById('smDashboard').classList.remove('show');
+  document.getElementById('smVideoPlayer').classList.remove('show');
+}
+
+/* ══════════════════════════════
+   LOGIN
+══════════════════════════════ */
+function smDoLogin() {
+  const email = document.getElementById('smEmail').value.trim();
+  const pass  = document.getElementById('smPass').value;
+  const msg   = document.getElementById('smLoginMsg');
+  const btn   = document.getElementById('smLoginBtn');
+
+  if (!email || !pass) return smShowMsg(msg, 'Email aur password dono bharein.', 'error');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="sm-spinner"></span>Verifying...';
+
+  setTimeout(() => {
+    const result = smVerify(email, pass, '', false);
+    if (result.valid) {
+      smState.user = JSON.parse(localStorage.getItem('ejr_user'));
+      smState.completed = JSON.parse(localStorage.getItem('ejr_completed') || '[]');
+      smShowDashboard();
+    } else {
+      smShowMsg(msg, '❌ Email ya password sahi nahi hai. Pehli baar? Activate tab use karo.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '🔑 Login';
+    }
+  }, 700);
+}
+
+/* ══════════════════════════════
+   ACTIVATE (First time)
+══════════════════════════════ */
+function smDoActivate() {
+  const name  = document.getElementById('smActName').value.trim();
+  const email = document.getElementById('smActEmail').value.trim();
+  const code  = document.getElementById('smActCode').value.trim().toUpperCase();
+  const pass  = email.split('@')[0] + '2024'; // auto-generate simple password
+  const msg   = document.getElementById('smActMsg');
+  const btn   = document.getElementById('smActBtn');
+
+  if (!name || !email || !code) return smShowMsg(msg, 'Saare fields bharein.', 'error');
+  if (!email.includes('@')) return smShowMsg(msg, 'Valid email enter karo.', 'error');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="sm-spinner"></span>Activating...';
+
+  setTimeout(() => {
+    const result = smVerify(email, pass, code, true);
+    if (result.valid) {
+      const userData = { name, email, password: pass, code, plan: 'complete' };
+      localStorage.setItem('ejr_user', JSON.stringify(userData));
+      smState.user = userData;
+      smState.completed = [];
+      smShowMsg(msg, '🎉 Course activated! Welcome aboard!', 'success');
+      setTimeout(smShowDashboard, 800);
+    } else {
+      smShowMsg(msg, '❌ Access code galat hai. Payment ke baad WhatsApp pe code maango.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Activate Course';
+    }
+  }, 800);
+}
+
+/* ══════════════════════════════
+   SHOW DASHBOARD
+══════════════════════════════ */
+function smShowDashboard() {
+  document.getElementById('smForms').style.display = 'none';
+  document.getElementById('smDashboard').classList.add('show');
+  document.getElementById('smVideoPlayer').classList.remove('show');
+
+  const name = smState.user ? smState.user.name : 'Student';
+  document.getElementById('smDashName').textContent = name.split(' ')[0];
+
+  // Progress
+  const pct = Math.round((smState.completed.length / SM_MODULES.length) * 100);
+  document.getElementById('smProgBar').style.width = pct + '%';
+  document.getElementById('smProgPct').textContent = pct + '%';
+
+  // Module list
+  const ul = document.getElementById('smModuleList');
+  ul.innerHTML = SM_MODULES.map((mod, i) => {
+    const done = smState.completed.includes(i);
+    const cls = done ? 'done' : (i === 0 ? 'active-now' : '');
+    return `<div class="sm-mod-item ${cls}" onclick="smOpenModule(${i})">
+      <div class="sm-mod-num">${done ? '✓' : (i+1)}</div>
+      <div class="sm-mod-info">
+        <div class="sm-mod-name">${mod.icon} ${mod.name}</div>
+        <div class="sm-mod-meta">⏱ ${mod.duration}</div>
+      </div>
+      <span class="sm-mod-status">${done ? '✅' : '▶'}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════
+   OPEN MODULE / PLAY VIDEO
+══════════════════════════════ */
+function smOpenModule(idx) {
+  smState.currentMod = idx;
+  const mod = SM_MODULES[idx];
+  document.getElementById('smDashboard').classList.remove('show');
+  document.getElementById('smVideoPlayer').classList.add('show');
+
+  // Reset player
+  document.getElementById('smVTitle').textContent = mod.icon + ' ' + mod.name;
+  document.getElementById('smVPlaceholder').style.display = 'flex';
+  document.getElementById('smVEmbed').classList.remove('show');
+  document.getElementById('smVEmbed').src = '';
+
+  // Mark done button
+  const doneBtn = document.getElementById('smMarkDoneBtn');
+  const done = smState.completed.includes(idx);
+  doneBtn.textContent = done ? '✓ Done' : '☐ Mark as Done';
+  doneBtn.style.color = done ? 'var(--em2)' : 'var(--text3)';
+  doneBtn.style.borderColor = done ? 'rgba(16,185,129,.3)' : 'var(--border)';
+}
+
+function smStartVideo() {
+  const mod = SM_MODULES[smState.currentMod];
+  if (!mod.videoId || mod.videoId === 'YOUR_YT_ID') {
+    alert('Video coming soon! WhatsApp karo: +91 88263 40509');
+    return;
+  }
+  document.getElementById('smVPlaceholder').style.display = 'none';
+  const embed = document.getElementById('smVEmbed');
+  embed.src = 'https://www.youtube.com/embed/' + mod.videoId + '?autoplay=1&rel=0&modestbranding=1';
+  embed.classList.add('show');
+}
+
+function smMarkDone() {
+  const idx = smState.currentMod;
+  if (!smState.completed.includes(idx)) {
+    smState.completed.push(idx);
+    localStorage.setItem('ejr_completed', JSON.stringify(smState.completed));
+  }
+  const doneBtn = document.getElementById('smMarkDoneBtn');
+  doneBtn.textContent = '✓ Done';
+  doneBtn.style.color = 'var(--em2)';
+  doneBtn.style.borderColor = 'rgba(16,185,129,.3)';
+}
+
+function smNextMod() {
+  const next = smState.currentMod + 1;
+  if (next < SM_MODULES.length) smOpenModule(next);
+  else { smBackToDash(); alert('🎉 Congratulations! Aapne saare modules complete kar liye!'); }
+}
+
+function smBackToDash() {
+  document.getElementById('smVEmbed').src = '';
+  document.getElementById('smVideoPlayer').classList.remove('show');
+  smShowDashboard();
+}
+
+/* ══════════════════════════════
+   LOGOUT
+══════════════════════════════ */
+function smLogout() {
+  localStorage.removeItem('ejr_user');
+  smState.user = null;
+  smState.completed = [];
+  document.getElementById('smDashboard').classList.remove('show');
+  document.getElementById('smForms').style.display = 'block';
+  smSwitchTab('login');
+}
+
+/* ══════════════════════════════
+   ENROLL — Plan-aware buttons
+══════════════════════════════ */
+function handleEnrollPay(e) {
+  e.preventDefault();
+  const plan = document.querySelector('input[name="plan"]:checked').value;
+  const link = RAZORPAY_LINKS[plan];
+  if (!link || link.startsWith('YOUR_')) {
+    // Fallback to WhatsApp if Razorpay not set up
+    handleEnrollWA(e);
+    return;
+  }
+  window.open(link, '_blank');
+}
+
+function handleEnrollWA(e) {
+  e.preventDefault();
+  const plan = document.querySelector('input[name="plan"]:checked').value;
+  const planNames = { basic: 'Basic (₹599)', complete: 'Complete (₹799)', premium: 'Premium (₹2,999)' };
+  const text = encodeURIComponent('Hi, I want to enroll in Excel Job Ready course.
+Plan: ' + planNames[plan] + '
+Please share payment details.');
+  window.open('https://wa.me/918826340509?text=' + text, '_blank');
+}
+
+/* ══════════════════════════════
+   HELPER
+══════════════════════════════ */
+function smShowMsg(el, text, type) {
+  el.textContent = text;
+  el.className = 'sm-msg ' + type + (text ? ' show' : '');
+}
+</script>
+</body>
+</html>
