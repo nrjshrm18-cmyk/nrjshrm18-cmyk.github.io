@@ -3,10 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skill2Job — India's #1 Digital Skills Platform</title>
+<meta name="description" content="Skill2Job — India ka #1 Excel course platform. EMI Calculator, Free Excel tips, Job-ready skills in Hinglish. ₹799 mein Excel Job Ready course. Free EMI Calculator available.">
+<meta name="keywords" content="Excel course India, EMI calculator, Excel EMI, Excel course EMI, job ready Excel, Hindi Excel course, Hinglish Excel, MIS Excel course, VLOOKUP course India, Excel certification India, free EMI calculator">
+<meta property="og:title" content="Skill2Job — India's #1 Excel Course with EMI Calculator">
+<meta property="og:description" content="Excel Job Ready course ₹799 mein. Free EMI Calculator. Hinglish mein. 2800+ students. Lifetime access.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://skill2job.in/">
+<title>Skill2Job — Free EMI Calculator | Excel Course India | Skill2Job — India's #1 Digital Skills Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#050507;--bg2:#09090e;--bg3:#0e0e16;--bg4:#13131e;--s1:rgba(255,255,255,.04);--s2:rgba(255,255,255,.07);--b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.14);--t1:#f0eff8;--t2:#9896b8;--t3:#4e4c6a;--t4:#252438;--em:#00e87a;--em2:#00ff90;--blue:#3b82f6;--blue2:#60a5fa;--violet:#8b5cf6;--violet2:#a78bfa;--pink:#ec4899;--pink2:#f472b6;--amber:#f59e0b;--amber2:#fbbf24;--cyan:#06b6d4;--cyan2:#22d3ee;--red:#ef4444;--red2:#f87171;--r:10px;--r2:18px;--r3:28px}
+
+/* ══ PRODUCT HEADING CENTER ══ */
+.sp-card h3{text-align:left}
+@media(min-width:821px){
+  .sp-card .sp-inner > div[style*="grid-template-columns"] > div:first-child h3{
+    text-align:center!important;
+  }
+}
+/* ══ PRODUCT CARD CLICK CURSOR ══ */
+.sp-inner{cursor:default}
+
+/* ══ LIGHT THEME ══ */
+[data-theme="light"]{
+  --bg:#f5f5f7;--bg2:#ffffff;--bg3:#f0f0f5;--bg4:#e8e8f0;
+  --s1:rgba(0,0,0,.04);--s2:rgba(0,0,0,.07);
+  --b1:rgba(0,0,0,.08);--b2:rgba(0,0,0,.15);
+  --t1:#1a1a2e;--t2:#4a4a6a;--t3:#8a8aaa;--t4:#c0c0d8;
+}
+[data-theme="light"] body{background:#f5f5f7;color:#1a1a2e}
+[data-theme="light"] nav.solid{background:rgba(245,245,247,.92)}
+[data-theme="light"] .excel-dash,[data-theme="light"] .biz-dash,[data-theme="light"] #excelBarWrap~*{filter:none}
+[data-theme="light"] .sp-inner,[data-theme="light"] .spotlight-card,[data-theme="light"] .bento{border-color:rgba(0,0,0,.1)}
+.theme-toggle{width:36px;height:36px;border-radius:50%;background:var(--s1);border:1px solid var(--b1);display:grid;place-items:center;cursor:pointer;transition:all .2s;font-size:1rem;color:var(--t2);flex-shrink:0}
+.theme-toggle:hover{background:var(--s2);color:var(--t1)}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);overflow-x:hidden;line-height:1.6}
@@ -677,10 +708,11 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <div class="mob-links">
     <a href="#problem" onclick="closeMobMenu()"><span class="mob-link-icon">😰</span>Problem</a>
     <a href="#spotlight" onclick="closeMobMenu()"><span class="mob-link-icon">📊</span>Excel Course</a>
-    <a href="#products" onclick="closeMobMenu()"><span class="mob-link-icon">📦</span>Products</a>
+    <a href="javascript:void(0)" onclick="openProductsLauncher();closeMobMenu()"><span class="mob-link-icon">📦</span>Products</a>
     <a href="#features" onclick="closeMobMenu()"><span class="mob-link-icon">⚡</span>Features</a>
     <a href="#about" onclick="closeMobMenu()"><span class="mob-link-icon">👋</span>About Neeraj</a>
     <a href="#pricing" onclick="closeMobMenu()"><span class="mob-link-icon">💰</span>Pricing</a>
+    <a href="javascript:void(0)" onclick="openEMI();closeMobMenu()"><span class="mob-link-icon">📊</span>EMI Calculator</a>
   </div>
   <div class="mob-footer">
     <a href="javascript:void(0)" onclick="openEnrollModal();closeMobMenu()" class="mob-cta">🚀 Enroll Now — ₹799 →</a>
@@ -694,23 +726,23 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <ul class="nav-links">
     <li><a href="#problem">Problem</a></li>
     <li><a href="#spotlight">Course</a></li>
-    <li><a href="#products">Products</a></li>
+    <li><a href="javascript:void(0)" onclick="openProductsLauncher()">Products</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#pricing">Pricing</a></li>
   </ul>
   <div class="nav-right">
-    <span class="nav-pill">🔥 2,800+ Students</span>
+    <button onclick="openEMI()" style="font-size:.68rem;font-weight:600;padding:6px 14px;border-radius:100px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--em);cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(0,232,122,.15)'" onmouseout="this.style.background='rgba(0,232,122,.08)'">📊 EMI</button><span class="nav-pill">🔥 2,800+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentLoginModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
     <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta">Enroll Now →</a>
   </div>
-  <div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
 </nav>
 
 <!-- STICKY MOBILE BOTTOM BAR -->
 <div class="mob-sticky-bar">
   <div class="mob-sticky-bar-inner">
     <button class="mob-sticky-enroll" onclick="openEnrollModal()">🚀 Enroll Now — ₹799</button>
-    <button class="mob-sticky-wa" onclick="window.open('https://wa.me/918826340509?text=Hi%2C+I+want+to+know+more+about+Excel+Job+Ready','_blank')">💬</button>
+    <button class="mob-sticky-wa" onclick="window.open('https://wa.me/918826340509?text=Hi%2C+I+want+to+know+more+about+Excel+Job+Ready','_blank')" title="WhatsApp">💬</button>
   </div>
 </div>
 
@@ -791,7 +823,6 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
     </div>
 
   </div>
-  <div class="scroll-cue"><div class="scroll-arrow"></div><span>Scroll</span></div>
 </section>
 
 <div class="marq-wrap">
@@ -1092,7 +1123,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
 </div>
 
 <!-- ══ PRODUCT 1: EXCEL JOB READY ══ -->
-<div class="sp-card reveal" style="--acc:#00e87a;--acc-rgb:0,232,122;--acc2:#22d3ee;margin:0 auto 32px;max-width:860px;padding:0 20px">
+<div class="sp-card reveal" style="--acc:#00e87a;--acc-rgb:0,232,122;--acc2:#22d3ee;margin:0 auto 32px;max-width:860px;padding:0 20px" onclick="window.location.href='excel-course-premium.html'" style="cursor:pointer">
   <div class="sp-inner" style="background:linear-gradient(145deg,#080f0a,#0a1810);border:1px solid rgba(0,232,122,.18);border-radius:28px;overflow:hidden;position:relative">
     <!-- Top accent line -->
     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent)"></div>
@@ -1726,10 +1757,10 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   </a>
 </div></div>
       <div class="foot-col"><div class="foot-col-title">Products</div><a href="excel-course-premium.html">📊 Excel Job Ready</a><a href="#">📘 Formula eBook</a><a href="#">📈 Business Dashboard</a><a href="#">✅ TaskFlow App</a></div>
-      <div class="foot-col"><div class="foot-col-title">Company</div><a href="#">👋 About Us</a><a href="#">📝 Blog</a><a href="#">💼 Careers</a><a href="#faq">❓ FAQ</a></div>
+      <div class="foot-col"><div class="foot-col-title">Company</div><a href="javascript:void(0)" onclick="openPage('about')">👋 About Us</a><a href="javascript:void(0)" onclick="openPage('blog')">📝 Blog</a><a href="javascript:void(0)" onclick="openPage('careers')">💼 Careers</a><a href="#faq">❓ FAQ</a><a href="javascript:void(0)" onclick="openEMI()">📊 EMI Calculator</a></div>
       <div class="foot-col"><div class="foot-col-title">Contact</div><a href="tel:+918826340509">📱 +91 88263 40509</a><a href="https://wa.me/918826340509">💬 WhatsApp Support</a><a href="/cdn-cgi/l/email-protection#3a4951535656085055585b537a5d575b535614595557">✉️ <span class="__cf_email__" data-cfemail="cab9a1a3a6a6f8a0a5a8aba38aada7aba3a6e4a9a5a7">[email&#160;protected]</span></a><a href="https://t.me/skill2jobai">✈️ Telegram</a></div>
     </div>
-    <div class="footer-bottom"><span>© 2026 Skill2Job. All rights reserved. Delhi, India.</span><div class="footer-bottom-links"><a href="excel-course-premium.html">Privacy Policy</a><a href="excel-course-premium.html">Terms</a><a href="excel-course-premium.html">Refund Policy</a></div></div>
+    <div class="footer-bottom"><span>© 2026 Skill2Job. All rights reserved. Delhi, India.</span><div class="footer-bottom-links"><a href="javascript:void(0)" onclick="openPage('privacy')">Privacy Policy</a><a href="javascript:void(0)" onclick="openPage('terms')">Terms</a><a href="javascript:void(0)" onclick="openPage('refund')">Refund Policy</a></div></div>
   </div>
 </footer>
 
@@ -2314,6 +2345,19 @@ function slDoActivate() {
     };
   }
 
+  /* ── Escape closes all modals ── */
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      closeEnrollModal();
+      closeStudentLoginModal();
+      closeMobMenu();
+      if(typeof closeProductsLauncher!=='undefined')closeProductsLauncher();
+      if(typeof closeInfoPage!=='undefined')closeInfoPage();
+      if(typeof closeEMI!=='undefined')closeEMI();
+      if(typeof closeAI!=='undefined')closeAI();
+    }
+  });
+
   /* ── Bootstrap ── */
   var ps=document.getElementById('products');
   if(ps&&window.IntersectionObserver){
@@ -2326,7 +2370,408 @@ function slDoActivate() {
   setupTaskFlow();
 
 })();
+
+/* ══ THEME TOGGLE ══ */
+function toggleTheme(){
+  var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('s2j_theme', isDark ? 'light' : 'dark');
+}
+// Load saved theme
+(function(){
+  var t = localStorage.getItem('s2j_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  var btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = t==='light' ? '☀️' : '🌙';
+})();
+
+/* ══ PRODUCTS LAUNCHER ══ */
+function openProductsLauncher(){
+  document.getElementById('productsLauncher').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeProductsLauncher(){
+  document.getElementById('productsLauncher').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ══ EMI CALCULATOR ══ */
+function openEMI(){
+  document.getElementById('emiModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  calcEMI();
+}
+function closeEMI(){
+  document.getElementById('emiModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function calcEMI(){
+  var P=parseInt(document.getElementById('emiAmt').value)||799;
+  var n=parseInt(document.getElementById('emiMon').value)||3;
+  var rAnn=parseInt(document.getElementById('emiRate').value)||0;
+  document.getElementById('emiAmtVal').textContent='₹'+P.toLocaleString('en-IN');
+  document.getElementById('emiMonVal').textContent=n+' month'+(n>1?'s':'');
+  document.getElementById('emiRateVal').textContent=rAnn+'%';
+  var emi, totalInt;
+  if(rAnn===0){
+    emi=Math.ceil(P/n);
+    totalInt=0;
+  } else {
+    var r=rAnn/(12*100);
+    emi=Math.ceil(P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1));
+    totalInt=Math.round(emi*n-P);
+  }
+  document.getElementById('emiResult').textContent='₹'+emi.toLocaleString('en-IN');
+  document.getElementById('emiBreakdown').textContent='Total: ₹'+(emi*n).toLocaleString('en-IN')+' · Interest: ₹'+totalInt.toLocaleString('en-IN')+' · '+n+' installments';
+}
+
+/* ══ AI ASSISTANT ══ */
+var aiOpen=false;
+var aiKB={
+  'course':['Excel Job Ready course mein 9 modules hain — basics se MIS dashboards tak. Real office files, VLOOKUP, Pivot Tables, sab Hinglish mein. ₹799 mein milta hai. Instant access!','📊'],
+  'price':['Excel Job Ready sirf ₹799 mein available hai (84% OFF). Formula eBook ₹149, Business Dashboard ₹499. EMI bhi available hai credit card se!','💰'],
+  'emi':['Haan! EMI available hai credit card se. ₹799 ka course 3 months mein ₹266/month mein le sakte ho. EMI Calculator dekho page pe!','📊'],
+  'certificate':['Haan, course complete karne pe certificate milta hai jo LinkedIn aur resume pe add kar sakte hain. Employers recognize karte hain!','🏅'],
+  'duration':['Most students 3-4 weeks mein complete karte hain (1 hour/day). Lifetime access hai toh apni speed se karo!','⏱️'],
+  'refund':['7-day money-back guarantee hai. Koi sawaal nahi puchha jaayega. Zero risk!','🛡️'],
+  'hindi':['Course simple Hinglish mein hai — Hindi aur English mix. India ke students ke liye most comfortable language!','🗣️'],
+  'beginner':['Bilkul! Course zero se shuru hota hai. Koi prior Excel knowledge zaroor nahi. Beginners ke liye perfect!','🌟'],
+  'contact':['WhatsApp: +91 88263 40509 | Email: skill2jobai@gmail.com | Telegram: t.me/skill2jobai. Hum 24hrs mein reply karte hain!','📱'],
+  'default':['Yeh sawaal ke liye WhatsApp pe directly poocho: wa.me/918826340509. Hum help karenge! 😊','💬']
+};
+function toggleAI(){
+  aiOpen=!aiOpen;
+  var w=document.getElementById('aiChatWindow');
+  var b=document.getElementById('aiFab');
+  if(aiOpen){w.style.display='flex';b.textContent='✕';b.style.background='rgba(239,68,68,.8)';}
+  else{w.style.display='none';b.textContent='🤖';b.style.background='linear-gradient(135deg,var(--em),#00b36b)';}
+}
+function closeAI(){aiOpen=false;var w=document.getElementById('aiChatWindow');w.style.display='none';var b=document.getElementById('aiFab');b.textContent='🤖';b.style.background='linear-gradient(135deg,var(--em),#00b36b)';}
+function addMsg(text,isUser){
+  var msgs=document.getElementById('aiMessages');
+  var d=document.createElement('div');
+  d.style.cssText=isUser?'align-self:flex-end;background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:12px 12px 4px 12px;padding:10px 12px;font-size:.78rem;color:var(--t1);max-width:85%;line-height:1.6;margin-left:auto':'background:var(--s1);border:1px solid var(--b1);border-radius:12px 12px 12px 4px;padding:10px 12px;font-size:.78rem;color:var(--t1);max-width:85%;line-height:1.6';
+  d.textContent=text;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function getAIResponse(q){
+  q=q.toLowerCase();
+  var keys=Object.keys(aiKB);
+  for(var i=0;i<keys.length;i++){
+    if(keys[i]!=='default'&&q.includes(keys[i])){return aiKB[keys[i]];}
+  }
+  if(q.includes('kya')||q.includes('course')||q.includes('excel'))return aiKB['course'];
+  if(q.includes('paisa')||q.includes('rupee')||q.includes('kitna'))return aiKB['price'];
+  if(q.includes('help')||q.includes('support'))return aiKB['contact'];
+  return aiKB['default'];
+}
+function sendAI(){
+  var inp=document.getElementById('aiInput');
+  var q=inp.value.trim();
+  if(!q)return;
+  inp.value='';
+  addMsg(q,true);
+  setTimeout(function(){
+    var resp=getAIResponse(q);
+    addMsg(resp[1]+' '+resp[0],false);
+  },600);
+}
+function askAI(q){addMsg(q,true);setTimeout(function(){var r=getAIResponse(q);addMsg(r[1]+' '+r[0],false);},600);}
+
+/* ══ INFO PAGES ══ */
+var INFO_PAGES = {
+  about: {
+    title: '👋 About Skill2Job',
+    content: `
+      <div style="margin-bottom:20px">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--t1);margin-bottom:8px">India ke liye banaya gaya.</div>
+        <div style="color:rgba(0,232,122,.8);font-size:.82rem;font-weight:600;margin-bottom:16px">🇮🇳 Gurugram, Haryana</div>
+        <p style="margin-bottom:14px">Skill2Job ek digital skills platform hai jo India ke students aur working professionals ke liye banaya gaya hai. Hamara mission: <strong style="color:var(--t1)">real skills, real results, real growth.</strong></p>
+        <p style="margin-bottom:14px">Hamara flagship product <strong style="color:var(--em)">Excel Job Ready</strong> India ka sabse practical Excel course hai — jo theory ke bajaye actual office work pe focus karta hai. 2,800+ students ne apni life change ki hai.</p>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:16px">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:12px">🎯 Hamare Values</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:flex-start;gap:10px"><span style="color:var(--em)">✓</span><span><strong style="color:var(--t1)">Practical Over Theory</strong> — Jo office mein kaam aata hai wahi sikhate hain</span></div>
+          <div style="display:flex;align-items:flex-start;gap:10px"><span style="color:var(--em)">✓</span><span><strong style="color:var(--t1)">Hinglish Mein</strong> — India ke liye India ki language mein</span></div>
+          <div style="display:flex;align-items:flex-start;gap:10px"><span style="color:var(--em)">✓</span><span><strong style="color:var(--t1)">Affordable</strong> — Premium quality, accessible price</span></div>
+          <div style="display:flex;align-items:flex-start;gap:10px"><span style="color:var(--em)">✓</span><span><strong style="color:var(--t1)">Lifetime Access</strong> — Ek baar pay, hamesha seekho</span></div>
+        </div>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:12px">📬 Contact Us</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>📱 WhatsApp: <a href="https://wa.me/918826340509" target="_blank" style="color:var(--em)">+91 88263 40509</a></div>
+          <div>✉️ Email: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></div>
+          <div>✈️ Telegram: <a href="https://t.me/skill2jobai" target="_blank" style="color:var(--em)">t.me/skill2jobai</a></div>
+          <div>📍 Location: Gurugram, Haryana, India</div>
+        </div>
+      </div>
+    `
+  },
+  privacy: {
+    title: '🔒 Privacy Policy',
+    content: `
+      <div style="margin-bottom:14px;font-size:.75rem;color:var(--t3)">Last updated: March 2026 · Governing jurisdiction: Delhi, India</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">1. Information We Collect</div><p>Hum sirf woh information collect karte hain jo aap voluntarily dete hain — jaise naam, email, aur payment details. Yeh information course enrollment aur support ke liye use hoti hai.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">2. How We Use Your Data</div><p>Aapka data course access dene ke liye, support provide karne ke liye, aur important updates bhejne ke liye use hota hai. Hum kabhi bhi aapka data third parties ko sell nahi karte.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">3. Payment Security</div><p>All payments are processed through Razorpay, a PCI-DSS compliant payment gateway. We do not store your card details.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">4. Cookies</div><p>Hum basic session cookies use karte hain website functionality ke liye. Koi third-party tracking nahi.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">5. Contact</div><p>Privacy concerns ke liye: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></p></div>
+      </div>
+    `
+  },
+  terms: {
+    title: '📋 Terms & Conditions',
+    content: `
+      <div style="margin-bottom:14px;font-size:.75rem;color:var(--t3)">Last updated: March 2026 · Governing jurisdiction: Delhi, India</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">1. Course Access</div><p>Enrollment ke baad aapko course ka lifetime access milta hai. Access sirf aapke personal use ke liye hai — sharing, reselling, ya redistribution prohibited hai.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">2. Intellectual Property</div><p>Saara course content — videos, PDFs, practice files — Skill2Job ka intellectual property hai. Unauthorized copying ya distribution legal action ka kaaran ban sakta hai.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">3. Payment & Pricing</div><p>Prices INR mein hain aur GST inclusive hain. Prices without notice ke change ho sakte hain. Enrolled students ko existing price lock milta hai.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">4. User Conduct</div><p>Aap course platform ka use respectfully karo. Kisi bhi abusive, spamming, ya inappropriate behavior pe account terminate ho sakta hai.</p></div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">5. Governing Law</div><p>Yeh terms Delhi, India ke laws ke under governed hain. Disputes ke liye Delhi courts mein jurisdiction hoga.</p></div>
+      </div>
+    `
+  },
+  refund: {
+    title: '🛡️ Refund Policy',
+    content: `
+      <div style="background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.02));border:1px solid rgba(0,232,122,.2);border-radius:14px;padding:20px;margin-bottom:20px">
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;color:var(--em);margin-bottom:8px">🛡️ 7-Day Money-Back Guarantee</div>
+        <p>Hum apne course ki quality mein 100% confident hain. Isliye hum <strong style="color:var(--t1)">no-questions-asked 7-day refund</strong> dete hain.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">Refund Eligibility</div>
+          <ul style="padding-left:16px;display:flex;flex-direction:column;gap:6px">
+            <li>Purchase ke 7 days ke andar request karo</li>
+            <li>WhatsApp ya email pe refund request bhejo</li>
+            <li>Refund 5-7 business days mein original payment method pe process hoga</li>
+          </ul>
+        </div>
+        <div><div style="font-weight:700;color:var(--t1);margin-bottom:6px">Non-Refundable Cases</div>
+          <ul style="padding-left:16px;display:flex;flex-direction:column;gap:6px">
+            <li>7 days ke baad refund request</li>
+            <li>Course complete karne ke baad certificate issued ho chuka ho</li>
+          </ul>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px">
+          <div style="font-weight:700;color:var(--t1);margin-bottom:8px">Refund Request Kaise Karein</div>
+          <p>WhatsApp karo: <a href="https://wa.me/918826340509?text=Refund+request" target="_blank" style="color:var(--em)">+91 88263 40509</a> ya email: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></p>
+        </div>
+      </div>
+    `
+  },
+  blog: {
+    title: '📝 Blog — Excel Tips & Career Advice',
+    content: `
+      <div style="margin-bottom:20px;padding:14px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;font-size:.78rem;color:var(--em)">🚀 Blog coming soon! Subscribe karo latest tips ke liye.</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="font-size:.6rem;color:var(--em);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">📊 Excel Tips</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:6px">Top 10 VLOOKUP Mistakes Jo Hum Sab Karte Hain</div>
+          <p>VLOOKUP India ka sabse commonly used formula hai — lekin isko galat use karna bhi sabse common mistake hai...</p>
+          <div style="font-size:.65rem;color:var(--t3);margin-top:8px">Coming Soon · 5 min read</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="font-size:.6rem;color:var(--blue2);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">💼 Career Tips</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:6px">Excel Se Job Kaise Milti Hai — 2026 Guide</div>
+          <p>Excel knowledge 2026 mein bhi sabse demanded office skill hai. Yeh jaano ki companies actually kya dhundhti hain...</p>
+          <div style="font-size:.65rem;color:var(--t3);margin-top:8px">Coming Soon · 8 min read</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="font-size:.6rem;color:var(--amber2);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">📈 MIS Reports</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:6px">MIS Report Banao 15 Minutes Mein — Step by Step</div>
+          <p>Har office mein MIS report ki zaroorat hoti hai. Agar aap yeh jante ho toh aap office ka star ban sakte ho...</p>
+          <div style="font-size:.65rem;color:var(--t3);margin-top:8px">Coming Soon · 6 min read</div>
+        </div>
+      </div>
+    `
+  },
+  careers: {
+    title: '💼 Careers at Skill2Job',
+    content: `
+      <div style="margin-bottom:20px;text-align:center;padding:20px">
+        <div style="font-size:2.5rem;margin-bottom:12px">🚀</div>
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:8px">Join Our Mission</div>
+        <p>Hum India mein digital skills revolution la rahe hain. Agar aapko education, technology, ya content mein passion hai — hum aapko dhundh rahe hain!</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:700;color:var(--t1)">📹 Content Creator / Video Editor</div>
+            <span style="font-size:.6rem;padding:3px 8px;border-radius:100px;background:rgba(0,232,122,.1);color:var(--em);font-weight:700">Open</span>
+          </div>
+          <p style="font-size:.8rem;margin-bottom:8px">Excel course videos edit karo, thumbnails banao, social media content create karo.</p>
+          <div style="font-size:.7rem;color:var(--t3)">Remote · Part-time · ₹10,000-20,000/month</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:700;color:var(--t1)">💬 Student Support Executive</div>
+            <span style="font-size:.6rem;padding:3px 8px;border-radius:100px;background:rgba(0,232,122,.1);color:var(--em);font-weight:700">Open</span>
+          </div>
+          <p style="font-size:.8rem;margin-bottom:8px">Students ke doubts WhatsApp pe solve karo, onboarding help karo.</p>
+          <div style="font-size:.7rem;color:var(--t3)">Remote · Flexible hours · ₹8,000-15,000/month</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-weight:700;color:var(--t1)">📱 Social Media Manager</div>
+            <span style="font-size:.6rem;padding:3px 8px;border-radius:100px;background:rgba(251,191,36,.1);color:var(--amber2);font-weight:700">Soon</span>
+          </div>
+          <p style="font-size:.8rem;margin-bottom:8px">Instagram, YouTube, LinkedIn manage karo. Growth hacking strategy.</p>
+          <div style="font-size:.7rem;color:var(--t3)">Remote · Full-time · ₹15,000-25,000/month</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;text-align:center;padding:16px;background:var(--s1);border:1px solid var(--b1);border-radius:14px">
+        <p style="margin-bottom:10px;font-weight:600;color:var(--t1)">Apply karo 👇</p>
+        <a href="mailto:skill2jobai@gmail.com?subject=Career Application" style="display:inline-flex;align-items:center;gap:8px;background:var(--em);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.85rem;padding:10px 24px;border-radius:100px;text-decoration:none">✉️ Email CV → skill2jobai@gmail.com</a>
+      </div>
+    `
+  }
+};
+
+function openPage(page){
+  var p = INFO_PAGES[page];
+  if(!p) return;
+  document.getElementById('infoPageTitle').textContent = p.title;
+  document.getElementById('infoPageContent').innerHTML = p.content;
+  document.getElementById('infoPageModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeInfoPage(){
+  document.getElementById('infoPageModal').classList.remove('open');
+  document.body.style.overflow='';
+}
 </script>
+
+
+
+<!-- ══ AI ASSISTANT ══ -->
+<div id="aiAssistant" style="position:fixed;bottom:90px;right:20px;z-index:8000;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+  <!-- Chat window -->
+  <div id="aiChatWindow" style="display:none;width:320px;background:var(--bg2);border:1px solid var(--b1);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;flex-direction:column;max-height:420px">
+    <!-- Header -->
+    <div style="padding:14px 18px;background:linear-gradient(135deg,rgba(0,232,122,.12),rgba(6,182,212,.08));border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;font-size:.9rem;flex-shrink:0">🤖</div>
+      <div>
+        <div style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--t1)">Skill2Job Assistant</div>
+        <div style="font-size:.62rem;color:var(--em);display:flex;align-items:center;gap:4px"><span style="width:5px;height:5px;border-radius:50%;background:var(--em);display:inline-block;animation:pulse 2s infinite"></span>Online</div>
+      </div>
+      <button onclick="closeAI()" style="margin-left:auto;background:none;border:none;color:var(--t3);cursor:pointer;font-size:1rem;line-height:1;padding:4px" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">✕</button>
+    </div>
+    <!-- Messages -->
+    <div id="aiMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;max-height:260px;min-height:180px">
+      <div class="ai-msg ai-bot" style="background:var(--s1);border:1px solid var(--b1);border-radius:12px 12px 12px 4px;padding:10px 12px;font-size:.78rem;color:var(--t1);max-width:85%;line-height:1.6">
+        👋 Hi! Main Skill2Job Assistant hoon. Course, pricing, ya koi bhi sawaal poocho!
+      </div>
+    </div>
+    <!-- Quick questions -->
+    <div style="padding:8px 16px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--b1)">
+      <button onclick="askAI('Course mein kya sikhate hain?')" style="font-size:.6rem;padding:4px 10px;border-radius:100px;background:var(--s1);border:1px solid var(--b1);color:var(--t2);cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">📚 Course kya hai?</button>
+      <button onclick="askAI('Price kitni hai aur EMI available hai kya?')" style="font-size:.6rem;padding:4px 10px;border-radius:100px;background:var(--s1);border:1px solid var(--b1);color:var(--t2);cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">💰 Pricing?</button>
+      <button onclick="askAI('Certificate milega kya?')" style="font-size:.6rem;padding:4px 10px;border-radius:100px;background:var(--s1);border:1px solid var(--b1);color:var(--t2);cursor:pointer;transition:all .2s;white-space:nowrap" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🏅 Certificate?</button>
+    </div>
+    <!-- Input -->
+    <div style="padding:12px 16px;border-top:1px solid var(--b1);display:flex;gap:8px">
+      <input id="aiInput" type="text" placeholder="Apna sawaal poocho..." style="flex:1;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:9px 12px;color:var(--t1);font-family:'Outfit',sans-serif;font-size:.78rem;outline:none;transition:border-color .2s" onkeydown="if(event.key==='Enter')sendAI()" onfocus="this.style.borderColor='rgba(0,232,122,.4)'" onblur="this.style.borderColor='var(--b1)'" placeholder="Kuch bhi poocho...">
+      <button onclick="sendAI()" style="width:36px;height:36px;border-radius:10px;background:var(--em);border:none;cursor:pointer;display:grid;place-items:center;font-size:.9rem;transition:all .2s;flex-shrink:0" onmouseover="this.style.background='var(--em2)'" onmouseout="this.style.background='var(--em)'">→</button>
+    </div>
+  </div>
+  <!-- FAB button -->
+  <button id="aiFab" onclick="toggleAI()" style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--em),#00b36b);border:none;cursor:pointer;display:grid;place-items:center;font-size:1.3rem;box-shadow:0 4px 20px rgba(0,232,122,.4);transition:all .2s;animation:glowBreath 3s ease infinite" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''">🤖</button>
+</div>
+
+
+<!-- ══ EMI CALCULATOR ══ -->
+<div class="modal-overlay" id="emiModal" onclick="if(event.target===this)closeEMI()">
+  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:440px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,232,122,.1)">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent)"></div>
+    <button onclick="closeEMI()" style="position:absolute;top:14px;right:16px;background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem;z-index:1">✕</button>
+    <div style="padding:28px 28px 8px;border-bottom:1px solid var(--b1);text-align:center">
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--t1);margin-bottom:4px">📊 Free EMI Calculator</div>
+      <div style="font-size:.78rem;color:var(--t3)">Excel course ke liye EMI calculate karo</div>
+    </div>
+    <div style="padding:24px 28px">
+      <!-- Loan amount -->
+      <div style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <label style="font-size:.72rem;font-weight:600;color:var(--em);text-transform:uppercase;letter-spacing:.08em">Course Amount</label>
+          <span id="emiAmtVal" style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--t1)">₹799</span>
+        </div>
+        <input type="range" id="emiAmt" min="199" max="5000" value="799" step="100" style="width:100%;accent-color:var(--em);cursor:pointer" oninput="calcEMI()">
+      </div>
+      <!-- Months -->
+      <div style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <label style="font-size:.72rem;font-weight:600;color:var(--blue2);text-transform:uppercase;letter-spacing:.08em">Tenure</label>
+          <span id="emiMonVal" style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--t1)">3 months</span>
+        </div>
+        <input type="range" id="emiMon" min="1" max="12" value="3" step="1" style="width:100%;accent-color:var(--blue2);cursor:pointer" oninput="calcEMI()">
+      </div>
+      <!-- Interest -->
+      <div style="margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <label style="font-size:.72rem;font-weight:600;color:var(--amber2);text-transform:uppercase;letter-spacing:.08em">Interest Rate (p.a.)</label>
+          <span id="emiRateVal" style="font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;color:var(--t1)">0%</span>
+        </div>
+        <input type="range" id="emiRate" min="0" max="24" value="0" step="1" style="width:100%;accent-color:var(--amber2);cursor:pointer" oninput="calcEMI()">
+      </div>
+      <!-- Result -->
+      <div style="background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.02));border:1px solid rgba(0,232,122,.2);border-radius:16px;padding:20px;text-align:center;margin-bottom:18px">
+        <div style="font-size:.72rem;color:var(--t3);margin-bottom:6px">Monthly EMI</div>
+        <div id="emiResult" style="font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;color:var(--em);line-height:1">₹266</div>
+        <div id="emiBreakdown" style="font-size:.65rem;color:var(--t3);margin-top:8px">Total: ₹799 · Interest: ₹0 · 3 installments</div>
+      </div>
+      <button onclick="openEnrollModal();closeEMI()" style="width:100%;background:var(--em);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;padding:14px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 0 20px rgba(0,232,122,.3);transition:all .2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">🚀 Enroll Now — Start Learning</button>
+      <div style="text-align:center;font-size:.62rem;color:var(--t4);margin-top:10px">💡 EMI available via credit card / Razorpay</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCTS LAUNCHER ══ -->
+<div class="modal-overlay" id="productsLauncher" onclick="if(event.target===this)closeProductsLauncher()">
+  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:500px;position:relative;overflow:hidden;box-shadow:0 0 80px rgba(0,0,0,.5)">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--em),var(--cyan2),var(--violet2),var(--pink2))"></div>
+    <button onclick="closeProductsLauncher()" style="position:absolute;top:14px;right:16px;background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem;z-index:1;transition:all .2s" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">✕</button>
+    <div style="padding:28px 28px 8px;text-align:center;border-bottom:1px solid var(--b1)">
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--t1);margin-bottom:4px">Our Products</div>
+      <div style="font-size:.78rem;color:var(--t3)">Tap to open any product</div>
+    </div>
+    <div style="padding:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px">
+      <!-- Excel Job Ready -->
+      <a href="excel-course-premium.html" onclick="closeProductsLauncher()" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
+        <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(0,232,122,.2),rgba(0,232,122,.05));border:1px solid rgba(0,232,122,.35);display:grid;place-items:center;font-size:1.6rem;box-shadow:0 4px 16px rgba(0,232,122,.2)">📊</div>
+        <span style="font-size:.62rem;font-weight:600;color:var(--t2);text-align:center;line-height:1.3">Excel Job<br>Ready</span>
+        <span style="font-size:.55rem;font-weight:700;color:var(--em)">₹799</span>
+      </a>
+      <!-- Formula eBook -->
+      <a href="javascript:void(0)" onclick="closeProductsLauncher();openEnrollModal('complete')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
+        <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,191,36,.05));border:1px solid rgba(251,191,36,.35);display:grid;place-items:center;font-size:1.6rem;box-shadow:0 4px 16px rgba(251,191,36,.15)">📘</div>
+        <span style="font-size:.62rem;font-weight:600;color:var(--t2);text-align:center;line-height:1.3">Formula<br>eBook</span>
+        <span style="font-size:.55rem;font-weight:700;color:var(--amber2)">₹149</span>
+      </a>
+      <!-- Business Dashboard -->
+      <a href="javascript:void(0)" onclick="closeProductsLauncher();openEnrollModal('complete')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
+        <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(96,165,250,.05));border:1px solid rgba(96,165,250,.35);display:grid;place-items:center;font-size:1.6rem;box-shadow:0 4px 16px rgba(96,165,250,.15)">📈</div>
+        <span style="font-size:.62rem;font-weight:600;color:var(--t2);text-align:center;line-height:1.3">Business<br>Dashboard</span>
+        <span style="font-size:.55rem;font-weight:700;color:var(--blue2)">₹499</span>
+      </a>
+      <!-- TaskFlow -->
+      <a href="javascript:void(0)" onclick="closeProductsLauncher();window.open('https://wa.me/918826340509?text=Hi+I+want+to+join+TaskFlow+beta','_blank')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
+        <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(167,139,250,.05));border:1px solid rgba(167,139,250,.35);display:grid;place-items:center;font-size:1.6rem;box-shadow:0 4px 16px rgba(167,139,250,.15);position:relative">✅<span style="position:absolute;top:-4px;right:-4px;background:var(--violet2);color:#fff;font-size:.4rem;font-weight:700;padding:1px 4px;border-radius:100px">SOON</span></div>
+        <span style="font-size:.62rem;font-weight:600;color:var(--t2);text-align:center;line-height:1.3">Task<br>Flow</span>
+        <span style="font-size:.55rem;font-weight:700;color:var(--violet2)">Free</span>
+      </a>
+    </div>
+    <!-- Bottom trust strip -->
+    <div style="margin:0 28px 24px;padding:12px 16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;text-align:center;font-size:.7rem;color:var(--t3)">
+      🛡️ Secure checkout &nbsp;·&nbsp; ♾️ Lifetime access &nbsp;·&nbsp; 💬 WhatsApp support
+    </div>
+  </div>
+</div>
 
 <!-- ══ ENROLL MODAL ══ -->
 <div class="modal-overlay" id="enrollModal" onclick="if(event.target===this)closeEnrollModal()">
@@ -2433,6 +2878,18 @@ function slDoActivate() {
         <a href="https://wa.me/918826340509?text=Hi%2C+I+need+help+with+my+course+login" target="_blank" style="font-size:.75rem;color:var(--t3);text-decoration:none;transition:color .2s" onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='var(--t3)'">💬 Help chahiye? WhatsApp karo →</a>
       </div>
     </div>
+  </div>
+</div>
+
+
+<!-- ══ INFO PAGES MODAL ══ -->
+<div class="modal-overlay" id="infoPageModal" onclick="if(event.target===this)closeInfoPage()">
+  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:600px;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(0,0,0,.5)">
+    <div style="position:sticky;top:0;background:var(--bg2);padding:20px 28px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;z-index:1">
+      <div id="infoPageTitle" style="font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--t1)">Page</div>
+      <button onclick="closeInfoPage()" style="background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem">✕</button>
+    </div>
+    <div id="infoPageContent" style="padding:24px 28px;font-size:.88rem;color:var(--t2);line-height:1.85"></div>
   </div>
 </div>
 
