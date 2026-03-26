@@ -1939,7 +1939,7 @@ function submitCallback() {
 
   btn.textContent = '✅ Request Sent!';
   msg.className = 'cb-msg success';
-  msg.textContent = '✅ We've received your request! We\'ll call you back within 2 hours.';
+  msg.textContent = "✅ We've received your request! We'll call you back within 2 hours.";
   msg.style.display = 'block';
   document.getElementById('cb-name').value = '';
   document.getElementById('cb-phone').value = '';
@@ -2746,13 +2746,11 @@ function handleEnrollWA(e) {
   e.preventDefault();
   const plan = document.querySelector('input[name="plan"]:checked').value;
   const planNames = { basic: 'Basic (₹599)', complete: 'Complete (₹799)', premium: 'Premium (₹2,999)' };
-  const text = encodeURIComponent('Hi, I want to enroll in Excel Job Ready course.
-Plan: ' + planNames[plan] + '
-Please share payment details.');
+  const text = encodeURIComponent('Hi, I want to enroll in Excel Job Ready course. Plan: ' + planNames[plan] + '. Please share payment details.');
   window.open('https://wa.me/918826340509?text=' + text, '_blank');
 }
 
-/* ══════════════════════════════
-   H
+</script>
 <script src="/bot.js"></script>
-E
+</body>
+</html>
