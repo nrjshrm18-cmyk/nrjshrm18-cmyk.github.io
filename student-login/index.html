@@ -267,6 +267,7 @@ h1,h2,h3,.logo-text{font-family:'Clash Display','Outfit',sans-serif}
   .vn-btn,.mark-done-btn{justify-content:center}
 }
 </style>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -1067,7 +1068,37 @@ function downloadCert() {
   <div class="footer">
     <div class="sig"><div class="sig-line"></div><p>Excel Job Ready Team<br>Skill2Job</p></div>
     <div class="date">${date}</div>
-  </div></div></body></html>`;
+  </div></div>
+<!-- ✅ Razorpay Integration — Auto-injected by razorpay_inject.py -->
+<script>
+function openRazorpay() {
+  var options = {
+    key: "rzp_test_XXXXXXXXXXXXXXrzp_live_SVv0ymYh6gFP1k",
+    amount: 79900,
+    currency: "INR",
+    name: "Skill2Job",
+    description: "Excel Job Ready Course",
+    image: "https://skill2jobai.com/logo.png",
+    handler: function (response) {
+      alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+      window.location.href = "/student-portal.html";
+    },
+    prefill: {
+      name: "",
+      email: "",
+      contact: ""
+    },
+    theme: {
+      color: "#6366f1"
+    }
+  };
+  var rzp = new Razorpay(options);
+  rzp.open();
+}
+</script>
+<!-- ✅ End Razorpay Integration -->
+
+</body></html>`;
 
   const blob = new Blob([certHTML], { type: 'text/html' });
   const url = URL.createObjectURL(blob);

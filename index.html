@@ -694,6 +694,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   body{padding-bottom:88px}
 }
 </style>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -733,7 +734,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <div class="nav-right">
     <button onclick="openEMI()" style="font-size:.68rem;font-weight:600;padding:6px 14px;border-radius:100px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--em);cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(0,232,122,.15)'" onmouseout="this.style.background='rgba(0,232,122,.08)'">📊 EMI</button><span class="nav-pill">🔥 2,800+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentLoginModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
-    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta">Enroll Now →</a>
+    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" onclick="openRazorpay()">Enroll Now →</a>
   </div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
 </nav>
@@ -955,7 +956,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
             <span class="discount-tag">84% OFF</span>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:13px 28px">Enroll Now →</a>
+            <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:13px 28px" onclick="openRazorpay()">Enroll Now →</a>
             <a href="./excel-job-ready/index.html" class="btn-ghost" style="font-size:.85rem;padding:13px 24px">View Details →</a>
           </div>
         </div>
@@ -2895,5 +2896,35 @@ function closeInfoPage(){
 
 
 <script src="/bot.js"></script>
+
+<!-- ✅ Razorpay Integration — Auto-injected by razorpay_inject.py -->
+<script>
+function openRazorpay() {
+  var options = {
+    key: "rzp_test_XXXXXXXXXXXXXXrzp_live_SVv0ymYh6gFP1k",
+    amount: 79900,
+    currency: "INR",
+    name: "Skill2Job",
+    description: "Excel Job Ready Course",
+    image: "https://skill2jobai.com/logo.png",
+    handler: function (response) {
+      alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+      window.location.href = "/student-portal.html";
+    },
+    prefill: {
+      name: "",
+      email: "",
+      contact: ""
+    },
+    theme: {
+      color: "#6366f1"
+    }
+  };
+  var rzp = new Razorpay(options);
+  rzp.open();
+}
+</script>
+<!-- ✅ End Razorpay Integration -->
+
 </body>
 </html>

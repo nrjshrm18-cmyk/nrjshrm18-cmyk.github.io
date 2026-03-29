@@ -1246,6 +1246,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
   .footer-bottom{flex-direction:column;align-items:flex-start;gap:6px}
 }
 </style>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -1291,7 +1292,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
   <div class="nav-right">
     <span class="nav-pill">🔥 2,800+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
-    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="nav-cta">Enroll Now →</a>
+    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="nav-cta" onclick="openRazorpay()">Enroll Now →</a>
   </div>
   <div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
 </nav>
@@ -1849,7 +1850,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
       <span class="sb-price-label">One-time payment</span>
     </div>
     <div class="sb-divider-v"></div>
-    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="sb-btn">Enroll Now →</a>
+    <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="sb-btn" onclick="openRazorpay()">Enroll Now →</a>
     <button class="sb-close" onclick="document.getElementById('stickyBar').style.display='none'">✕</button>
   </div>
 </div>
@@ -2752,5 +2753,35 @@ function handleEnrollWA(e) {
 
 </script>
 <script src="/bot.js"></script>
+
+<!-- ✅ Razorpay Integration — Auto-injected by razorpay_inject.py -->
+<script>
+function openRazorpay() {
+  var options = {
+    key: "rzp_test_XXXXXXXXXXXXXXrzp_live_SVv0ymYh6gFP1k",
+    amount: 79900,
+    currency: "INR",
+    name: "Skill2Job",
+    description: "Excel Job Ready Course",
+    image: "https://skill2jobai.com/logo.png",
+    handler: function (response) {
+      alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
+      window.location.href = "/student-portal.html";
+    },
+    prefill: {
+      name: "",
+      email: "",
+      contact: ""
+    },
+    theme: {
+      color: "#6366f1"
+    }
+  };
+  var rzp = new Razorpay(options);
+  rzp.open();
+}
+</script>
+<!-- ✅ End Razorpay Integration -->
+
 </body>
 </html>
