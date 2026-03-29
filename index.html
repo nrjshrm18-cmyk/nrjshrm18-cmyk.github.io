@@ -59,7 +59,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--t1);overfl
 @media(prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}.btn-glow::before{animation:none}}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;transition:all .4s;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(10,10,15,.65);border-bottom:1px solid rgba(255,255,255,.07)}
 nav.solid{background:rgba(5,5,7,.92);backdrop-filter:blur(28px);border-bottom:1px solid var(--b1)}
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .nav-logo-box{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:#000;box-shadow:0 0 16px rgba(0,232,122,.4);flex-shrink:0}
