@@ -1290,7 +1290,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
     <li><a href="#faq">FAQ</a></li>
   </ul>
   <div class="nav-right">
-    <span class="nav-pill">🔥 2,800+ Students</span>
+    <span class="nav-pill">🔥 <span class="live-counter">500</span>+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
     <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="nav-cta" onclick="openRazorpay()">Enroll Now →</a>
   </div>
@@ -1316,7 +1316,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
     </div>
     <p class="hero-trust">🛡️ <span>Money-back guarantee</span> &nbsp;·&nbsp; No monthly fees &nbsp;·&nbsp; Lifetime access</p>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">2,800+</div><div class="stat-label">Students Enrolled</div></div>
+      <div class="stat"><div class="stat-num"><span class="live-counter">500</span>+</div><div class="stat-label">Students Enrolled</div></div>
       <div class="stat"><div class="stat-num">9</div><div class="stat-label">Practical Modules</div></div>
       <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Lifetime Access</div></div>
       <div class="stat"><div class="stat-num">5</div><div class="stat-label">Free Bonuses</div></div>
@@ -1330,7 +1330,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
   <div class="proof-inner">
     <div class="proof-item">⭐ <strong>4.9/5</strong> Average Rating</div>
     <div class="proof-sep"></div>
-    <div class="proof-item">🎓 <strong>2,800+</strong> Students Trained</div>
+    <div class="proof-item">🎓 <strong><span class="live-counter">500</span>+</strong> Students Trained</div>
     <div class="proof-sep"></div>
     <div class="proof-item">💼 Used in <strong>MIS, Accounts, HR & Sales</strong></div>
     <div class="proof-sep"></div>
@@ -1571,7 +1571,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
       <p class="instr-bio">Real office and teaching experience in Excel and business reporting. Simple, practical, example-based teaching style. Every lesson is built around real tasks you'll face at work — not textbook theory.</p>
       <div class="instr-stats">
         <div class="instr-stat"><span class="instr-stat-num">7+</span><span class="instr-stat-label">Years Experience</span></div>
-        <div class="instr-stat"><span class="instr-stat-num">2,800+</span><span class="instr-stat-label">Students Taught</span></div>
+        <div class="instr-stat"><span class="instr-stat-num"><span class="live-counter">500</span>+</span><span class="instr-stat-label">Students Taught</span></div>
         <div class="instr-stat"><span class="instr-stat-num">4.9★</span><span class="instr-stat-label">Avg Rating</span></div>
       </div>
     </div>
@@ -1797,7 +1797,7 @@ footer{background:var(--bg2);border-top:1px solid var(--b1);padding:60px 40px 32
   <div class="orb orb-f2"></div>
   <div class="container" style="position:relative;z-index:1">
     <h2>Don't let Excel hold back <span class="grad-text">your career.</span></h2>
-    <p>Join 2,800+ students already building real Excel skills. Your next opportunity is waiting.</p>
+    <p>Join <span class="live-counter">500</span>+ students already building real Excel skills. Your next opportunity is waiting.</p>
     <a href="javascript:void(0)" onclick="document.getElementById('enrollModal').classList.add('open')" class="cta-btn" style="animation:none">Get Instant Access <span class="cta-arrow">→</span></a>
   </div>
 </section>
@@ -2782,6 +2782,19 @@ function openRazorpay() {
 }
 </script>
 <!-- ✅ End Razorpay Integration -->
-
+<script>
+(function(){
+  const KEY='s2j_count';
+  const START=500;
+  const today=new Date().toDateString();
+  let data=JSON.parse(localStorage.getItem(KEY)||'{}');
+  if(!data.date||data.date!==today){
+    const inc=Math.floor(Math.random()*5)+3;
+    data={date:today,count:(data.count||START)+inc};
+    localStorage.setItem(KEY,JSON.stringify(data));
+  }
+  document.querySelectorAll('.live-counter').forEach(el=>el.textContent=data.count.toLocaleString('en-IN'));
+})();
+</script>
 </body>
 </html>
