@@ -65,12 +65,19 @@ nav.solid{background:rgba(5,5,7,.92);backdrop-filter:blur(28px);border-bottom:1p
 .nav-logo-box{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:#000;box-shadow:0 0 16px rgba(0,232,122,.4);flex-shrink:0}
 .nav-brand-name{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--t1);letter-spacing:-.01em}
 .nav-links{display:flex;align-items:center;gap:28px;list-style:none}
-.nav-links a{font-size:.78rem;font-weight:500;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;letter-spacing:.01em}
-.nav-links a:hover{color:rgba(255,255,255,.95)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.nav-pill{font-size:.68rem;font-weight:600;padding:5px 12px;border-radius:100px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.18);color:var(--em);letter-spacing:.02em}
-.nav-cta{font-family:'Clash Display',sans-serif;font-size:.76rem;font-weight:700;background:linear-gradient(135deg,#00e87a,#00b36b);color:#000;padding:9px 22px;border-radius:100px;text-decoration:none;letter-spacing:.04em;transition:all .25s;box-shadow:0 0 20px rgba(0,232,122,.25)}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,232,122,.45)}
+.nav-links a{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.75);text-decoration:none;transition:all .2s;letter-spacing:.03em}
+.nav-links a:hover{color:var(--t1)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-pill{font-size:.7rem;font-weight:600;padding:5px 12px;border-radius:100px;background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);color:var(--em)}
+.nav-cta{font-family:'Clash Display',sans-serif;font-size:.78rem;font-weight:600;background:var(--em);color:#000;padding:9px 22px;border-radius:100px;text-decoration:none;letter-spacing:.03em;transition:all .2s}
+.nav-cta:hover{background:var(--em2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,232,122,.35)}
+.countdown-bar{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:100px;padding:8px 20px;margin:16px auto 0;backdrop-filter:blur(10px);flex-wrap:nowrap}
+.countdown-label{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.03em;white-space:nowrap}
+.countdown-blocks{display:flex;align-items:center;gap:6px}
+.cd-block{display:flex;flex-direction:column;align-items:center;gap:1px}
+.cd-num{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--em);line-height:1;min-width:28px;text-align:center}
+.cd-unit{font-size:.5rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase}
+.cd-sep{font-size:.9rem;font-weight:700;color:rgba(0,232,122,.5);margin-bottom:8px}
 .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
 .ham span{width:20px;height:1.5px;background:var(--t1);display:block;border-radius:2px}
 
@@ -694,7 +701,6 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   body{padding-bottom:88px}
 }
 </style>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -722,7 +728,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   </div>
 </div>
 
-<nav id="nav" style="backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(10,10,15,.6);border-bottom:1px solid rgba(255,255,255,.06);">
+<nav id="nav">
   <a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="nav-brand"><div class="nav-logo-box">S2</div><span class="nav-brand-name">Skill2Job</span></a>
   <ul class="nav-links">
     <li><a href="#problem">Problem</a></li>
@@ -734,7 +740,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <div class="nav-right">
     <span class="nav-pill">🔥 2,800+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentLoginModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
-    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" onclick="openRazorpay()">Enroll Now →</a>
+    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta">Enroll Now →</a>
   </div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
 </nav>
@@ -743,7 +749,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
 <div class="mob-sticky-bar">
   <div class="mob-sticky-bar-inner">
     <button class="mob-sticky-enroll" onclick="openEnrollModal()">🚀 Enroll Now — ₹799</button>
-    <button class="mob-sticky-wa" onclick="openRazorpay()" title="WhatsApp">💬</button>
+    <button class="mob-sticky-wa" onclick="window.open('https://wa.me/918826340509?text=Hi%2C+I+want+to+know+more+about+Excel+Job+Ready','_blank')" title="WhatsApp">💬</button>
   </div>
 </div>
 
@@ -754,7 +760,6 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <div class="hero-inner">
 
     <!-- Live badge -->
-     
     <div class="hero-badge">
       <span class="badge-chip">🇮🇳 India's #1</span>
       <span class="badge-text">2,800+ professionals ne trust kiya</span>
@@ -806,18 +811,6 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
       🛡️ Money-back guarantee &nbsp;·&nbsp; ♾️ Lifetime access &nbsp;·&nbsp; 📱 Mobile friendly
     </div>
     <div class="countdown-bar"><span class="countdown-label">🔥 Offer ends in</span><div class="countdown-blocks"><div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-unit">HRS</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-unit">MIN</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-unit">SEC</span></div></div></div>
-```
-
-Phir CSS update karo — **Ctrl+H:**
-
-**Find:**
-```
-.countdown-bar{display:flex;align-items:center;justify-content:center;gap:16px;background:linear-gradient(90deg,rgba(0,232,122,.08),rgba(99,102,241,.08));border:1px solid rgba(0,232,122,.15);border-radius:16px;padding:14px 28px;margin:0 auto 32px;max-width:520px;backdrop-filter:blur(10px)}
-```
-
-**Replace:**
-```
-.countdown-bar{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:100px;padding:8px 20px;margin:16px auto 0;backdrop-filter:blur(10px);flex-wrap:nowrap}
 
     <!-- Floating achievement cards -->
     <div class="hero-floats">
@@ -970,7 +963,7 @@ Phir CSS update karo — **Ctrl+H:**
             <span class="discount-tag">84% OFF</span>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:13px 28px" onclick="openRazorpay()">Enroll Now →</a>
+            <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:13px 28px">Enroll Now →</a>
             <a href="./excel-job-ready/index.html" class="btn-ghost" style="font-size:.85rem;padding:13px 24px">View Details →</a>
           </div>
         </div>
@@ -1697,7 +1690,7 @@ Phir CSS update karo — **Ctrl+H:**
           <p style="font-size:.82rem;color:var(--t2);line-height:1.75;margin-bottom:20px">"Mera goal simple hai — aapko woh skills dena jo actually office mein kaam aayein. Koi boring theory nahi, sirf real kaam."</p>
           <!-- Social links -->
           <div style="display:flex;gap:8px;justify-content:center">
-            <a href="#" onclick="openRazorpay()" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366;font-size:.75rem;font-weight:600;padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(37,211,102,.2)'" onmouseout="this.style.background='rgba(37,211,102,.12)'">💬 WhatsApp</a>
+            <a href="https://wa.me/918826340509" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366;font-size:.75rem;font-weight:600;padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(37,211,102,.2)'" onmouseout="this.style.background='rgba(37,211,102,.12)'">💬 WhatsApp</a>
             <a href="https://t.me/skill2jobai" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(42,165,224,.12);border:1px solid rgba(42,165,224,.25);color:#2CA5E0;font-size:.75rem;font-weight:600;padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(42,165,224,.2)'" onmouseout="this.style.background='rgba(42,165,224,.12)'">✈️ Telegram</a>
           </div>
         </div>
@@ -1730,7 +1723,7 @@ Phir CSS update karo — **Ctrl+H:**
           <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">🎁 Exclusive discounts</div>
         </div>
         <!-- CTA -->
-        <a href="#" onclick="openRazorpay()" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:1rem;padding:16px 40px;border-radius:100px;text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(37,211,102,.35)" onmouseover="this.style.background='#22c55e';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#25D366';this.style.transform='translateY(0)'">
+        <a href="https://wa.me/918826340509?text=Hi%2C%20I%20want%20to%20join%20the%20Skill2Job%20WhatsApp%20community" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:1rem;padding:16px 40px;border-radius:100px;text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(37,211,102,.35)" onmouseover="this.style.background='#22c55e';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#25D366';this.style.transform='translateY(0)'">
           💬 Join Free Community →
         </a>
         <p style="font-size:.72rem;color:var(--t3);margin-top:14px">2,800+ members · 100% free · Kabhi bhi leave kar sakte ho</p>
@@ -1773,7 +1766,7 @@ Phir CSS update karo — **Ctrl+H:**
 </div></div>
       <div class="foot-col"><div class="foot-col-title">Products</div><a href="./excel-job-ready/index.html">📊 Excel Job Ready</a><a href="#">📘 Formula eBook</a><a href="#">📈 Business Dashboard</a><a href="#">✅ TaskFlow App</a></div>
       <div class="foot-col"><div class="foot-col-title">Company</div><a href="javascript:void(0)" onclick="openPage('about')">👋 About Us</a><a href="javascript:void(0)" onclick="openPage('blog')">📝 Blog</a><a href="javascript:void(0)" onclick="openPage('careers')">💼 Careers</a><a href="#faq">❓ FAQ</a><a href="javascript:void(0)" onclick="openEMI()">📊 EMI Calculator</a></div>
-      <div class="foot-col"><div class="foot-col-title">Contact</div><a href="tel:+918826340509">📱 +91 88263 40509</a><a href="#" onclick="openRazorpay()">💬 WhatsApp Support</a><a href="/cdn-cgi/l/email-protection#3a4951535656085055585b537a5d575b535614595557">✉️ <span class="__cf_email__" data-cfemail="cab9a1a3a6a6f8a0a5a8aba38aada7aba3a6e4a9a5a7">[email&#160;protected]</span></a><a href="https://t.me/skill2jobai">✈️ Telegram</a></div>
+      <div class="foot-col"><div class="foot-col-title">Contact</div><a href="tel:+918826340509">📱 +91 88263 40509</a><a href="https://wa.me/918826340509">💬 WhatsApp Support</a><a href="/cdn-cgi/l/email-protection#3a4951535656085055585b537a5d575b535614595557">✉️ <span class="__cf_email__" data-cfemail="cab9a1a3a6a6f8a0a5a8aba38aada7aba3a6e4a9a5a7">[email&#160;protected]</span></a><a href="https://t.me/skill2jobai">✈️ Telegram</a></div>
     </div>
     <div class="footer-bottom"><span>© 2026 Skill2Job. All rights reserved. Delhi, India.</span><div class="footer-bottom-links"><a href="javascript:void(0)" onclick="openPage('privacy')">Privacy Policy</a><a href="javascript:void(0)" onclick="openPage('terms')">Terms</a><a href="javascript:void(0)" onclick="openPage('refund')">Refund Policy</a></div></div>
   </div>
@@ -1876,7 +1869,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
 const RAZORPAY_LINKS = {
   basic:    'https://rzp.io/rzp/dSdOkK2',
   complete: 'https://rzp.io/rzp/Noktx055',
-  premium:  'https://rzp.io/rzp/aO7vsN4q',
+  premium:  'https://rzp.io/rzp/aO7vsN4q'
 };
 const PLAN_NAMES = {
   basic:    'Basic (₹599)',
@@ -2518,7 +2511,7 @@ var INFO_PAGES = {
       <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px">
         <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:12px">📬 Contact Us</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div>📱 WhatsApp: <a href="#" onclick="openRazorpay()" target="_blank" style="color:var(--em)">+91 88263 40509</a></div>
+          <div>📱 WhatsApp: <a href="https://wa.me/918826340509" target="_blank" style="color:var(--em)">+91 88263 40509</a></div>
           <div>✉️ Email: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></div>
           <div>✈️ Telegram: <a href="https://t.me/skill2jobai" target="_blank" style="color:var(--em)">t.me/skill2jobai</a></div>
           <div>📍 Location: Gurugram, Haryana, India</div>
@@ -2575,7 +2568,7 @@ var INFO_PAGES = {
         </div>
         <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px">
           <div style="font-weight:700;color:var(--t1);margin-bottom:8px">Refund Request Kaise Karein</div>
-          <p>WhatsApp karo: <a href="#" onclick="openRazorpay()" target="_blank" style="color:var(--em)">+91 88263 40509</a> ya email: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></p>
+          <p>WhatsApp karo: <a href="https://wa.me/918826340509?text=Refund+request" target="_blank" style="color:var(--em)">+91 88263 40509</a> ya email: <a href="mailto:skill2jobai@gmail.com" style="color:var(--em)">skill2jobai@gmail.com</a></p>
         </div>
       </div>
     `
@@ -2775,7 +2768,7 @@ function closeInfoPage(){
         <span style="font-size:.55rem;font-weight:700;color:var(--blue2)">₹499</span>
       </a>
       <!-- TaskFlow -->
-      <a href="javascript:void(0)" onclick="closeProductsLauncher();openRazorpay()" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
+      <a href="javascript:void(0)" onclick="closeProductsLauncher();window.open('https://wa.me/918826340509?text=Hi+I+want+to+join+TaskFlow+beta','_blank')" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''">
         <div style="width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(167,139,250,.05));border:1px solid rgba(167,139,250,.35);display:grid;place-items:center;font-size:1.6rem;box-shadow:0 4px 16px rgba(167,139,250,.15);position:relative">✅<span style="position:absolute;top:-4px;right:-4px;background:var(--violet2);color:#fff;font-size:.4rem;font-weight:700;padding:1px 4px;border-radius:100px">SOON</span></div>
         <span style="font-size:.62rem;font-weight:600;color:var(--t2);text-align:center;line-height:1.3">Task<br>Flow</span>
         <span style="font-size:.55rem;font-weight:700;color:var(--violet2)">Free</span>
@@ -2884,13 +2877,13 @@ function closeInfoPage(){
         <div class="slogin-field">
           <label class="slogin-label">Access Code</label>
           <input type="text" class="slogin-input" id="slCode" placeholder="EJR-XXXX-XXXX" style="text-transform:uppercase">
-          <p class="slogin-hint">💬 Code nahi mila? <a href="#" onclick="openRazorpay()" target="_blank">WhatsApp karo →</a></p>
+          <p class="slogin-hint">💬 Code nahi mila? <a href="https://wa.me/918826340509?text=Hi%2C+I+need+my+access+code" target="_blank">WhatsApp karo →</a></p>
         </div>
         <button class="slogin-btn" onclick="slDoActivate()">🚀 Activate Course</button>
         <div class="slogin-msg" id="slActMsg"></div>
       </div>
       <div style="margin-top:16px;text-align:center">
-        <a href="#" onclick="openRazorpay()" target="_blank" style="font-size:.75rem;color:var(--t3);text-decoration:none;transition:color .2s" onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='var(--t3)'">💬 Help chahiye? WhatsApp karo →</a>
+        <a href="https://wa.me/918826340509?text=Hi%2C+I+need+help+with+my+course+login" target="_blank" style="font-size:.75rem;color:var(--t3);text-decoration:none;transition:color .2s" onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='var(--t3)'">💬 Help chahiye? WhatsApp karo →</a>
       </div>
     </div>
   </div>
@@ -2909,36 +2902,26 @@ function closeInfoPage(){
 </div>
 
 
-<script src="/bot.js"></script>
-
-<!-- ✅ Razorpay Integration — Auto-injected by razorpay_inject.py -->
 <script>
-function openRazorpay() {
-  var options = {
-    key: "rzp_test_XXXXXXXXXXXXXXrzp_live_SVv0ymYh6gFP1k",
-    amount: 79900,
-    currency: "INR",
-    name: "Skill2Job",
-    description: "Excel Job Ready Course",
-    image: "https://skill2jobai.com/logo.png",
-    handler: function (response) {
-      alert("✅ Payment Successful!\nPayment ID: " + response.razorpay_payment_id);
-      window.location.href = "/student-portal.html";
-    },
-    prefill: {
-      name: "",
-      email: "",
-      contact: ""
-    },
-    theme: {
-      color: "#6366f1"
-    }
-  };
-  var rzp = new Razorpay(options);
-  rzp.open();
-}
+(function(){
+  const KEY='s2j_offer_end';
+  let end=localStorage.getItem(KEY);
+  if(!end){
+    end=Date.now()+(48*60*60*1000);
+    localStorage.setItem(KEY,end);
+  }
+  function update(){
+    const diff=+end-Date.now();
+    if(diff<=0){localStorage.removeItem(KEY);location.reload();return;}
+    const h=Math.floor(diff/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  }
+  update();setInterval(update,1000);
+})();
 </script>
-<!-- ✅ End Razorpay Integration -->
-
 </body>
 </html>
