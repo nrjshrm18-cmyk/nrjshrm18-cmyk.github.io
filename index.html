@@ -65,19 +65,12 @@ nav.solid{background:rgba(5,5,7,.92);backdrop-filter:blur(28px);border-bottom:1p
 .nav-logo-box{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:#000;box-shadow:0 0 16px rgba(0,232,122,.4);flex-shrink:0}
 .nav-brand-name{font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--t1);letter-spacing:-.01em}
 .nav-links{display:flex;align-items:center;gap:28px;list-style:none}
-.nav-links a{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.75);text-decoration:none;transition:all .2s;letter-spacing:.03em}
+.nav-links a{font-size:.78rem;font-weight:500;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s;letter-spacing:.01em}
 .nav-links a:hover{color:rgba(255,255,255,.95)}
 .nav-right{display:flex;align-items:center;gap:10px}
 .nav-pill{font-size:.68rem;font-weight:600;padding:5px 12px;border-radius:100px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.18);color:var(--em);letter-spacing:.02em}
 .nav-cta{font-family:'Clash Display',sans-serif;font-size:.76rem;font-weight:700;background:linear-gradient(135deg,#00e87a,#00b36b);color:#000;padding:9px 22px;border-radius:100px;text-decoration:none;letter-spacing:.04em;transition:all .25s;box-shadow:0 0 20px rgba(0,232,122,.25)}
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,232,122,.45)}
-.countdown-bar{display:flex;align-items:center;justify-content:center;gap:16px;background:linear-gradient(90deg,rgba(0,232,122,.08),rgba(99,102,241,.08));border:1px solid rgba(0,232,122,.15);border-radius:16px;padding:14px 28px;margin:0 auto 32px;max-width:520px;backdrop-filter:blur(10px)}
-.countdown-label{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase}
-.countdown-blocks{display:flex;align-items:center;gap:8px}
-.cd-block{display:flex;flex-direction:column;align-items:center;gap:2px}
-.cd-num{font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:#fff;line-height:1;min-width:44px;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 6px}
-.cd-unit{font-size:.58rem;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase}
-.cd-sep{font-size:1.4rem;font-weight:700;color:rgba(0,232,122,.6);margin-bottom:14px}
 .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
 .ham span{width:20px;height:1.5px;background:var(--t1);display:block;border-radius:2px}
 
@@ -739,7 +732,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
     <li><a href="#pricing">Pricing</a></li>
   </ul>
   <div class="nav-right">
-    <span class="nav-pill">🔥 2,800+ Students</span>
+    <button onclick="openEMI()" style="font-size:.68rem;font-weight:600;padding:6px 14px;border-radius:100px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--em);cursor:pointer;transition:all .2s" onmouseover="this.style.background='rgba(0,232,122,.15)'" onmouseout="this.style.background='rgba(0,232,122,.08)'">📊 EMI</button><span class="nav-pill">🔥 2,800+ Students</span>
     <a href="javascript:void(0)" onclick="openStudentLoginModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
     <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" onclick="openRazorpay()">Enroll Now →</a>
   </div>
@@ -761,8 +754,8 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   <div class="hero-inner">
 
     <!-- Live badge -->
-    <div class="countdown-bar"><span class="countdown-label">🔥 Special Offer Ends In</span><div class="countdown-blocks"><div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-unit">Hours</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-unit">Mins</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-unit">Secs</span></div></div></div>
-<div class="hero-badge">
+     <div class="countdown-bar"><span class="countdown-label">🔥 Special Offer Ends In</span><div class="countdown-blocks"><div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-unit">Hours</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-unit">Mins</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-unit">Secs</span></div></div></div>
+    <div class="hero-badge">
       <span class="badge-chip">🇮🇳 India's #1</span>
       <span class="badge-text">2,800+ professionals ne trust kiya</span>
     </div>
