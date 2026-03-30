@@ -805,6 +805,19 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
     <div class="hero-microtrust">
       🛡️ Money-back guarantee &nbsp;·&nbsp; ♾️ Lifetime access &nbsp;·&nbsp; 📱 Mobile friendly
     </div>
+    <div class="countdown-bar"><span class="countdown-label">🔥 Offer ends in</span><div class="countdown-blocks"><div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-unit">HRS</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-unit">MIN</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-unit">SEC</span></div></div></div>
+```
+
+Phir CSS update karo — **Ctrl+H:**
+
+**Find:**
+```
+.countdown-bar{display:flex;align-items:center;justify-content:center;gap:16px;background:linear-gradient(90deg,rgba(0,232,122,.08),rgba(99,102,241,.08));border:1px solid rgba(0,232,122,.15);border-radius:16px;padding:14px 28px;margin:0 auto 32px;max-width:520px;backdrop-filter:blur(10px)}
+```
+
+**Replace:**
+```
+.countdown-bar{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:100px;padding:8px 20px;margin:16px auto 0;backdrop-filter:blur(10px);flex-wrap:nowrap}
 
     <!-- Floating achievement cards -->
     <div class="hero-floats">
