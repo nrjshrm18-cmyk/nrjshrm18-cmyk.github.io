@@ -1914,7 +1914,7 @@ var DEMO_CODES = ['EJR-DEMO-2024', 'EJR-TEST-1234'];
 
 function openStudentLoginModal() {
   var saved = localStorage.getItem('ejr_user');
-  if (saved) { window.location.href = 'student-portal.html'; return; }
+  if (saved) { window.location.href = '/student-portal/'; return; }
   document.getElementById('studentLoginModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1941,7 +1941,7 @@ function slDoLogin() {
       var u = JSON.parse(saved);
       if (u.email === email && u.password === pass) {
         msg.className = 'slogin-msg ok'; msg.textContent = '✅ Login successful! Redirecting...';
-        setTimeout(function() { window.location.href = 'student-portal.html'; }, 800);
+        setTimeout(function() { window.location.href = '/student-portal/'; }, 800);
         return;
       }
     } catch(e) {}
@@ -1959,7 +1959,7 @@ function slDoActivate() {
     var pass = email.split('@')[0] + '2024';
     localStorage.setItem('ejr_user', JSON.stringify({name:name,email:email,password:pass,code:code}));
     msg.className = 'slogin-msg ok'; msg.textContent = '🎉 Course activated! Redirecting...';
-    setTimeout(function() { window.location.href = 'student-portal.html'; }, 900);
+    setTimeout(function() { window.location.href = '/student-portal/'; }, 900);
   } else {
     msg.className = 'slogin-msg err';
     msg.textContent = '❌ Code galat hai. WhatsApp pe code maango.';
