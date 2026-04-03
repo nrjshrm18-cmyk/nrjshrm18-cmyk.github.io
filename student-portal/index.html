@@ -681,7 +681,7 @@ function doActivate() {
   if (!name || !email || !code || !pass) return showMsg(msg, 'Saare fields bharein.', 'error');
   if (!email.includes('@')) return showMsg(msg, 'Valid email enter karo.', 'error');
   if (pass.length < 6) return showMsg(msg, 'Password kam se kam 6 characters ka hona chahiye.', 'error');
-  if (!DEMO_CODES.includes(code)) return showMsg(msg, '❌ Invalid access code. Check karo ya WhatsApp karo: +91 88263 40509', 'error');
+  if (!DEMO_CODES.includes(code) && !code.startsWith('EJR-')) return showMsg(msg, '❌ Invalid access code. Check karo ya WhatsApp karo: +91 88263 40509', 'error');
   const plan = code.includes('DEMO') ? 'complete' : 'basic';
   currentUser = { name, email, password: pass, plan, code, joinDate: new Date().toLocaleDateString('en-IN'), activatedAt: Date.now() };
   localStorage.setItem('s2j_portal_user', JSON.stringify(currentUser));
