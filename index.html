@@ -701,6 +701,45 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   body{padding-bottom:88px}
 }
 </style>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAvjl2CNBkEP0l285ItxXRN7S8SM5m6zG8",
+    authDomain: "skill2job-96b9c.firebaseapp.com",
+    databaseURL: "https://skill2job-96b9c-default-rtdb.firebaseio.com",
+    projectId: "skill2job-96b9c",
+    storageBucket: "skill2job-96b9c.firebasestorage.app",
+    messagingSenderId: "414662169688",
+    appId: "1:414662169688:web:a3ba3e70015b9e52e6662d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.googleSignIn = function() {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        window.currentFirebaseUser = user;
+        // After login → open payment
+        closeStudentLoginModal();
+        openEnrollModal();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert('Login failed: ' + error.message);
+      });
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      window.currentFirebaseUser = user;
+    }
+  });
+</script>
 </head>
 <body>
 
@@ -1879,6 +1918,12 @@ const PLAN_NAMES = {
 let currentPlan = 'complete';
 
 function openEnrollModal(plan) {
+  // Check if user is logged in via Google
+  if (!window.currentFirebaseUser) {
+    // Show Google login first
+    showGoogleLoginModal(plan);
+    return;
+  }
   currentPlan = plan || 'complete';
   document.querySelectorAll('.plan-opt').forEach(function(opt) {
     var val = opt.querySelector('input').value;
@@ -1887,6 +1932,17 @@ function openEnrollModal(plan) {
   });
   document.getElementById('enrollModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function showGoogleLoginModal(plan) {
+  window._pendingPlan = plan || 'complete';
+  document.getElementById('googleLoginModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGoogleLoginModal() {
+  document.getElementById('googleLoginModal').classList.remove('open');
+  document.body.style.overflow = '';
 }
 function closeEnrollModal() {
   document.getElementById('enrollModal').classList.remove('open');
@@ -2937,5 +2993,20 @@ function closeInfoPage(){
   document.querySelectorAll('.live-counter').forEach(el=>el.textContent=data.count.toLocaleString('en-IN'));
 })();
 </script>
+<!-- ══ GOOGLE LOGIN MODAL ══ -->
+<div class="modal-overlay" id="googleLoginModal" onclick="if(event.target===this)closeGoogleLoginModal()">
+  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:400px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,232,122,.1);padding:40px 32px;text-align:center">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent)"></div>
+    <button onclick="closeGoogleLoginModal()" style="position:absolute;top:14px;right:16px;background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem;">✕</button>
+    <div style="font-size:2.5rem;margin-bottom:16px">🔐</div>
+    <div style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--t1);margin-bottom:8px">Pehle Login Karo</div>
+    <div style="font-size:.82rem;color:var(--t2);margin-bottom:32px;line-height:1.6">Course purchase karne ke liye Google account se login karo — ek click mein!</div>
+    <button onclick="googleSignIn()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 24px;background:#fff;border:none;border-radius:12px;cursor:pointer;font-size:.95rem;font-weight:600;color:#333;transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+      <img src="https://www.google.com/favicon.ico" width="20" height="20">
+      Continue with Google
+    </button>
+    <div style="font-size:.68rem;color:var(--t3);margin-top:16px">🔒 Secure login · Koi password nahi chahiye</div>
+  </div>
+</div>
 </body>
 </html>
