@@ -724,21 +724,34 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
       .then((result) => {
         const user = result.user;
         window.currentFirebaseUser = user;
-        // Check Firebase if already purchased
         const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
         fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
           .then(r => r.json())
           .then(data => {
+            // Close Google login modal
+            const glm = document.getElementById('googleLoginModal');
+            if(glm) { glm.classList.remove('open'); }
+            document.body.style.overflow = '';
             if (data && data.plan) {
-              // Already purchased → portal
+              // Already purchased → portal seedha
               window.location.href = '/student-portal/';
             } else {
-              // New user → close modal, continue browsing
-              document.getElementById('googleLoginModal').classList.remove('open');
-              document.body.style.overflow = '';
-              window.currentFirebaseUser = user;
-              // Now open payment
-              openEnrollModal(window._pendingPlan || 'complete');
+              // New user → open payment with selected plan
+              const plan = window._pendingPlan || 'complete';
+              const link = window.RAZORPAY_LINKS ? window.RAZORPAY_LINKS[plan] : null;
+              if (link) {
+                window.open(link, '_blank');
+              } else {
+                // Fallback to enroll modal
+                currentPlan = plan;
+                document.querySelectorAll('.plan-opt').forEach(function(opt) {
+                  var val = opt.querySelector('input').value;
+                  opt.classList.toggle('selected', val === plan);
+                  if (val === plan) opt.querySelector('input').checked = true;
+                });
+                document.getElementById('enrollModal').classList.add('open');
+                document.body.style.overflow = 'hidden';
+              }
             }
           });
       })
@@ -751,6 +764,20 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   onAuthStateChanged(auth, (user) => {
     if (user) {
       window.currentFirebaseUser = user;
+      // Update navbar — show "Start Learning" if purchased
+      const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+      fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.plan) {
+            // Already purchased — update Student Login button to "My Courses"
+            var btns = document.querySelectorAll('[onclick*="openStudentLoginModal"]');
+            btns.forEach(function(btn) {
+              btn.textContent = '📚 My Courses';
+              btn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+            });
+          }
+        });
     }
   });
 </script>
@@ -1932,6 +1959,25 @@ const PLAN_NAMES = {
 let currentPlan = 'complete';
 
 function openEnrollModal(plan) {
+  // If already purchased → go to portal
+  if (window.currentFirebaseUser) {
+    var key = window.currentFirebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
+    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.plan) {
+          window.location.href = '/student-portal/';
+          return;
+        }
+        // Not purchased → show payment modal
+        _openEnrollModalDirect(plan);
+      });
+    return;
+  }
+  // Not logged in → show payment modal (login will happen at Pay step)
+  _openEnrollModalDirect(plan);
+}
+function _openEnrollModalDirect(plan) {
   currentPlan = plan || 'complete';
   document.querySelectorAll('.plan-opt').forEach(function(opt) {
     var val = opt.querySelector('input').value;
@@ -1951,16 +1997,17 @@ function selectPlan(el, plan) {
   el.classList.add('selected');
 }
 function handlePay() {
+  var link = RAZORPAY_LINKS[currentPlan];
+  if (!link || link.indexOf('YOUR_') === 0) { handleWA(); return; }
   if (!window.currentFirebaseUser) {
-    // Not logged in → show Google login first
+    // Lazy login — ask Google login at payment step
     window._pendingPlan = currentPlan;
     closeEnrollModal();
     document.getElementById('googleLoginModal').classList.add('open');
     document.body.style.overflow = 'hidden';
     return;
   }
-  var link = RAZORPAY_LINKS[currentPlan];
-  if (!link || link.indexOf('YOUR_') === 0) { handleWA(); return; }
+  // Already logged in → direct payment
   window.open(link, '_blank');
 }
 function handleWA() {
@@ -1974,10 +2021,18 @@ function handleWA() {
 var DEMO_CODES = ['EJR-DEMO-2024', 'EJR-TEST-1234'];
 
 function openStudentLoginModal() {
+  // If Firebase user already logged in
+  if (window.currentFirebaseUser) {
+    window.location.href = '/student-portal/';
+    return;
+  }
+  // Old localStorage check
   var saved = localStorage.getItem('ejr_user');
   if (saved) { window.location.href = '/student-portal/'; return; }
-  document.getElementById('studentLoginModal').classList.add('open');
+  // Show Google login
+  document.getElementById('googleLoginModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  window._pendingPlan = null; // no pending plan, just login
 }
 function closeStudentLoginModal() {
   document.getElementById('studentLoginModal').classList.remove('open');
