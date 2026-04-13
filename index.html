@@ -724,9 +724,20 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
       .then((result) => {
         const user = result.user;
         window.currentFirebaseUser = user;
-        // After login → open payment
-        closeStudentLoginModal();
-        openEnrollModal();
+        closeGoogleLoginModal();
+        // Check Firebase if user already purchased
+        const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+        fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.plan) {
+              // Already purchased → portal pe jao
+              window.location.href = '/student-portal/';
+            } else {
+              // Naya user → payment modal
+              openEnrollModal(window._pendingPlan || 'complete');
+            }
+          });
       })
       .catch((error) => {
         console.error(error);
