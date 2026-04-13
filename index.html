@@ -762,18 +762,24 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   onAuthStateChanged(auth, (user) => {
     if (user) {
       window.currentFirebaseUser = user;
-      // Update navbar — show "Start Learning" if purchased
       const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
       fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
         .then(r => r.json())
         .then(data => {
-          if (data && data.plan) {
-            // Already purchased — update Student Login button to "My Courses"
-            var btns = document.querySelectorAll('[onclick*="openStudentLoginModal"]');
-            btns.forEach(function(btn) {
-              btn.textContent = '📚 My Courses';
-              btn.setAttribute('onclick', 'window.location.href="/student-portal/"');
-            });
+          const loginBtn = document.getElementById('navLoginBtn');
+          if (loginBtn) {
+            if (data && data.plan) {
+              // Purchased → My Courses
+              loginBtn.innerHTML = '📚 My Courses';
+              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+              loginBtn.style.color = 'var(--em)';
+              loginBtn.style.borderColor = 'rgba(0,232,122,.3)';
+            } else {
+              // Logged in but not purchased
+              const name = user.displayName ? user.displayName.split(' ')[0] : 'User';
+              loginBtn.innerHTML = '👤 ' + name;
+              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+            }
           }
         });
     }
@@ -801,7 +807,7 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   </div>
   <div class="mob-footer">
     <a href="javascript:void(0)" onclick="openEnrollModal();closeMobMenu()" class="mob-cta">🚀 Enroll Now — ₹799 →</a>
-    <a href="javascript:void(0)" onclick="openStudentLoginModal();closeMobMenu()" class="mob-login">🎓 Student Login</a>
+    <a href="javascript:void(0)" onclick="handleNavLogin();closeMobMenu()" class="mob-login"><img src="https://www.google.com/favicon.ico" width="14"> Sign In with Google</a>
     <div style="font-size:.68rem;color:var(--t3);text-align:center;margin-top:12px">🛡️ Money-back guarantee · ♾️ Lifetime access</div>
   </div>
 </div>
@@ -817,8 +823,8 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   </ul>
   <div class="nav-right">
     <span class="nav-pill">🔥 <span class="live-counter">500</span>+ Students</span>
-    <a href="javascript:void(0)" onclick="openStudentLoginModal()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">🎓 Student Login</a>
-    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta">Enroll Now →</a>
+    <a href="javascript:void(0)" id="navLoginBtn" onclick="handleNavLogin()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;display:flex;align-items:center;gap:6px;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'"><img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In</a>
+    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" id="navEnrollBtn">Enroll Now →</a>
   </div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
 </nav>
@@ -2019,6 +2025,9 @@ function handleWA() {
 var DEMO_CODES = ['EJR-DEMO-2024', 'EJR-TEST-1234'];
 
 function openStudentLoginModal() {
+  handleNavLogin();
+}
+function handleNavLogin() {
   // If Firebase user already logged in
   if (window.currentFirebaseUser) {
     window.location.href = '/student-portal/';
@@ -2028,9 +2037,9 @@ function openStudentLoginModal() {
   var saved = localStorage.getItem('ejr_user');
   if (saved) { window.location.href = '/student-portal/'; return; }
   // Show Google login
+  window._pendingPlan = null;
   document.getElementById('googleLoginModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  window._pendingPlan = null; // no pending plan, just login
 }
 function closeStudentLoginModal() {
   document.getElementById('studentLoginModal').classList.remove('open');
