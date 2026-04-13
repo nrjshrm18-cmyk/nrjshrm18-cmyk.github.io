@@ -736,22 +736,9 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
               // Already purchased → portal seedha
               window.location.href = '/student-portal/';
             } else {
-              // New user → open payment with selected plan
-              const plan = window._pendingPlan || 'complete';
-              const link = window.RAZORPAY_LINKS ? window.RAZORPAY_LINKS[plan] : null;
-              if (link) {
-                window.open(link, '_blank');
-              } else {
-                // Fallback to enroll modal
-                currentPlan = plan;
-                document.querySelectorAll('.plan-opt').forEach(function(opt) {
-                  var val = opt.querySelector('input').value;
-                  opt.classList.toggle('selected', val === plan);
-                  if (val === plan) opt.querySelector('input').checked = true;
-                });
-                document.getElementById('enrollModal').classList.add('open');
-                document.body.style.overflow = 'hidden';
-              }
+              // New user → just logged in, no payment yet
+              // Show welcome message
+              alert('✅ Welcome ' + user.displayName + '! Ab aap courses browse kar sakte hain.');
             }
           });
       })
