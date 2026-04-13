@@ -736,9 +736,20 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
               // Already purchased → portal seedha
               window.location.href = '/student-portal/';
             } else {
-              // New user → just logged in, no payment yet
-              // Show welcome message
-              alert('✅ Welcome ' + user.displayName + '! Ab aap courses browse kar sakte hain.');
+              // New user → create profile and go to portal
+              const newUser = {
+                name: user.displayName || user.email.split('@')[0],
+                email: user.email,
+                plan: null,
+                createdAt: new Date().toISOString(),
+                products: []
+              };
+              fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json', {
+                method: 'PUT',
+                body: JSON.stringify(newUser)
+              }).then(() => {
+                window.location.href = '/student-portal/';
+              });
             }
           });
       })
