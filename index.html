@@ -718,7 +718,6 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-
 function savePortalUserObject(u) {
   localStorage.setItem('s2jportaluser', JSON.stringify(u));
   localStorage.setItem('ejr_user', JSON.stringify(u));
@@ -726,20 +725,21 @@ function savePortalUserObject(u) {
 }
 function syncPortalLocalUser(user, dbUser) {
   savePortalUserObject({
-    name: user.displayName || user.email.split('@')[0],
+    name: user.displayName||user.email.split('@')[0],
     email: user.email, password: 'google-oauth',
-    plan: (dbUser && dbUser.plan) ? String(dbUser.plan).toLowerCase() : 'complete',
-    code: (dbUser && (dbUser.paymentId || dbUser.accessCode)) || 'GOOGLE-LOGIN',
+    plan: (dbUser&&dbUser.plan)?String(dbUser.plan).toLowerCase():'complete',
+    code: (dbUser&&(dbUser.paymentId||dbUser.accessCode))||'GOOGLE-LOGIN',
     joinDate: new Date().toLocaleDateString('en-IN'),
     activatedAt: Date.now(), firebaseUid: user.uid
   });
 }
 function openGoogleLoginModal(action, plan) {
-  window._pendingAction = action || 'login';
-  window._pendingPlan   = plan   || 'complete';
+  window._pendingAction = action||'login';
+  window._pendingPlan   = plan||'complete';
   var glm = document.getElementById('googleLoginModal');
-  if (glm) { glm.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  if (glm) { glm.classList.add('open'); document.body.style.overflow='hidden'; }
 }
+
 
   window.googleSignIn = function() {
   signInWithPopup(auth, provider)
@@ -754,57 +754,55 @@ function openGoogleLoginModal(action, plan) {
           if (glm) glm.classList.remove('open');
           document.body.style.overflow = '';
           if (!data || typeof data !== 'object') {
-            data = {name: user.displayName||user.email.split('@')[0], email:user.email, plan:null, createdAt:new Date().toISOString()};
-            fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json', {method:'PUT', body:JSON.stringify(data)});
+            data = {name:user.displayName||user.email.split('@')[0],email:user.email,plan:null,createdAt:new Date().toISOString()};
+            fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json',{method:'PUT',body:JSON.stringify(data)});
           }
           syncPortalLocalUser(user, data);
-          const pa = window._pendingAction || 'login';
-          const pp = window._pendingPlan || 'complete';
+          const pa = window._pendingAction||'login';
+          const pp = window._pendingPlan||'complete';
           window._pendingAction = null; window._pendingPlan = null;
-          if (pa === 'enroll' && !(data && data.plan)) { _openEnrollModalDirect(pp); return; }
+          if (pa==='enroll' && !(data && data.plan)) { _openEnrollModalDirect(pp); return; }
           window.location.href = '/student-portal/';
         })
         .catch(err => alert('Login failed: '+err.message));
     })
     .catch(err => alert('Google sign-in failed: '+err.message));
-};
+  };
 
-  onAuthStateChanged(auth
   onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.currentFirebaseUser = null;
-    var btn = document.getElementById('navLoginBtn');
-    if (btn) {
-      btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In';
-      btn.setAttribute('onclick','handleNavLogin()');
-      btn.style.color='var(--t2)'; btn.style.borderColor='var(--b1)';
+    if (!user) {
+      window.currentFirebaseUser = null;
+      const btn = document.getElementById('navLoginBtn');
+      if (btn) {
+        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In';
+        btn.setAttribute('onclick','handleNavLogin()');
+        btn.style.color='var(--t2)'; btn.style.borderColor='var(--b1)';
+      }
+      return;
     }
-    return;
-  }
-  window.currentFirebaseUser = user;
-  var key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
-  fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
-    .then(r => r.json())
-    .then(data => {
-      syncPortalLocalUser(user, data || null);
-      var btn = document.getElementById('navLoginBtn');
-      if (!btn) return;
-      var name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
-      btn.innerHTML = '👤 '+name;
-      btn.setAttribute('onclick',"window.location.href='/student-portal/'");
-      btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
-    })
-    .catch(() => {
-      syncPortalLocalUser(user, null);
-      var btn = document.getElementById('navLoginBtn');
-      if (!btn) return;
-      var name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
-      btn.innerHTML = '👤 '+name;
-      btn.setAttribute('onclick',"window.location.href='/student-portal/'");
-      btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
-    });
+    window.currentFirebaseUser = user;
+    const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
+      .then(r => r.json())
+      .then(data => {
+        syncPortalLocalUser(user, data||null);
+        const btn = document.getElementById('navLoginBtn');
+        if (!btn) return;
+        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
+        btn.innerHTML = '👤 '+name;
+        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
+        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
+      })
+      .catch(() => {
+        syncPortalLocalUser(user,null);
+        const btn = document.getElementById('navLoginBtn');
+        if (!btn) return;
+        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
+        btn.innerHTML = '👤 '+name;
+        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
+        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
+      });
   });
-</script>  });
 </script>
 </head>
 <body>
@@ -1997,7 +1995,7 @@ function openEnrollModal(plan) {
   if (saved) { try { var u=JSON.parse(saved); if(u.plan){window.location.href='/student-portal/';return;} } catch(e){} }
   openGoogleLoginModal('enroll', plan||'complete');
 }
-function _openEnrollModalDirect(plan) {function _openEnrollModalDirect(plan) {
+function _openEnrollModalDirect(plan) {
   currentPlan = plan || 'complete';
   document.querySelectorAll('.plan-opt').forEach(function(opt) {
     var val = opt.querySelector('input').value;
@@ -2049,7 +2047,7 @@ function handleNavLogin() {
   if (saved) { window.location.href='/student-portal/'; return; }
   openGoogleLoginModal('login','complete');
 }
-function closeStudentLoginModal() {function closeStudentLoginModal() {
+function closeStudentLoginModal() {
   document.getElementById('studentLoginModal').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -2067,7 +2065,7 @@ function slDoLogin() {
   var msg=document.getElementById('slMsg');
   if(!email||!pass){msg.className='slogin-msg err';msg.textContent='Email aur password dono bharo.';return;}
   var raw=localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
-  if(raw){try{var u=JSON.parse(raw);if(u.email===email&&u.password===pass){savePortalUserObject(u);msg.className='slogin-msg ok';msg.textContent='✅ Login! Redirecting...';setTimeout(function(){window.location.href='/student-portal/';},800);return;}}catch(e){}}
+  if(raw){try{var u=JSON.parse(raw);if(u.email===email&&u.password===pass){savePortalUserObject(u);msg.className='slogin-msg ok';msg.textContent='✅ Redirecting...';setTimeout(function(){window.location.href='/student-portal/';},800);return;}}catch(e){}}
   msg.className='slogin-msg err';msg.textContent='❌ Galat details. Google Sign In try karo.';
 }
 function slDoActivate() {
@@ -2086,7 +2084,7 @@ function slDoActivate() {
   }
 }
 
-/* ═══════════════════════════════════════/* ═══════════════════════════════════════
+/* ═══════════════════════════════════════
    PRODUCT DASHBOARD ANIMATIONS
    - Viewport trigger: runs once on scroll
    - Hover/Touch: interactive re-randomize
