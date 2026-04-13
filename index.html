@@ -718,75 +718,1267 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-
-  
-function syncPortalLocalUser(user, dbUser = null) {
-  const portalUser = {
-    name: user.displayName || user.email.split('@')[0],
-    email: user.email,
-    password: 'google-oauth',
-    plan: (dbUser && dbUser.plan ? String(dbUser.plan).toLowerCase() : 'complete'),
-    code: (dbUser && (dbUser.paymentId || dbUser.accessCode) ? (dbUser.paymentId || dbUser.accessCode) : 'GOOGLE-LOGIN'),
+function savePortalUserObject(u) {
+  localStorage.setItem('s2jportaluser', JSON.stringify(u));
+  localStorage.setItem('ejr_user', JSON.stringify(u));
+  if (!localStorage.getItem('s2jcompleted')) localStorage.setItem('s2jcompleted', '[]');
+}
+function syncPortalLocalUser(user, dbUser) {
+  savePortalUserObject({
+    name: user.displayName||user.email.split('@')[0],
+    email: user.email, password: 'google-oauth',
+    plan: (dbUser&&dbUser.plan)?String(dbUser.plan).toLowerCase():'complete',
+    code: (dbUser&&(dbUser.paymentId||dbUser.accessCode))||'GOOGLE-LOGIN',
     joinDate: new Date().toLocaleDateString('en-IN'),
-    activatedAt: Date.now(),
-    firebaseUid: user.uid
-  };
-  localStorage.setItem('s2jportaluser', JSON.stringify(portalUser));
-  if (!localStorage.getItem('s2jcompleted')) {
-    localStorage.setItem('s2jcompleted', JSON.stringify([]));
-  }
+    activatedAt: Date.now(), firebaseUid: user.uid
+  });
+}
+function openGoogleLoginModal(action, plan) {
+  window._pendingAction = action||'login';
+  window._pendingPlan   = plan||'complete';
+  var glm = document.getElementById('googleLoginModal');
+  if (glm) { glm.classList.add('open'); document.body.style.overflow='hidden'; }
+}
+function closeGoogleLoginModal() {
+  var glm = document.getElementById('googleLoginModal');
+  if (glm) { glm.classList.remove('open'); document.body.style.overflow=''; }
+  window._pendingAction = null;
+  window._pendingPlan   = null;
 }
 
-window.googleSignIn = function() {
+
+  window.googleSignIn = function() {
   signInWithPopup(auth, provider)
-    .then((result) => {
+    .then(result => {
       const user = result.user;
       window.currentFirebaseUser = user;
-      const key = user.email.replace(/\./g, '_').replace(/@/g, '_at_');
-
-      fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`)
+      const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+      fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
         .then(r => r.json())
         .then(data => {
           const glm = document.getElementById('googleLoginModal');
           if (glm) glm.classList.remove('open');
           document.body.style.overflow = '';
-
-          if (data && data.plan) {
-            syncPortalLocalUser(user, data);
-            window.location.href = '/student-portal/';
-            return;
+          if (!data || typeof data !== 'object') {
+            data = {name:user.displayName||user.email.split('@')[0],email:user.email,plan:null,createdAt:new Date().toISOString()};
+            fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json',{method:'PUT',body:JSON.stringify(data)});
           }
-
-          const newUser = {
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
-            plan: null,
-            createdAt: new Date().toISOString(),
-            products: []
-          };
-
-          fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`, {
-            method: 'PUT',
-            body: JSON.stringify(newUser)
-          })
-            .then(() => {
-              syncPortalLocalUser(user, newUser);
-              window.location.href = '/student-portal/';
-            })
-            .catch((error) => {
-              console.error(error);
-              alert('Login failed: ' + error.message);
-            });
+          syncPortalLocalUser(user, data);
+          const pa = window._pendingAction||'login';
+          const pp = window._pendingPlan||'complete';
+          window._pendingAction = null; window._pendingPlan = null;
+          if (pa==='enroll' && !(data && data.plan)) { _openEnrollModalDirect(pp); return; }
+          window.location.href = '/student-portal/';
         })
-        .catch((error) => {
-          console.error(error);
-          alert('Login failed: ' + error.message);
-        });
+        .catch(err => alert('Login failed: '+err.message));
     })
-    .catch((error) => {
-      console.error(error);
-      alert('Google sign-in failed: ' + error.message);
-    });
+    .catch(err => alert('Google sign-in failed: '+err.message));
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.currentFirebaseUser = null;
+      const btn = document.getElementById('navLoginBtn');
+      if (btn) {
+        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In';
+        btn.setAttribute('onclick','handleNavLogin()');
+        btn.style.color='var(--t2)'; btn.style.borderColor='var(--b1)';
+      }
+      return;
+    }
+    window.currentFirebaseUser = user;
+    const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
+      .then(r => r.json())
+      .then(data => {
+        syncPortalLocalUser(user, data||null);
+        const btn = document.getElementById('navLoginBtn');
+        if (!btn) return;
+        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
+        btn.innerHTML = '👤 '+name;
+        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
+        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
+      })
+      .catch(() => {
+        syncPortalLocalUser(user,null);
+        const btn = document.getElementById('navLoginBtn');
+        if (!btn) return;
+        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
+        btn.innerHTML = '👤 '+name;
+        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
+        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
+      });
+  });
+</script>
+</head>
+<body>
+
+<div class="mob-menu" id="mobMenu">
+  <div class="mob-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="nav-logo-box">S2</div>
+      <span style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1)">Skill2Job</span>
+    </div>
+    <button class="mob-close" onclick="closeMobMenu()">✕</button>
+  </div>
+  <div class="mob-links">
+    <a href="#problem" onclick="closeMobMenu()"><span class="mob-link-icon">😰</span>Problem</a>
+    <a href="#spotlight" onclick="closeMobMenu()"><span class="mob-link-icon">📊</span>Excel Course</a>
+    <a href="javascript:void(0)" onclick="openProductsLauncher();closeMobMenu()"><span class="mob-link-icon">📦</span>Products</a>
+    <a href="#features" onclick="closeMobMenu()"><span class="mob-link-icon">⚡</span>Features</a>
+    <a href="#about" onclick="closeMobMenu()"><span class="mob-link-icon">👋</span>About Neeraj</a>
+    <a href="#pricing" onclick="closeMobMenu()"><span class="mob-link-icon">💰</span>Pricing</a>
+    <a href="javascript:void(0)" onclick="openEMI();closeMobMenu()"><span class="mob-link-icon">📊</span>EMI Calculator</a>
+  </div>
+  <div class="mob-footer">
+    <a href="javascript:void(0)" onclick="openEnrollModal();closeMobMenu()" class="mob-cta">🚀 Enroll Now — ₹799 →</a>
+    <a href="javascript:void(0)" onclick="handleNavLogin();closeMobMenu()" class="mob-login"><img src="https://www.google.com/favicon.ico" width="14"> Sign In with Google</a>
+    <div style="font-size:.68rem;color:var(--t3);text-align:center;margin-top:12px">🛡️ Money-back guarantee · ♾️ Lifetime access</div>
+  </div>
+</div>
+
+<nav id="nav">
+  <a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="nav-brand"><div class="nav-logo-box">S2</div><span class="nav-brand-name">Skill2Job</span></a>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#spotlight">Course</a></li>
+    <li><a href="javascript:void(0)" onclick="openProductsLauncher()">Products</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <div class="nav-right">
+    <span class="nav-pill">🔥 <span class="live-counter">500</span>+ Students</span>
+    <a href="javascript:void(0)" id="navLoginBtn" onclick="handleNavLogin()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;display:flex;align-items:center;gap:6px;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'"><img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In</a>
+    <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" id="navEnrollBtn">Enroll Now →</a>
+  </div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
+</nav>
+
+<!-- STICKY MOBILE BOTTOM BAR -->
+<div class="mob-sticky-bar">
+  <div class="mob-sticky-bar-inner">
+    <button class="mob-sticky-enroll" onclick="openEnrollModal()">🚀 Enroll Now — ₹799</button>
+    <button class="mob-sticky-wa" onclick="window.open('https://wa.me/918826340509?text=Hi%2C+I+want+to+know+more+about+Excel+Job+Ready','_blank')" title="WhatsApp">💬</button>
+  </div>
+</div>
+
+<section class="hero" id="hero">
+  <div class="hero-mesh"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+  <div class="particles" id="particles"></div>
+  <div class="hero-inner">
+
+    <!-- Live badge -->
+    <div class="hero-badge">
+      <span class="badge-chip">🇮🇳 India's #1</span>
+      <span class="badge-text"><span class="live-counter">500</span>+ professionals ne trust kiya</span>
+    </div>
+
+    <!-- Main headline — split for impact -->
+    <h1>
+      <span class="h1-l1">Excel seekho.</span>
+      <span class="h1-l2">Job pao. Life badlo.</span>
+    </h1>
+
+    <!-- Subtext — specific & punchy -->
+    <p class="hero-sub">
+      Sirf <strong>₹799</strong> mein — real office skills, MIS reports, dashboards.<br>
+      <strong>Hinglish mein.</strong> Job-ready guarantee ke saath.
+    </p>
+
+    <!-- Social proof strip — BEFORE CTA for trust -->
+    <div class="hero-proof-strip">
+      <div class="hp-item">
+        <span class="hp-num"><span class="live-counter">500</span>+</span>
+        <span class="hp-label">Students enrolled</span>
+      </div>
+      <div class="hp-divider"></div>
+      <div class="hp-item">
+        <span class="hp-num">4.9★</span>
+        <span class="hp-label">Average rating</span>
+      </div>
+      <div class="hp-divider"></div>
+      <div class="hp-item">
+        <span class="hp-num">9</span>
+        <span class="hp-label">Practical modules</span>
+      </div>
+      <div class="hp-divider"></div>
+      <div class="hp-item">
+        <span class="hp-num">84%</span>
+        <span class="hp-label">Price discount</span>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div class="hero-cta-row">
+      <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow">🚀 Abhi Enroll Karo — ₹799 →</a>
+      <a href="#spotlight" class="btn-ghost">📖 Course Dekho</a>
+    </div>
+
+    <!-- Trust micro-copy -->
+    <div class="hero-microtrust">
+      🛡️ Money-back guarantee &nbsp;·&nbsp; ♾️ Lifetime access &nbsp;·&nbsp; 📱 Mobile friendly
+    </div>
+    <div class="countdown-bar"><span class="countdown-label">🔥 Offer ends in</span><div class="countdown-blocks"><div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-unit">HRS</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-unit">MIN</span></div><span class="cd-sep">:</span><div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-unit">SEC</span></div></div></div>
+
+    <!-- Floating achievement cards -->
+    <div class="hero-floats">
+      <div class="hf-card hf-left">
+        <span class="hf-icon">🎯</span>
+        <div>
+          <div class="hf-title">Rohit S., Delhi</div>
+          <div class="hf-sub">Promotion in 2 months ✓</div>
+        </div>
+      </div>
+      <div class="hf-card hf-right">
+        <span class="hf-icon">💼</span>
+        <div>
+          <div class="hf-title">Neha P., Pune</div>
+          <div class="hf-sub">Cleared 3 interviews ✓</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="marq-wrap">
+  <div class="marq-track">
+    <div class="marq-item">📊 Excel Job Ready <span class="marq-sep">✦</span></div>
+    <div class="marq-item">📘 Formula eBook <span class="marq-sep">✦</span></div>
+    <div class="marq-item">📈 Business Dashboard <span class="marq-sep">✦</span></div>
+    <div class="marq-item">✅ TaskFlow App <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🏆 <span class="live-counter">500</span>+ Students <span class="marq-sep">✦</span></div>
+    <div class="marq-item">💼 Real Office Skills <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🗣️ Hinglish Mein <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🎯 Job Ready <span class="marq-sep">✦</span></div>
+    <div class="marq-item">📊 Excel Job Ready <span class="marq-sep">✦</span></div>
+    <div class="marq-item">📘 Formula eBook <span class="marq-sep">✦</span></div>
+    <div class="marq-item">📈 Business Dashboard <span class="marq-sep">✦</span></div>
+    <div class="marq-item">✅ TaskFlow App <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🏆 <span class="live-counter">500</span>+ Students <span class="marq-sep">✦</span></div>
+    <div class="marq-item">💼 Real Office Skills <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🗣️ Hinglish Mein <span class="marq-sep">✦</span></div>
+    <div class="marq-item">🎯 Job Ready <span class="marq-sep">✦</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PROBLEM SECTION
+══════════════════════════════ -->
+<section class="sec prob-sec" id="problem">
+  <div class="wrap">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:52px">
+      <div class="sec-eyebrow reveal" style="justify-content:center">Kya aapke saath bhi aisa hota hai?</div>
+      <h2 class="sec-h2 reveal d1" style="text-align:center">
+        Yeh problems <span class="grad2">familiar lagti hain?</span>
+      </h2>
+      <p class="sec-lead reveal d2" style="margin:0 auto;text-align:center">
+        India mein 90% office workers inhi problems se struggle karte hain. Aap akele nahi ho.
+      </p>
+    </div>
+
+    <!-- Pain cards grid -->
+    <div class="prob-grid reveal">
+
+      <div class="prob-card">
+        <div class="prob-icon-wrap" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.2)">😰</div>
+        <div class="prob-content">
+          <div class="prob-title">Formulas yaad nahi rehte</div>
+          <div class="prob-desc">VLOOKUP, IF, SUMIF — names toh sune hain, par jab actual kaam aata hai toh YouTube pe dhundhna padta hai. Baar baar.</div>
+        </div>
+        <div class="prob-tag" style="background:rgba(239,68,68,.08);color:var(--red2);border-color:rgba(239,68,68,.2)">
+          ⏱️ 2+ ghante waste daily
+        </div>
+      </div>
+
+      <div class="prob-card">
+        <div class="prob-icon-wrap" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.2)">😬</div>
+        <div class="prob-content">
+          <div class="prob-title">Job interviews mein Excel test fail</div>
+          <div class="prob-desc">Interview mein Excel ka basic test aata hai — aur aap uss wajah se reject ho jaate ho. Sab kuch acha tha, bas Excel ne roka.</div>
+        </div>
+        <div class="prob-tag" style="background:rgba(251,191,36,.08);color:var(--amber2);border-color:rgba(251,191,36,.2)">
+          💼 Kaafi jobs miss ho rahi hain
+        </div>
+      </div>
+
+      <div class="prob-card">
+        <div class="prob-icon-wrap" style="background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.2)">🐢</div>
+        <div class="prob-content">
+          <div class="prob-title">Office mein sabse slow lagte ho</div>
+          <div class="prob-desc">Jo kaam colleague 20 minute mein karta hai, usme aapko 2 ghante lagte hain. Manager notice karta hai — aur aap notice karte ho ki wo notice karta hai.</div>
+        </div>
+        <div class="prob-tag" style="background:rgba(139,92,246,.08);color:var(--violet2);border-color:rgba(139,92,246,.2)">
+          📉 Promotion rukta ja raha hai
+        </div>
+      </div>
+
+      <div class="prob-card">
+        <div class="prob-icon-wrap" style="background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.2)">📺</div>
+        <div class="prob-content">
+          <div class="prob-title">YouTube videos se kuch nahi seekha</div>
+          <div class="prob-desc">Ghanton ke videos dekhe, notes bhi liye — par real kaam mein apply nahi kar pate. Theory alag hoti hai, office files alag hoti hain.</div>
+        </div>
+        <div class="prob-tag" style="background:rgba(6,182,212,.08);color:var(--cyan2);border-color:rgba(6,182,212,.2)">
+          🔄 Cycle repeat hoti rehti hai
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empathy + transition line -->
+    <div class="prob-bottom reveal">
+      <div class="prob-bottom-inner">
+        <span class="prob-bottom-icon">💡</span>
+        <div>
+          <div class="prob-bottom-title">Yeh aapki galti nahi hai.</div>
+          <div class="prob-bottom-text">
+            Problem yeh hai ki zyaadatar Excel courses <strong>theory-heavy</strong> hain — real office kaam nahi sikhate.
+            Hamara course bilkul alag hai — <strong>real files, real scenarios, real results.</strong>
+          </div>
+        </div>
+      </div>
+      <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:12px 28px;white-space:nowrap;flex-shrink:0">
+        Solution Dekho →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section class="spotlight-sec sec" id="spotlight">
+  <div class="wrap">
+    <div class="spotlight-card reveal">
+      <div class="spotlight-glow"></div>
+      <div class="spotlight-inner">
+        <div class="spotlight-left">
+          <div class="live-badge"><span class="live-dot"></span><span class="live-text">🔥 Most Popular</span></div>
+          <div class="spotlight-title">Excel<br>Job<br>Ready</div>
+          <div class="spotlight-desc">India ka sabse practical Excel course — real office files, MIS reports, dashboards aur formulas. Hinglish mein. Job ke liye ready.</div>
+          <div class="spotlight-chips">
+            <div class="chip">📚 <strong>9</strong> Modules</div>
+            <div class="chip">🎁 <strong>5</strong> Bonuses</div>
+            <div class="chip">♾️ <strong>Lifetime</strong> Access</div>
+            <div class="chip">🏅 <strong>Certificate</strong></div>
+            <div class="chip">💬 <strong>Doubt</strong> Clearing</div>
+            <div class="chip">📱 <strong>Mobile</strong> Friendly</div>
+          </div>
+          <div class="spotlight-price-row">
+            <span class="orig-price">₹4,999</span>
+            <span class="new-price">₹799</span>
+            <span class="discount-tag">84% OFF</span>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.85rem;padding:13px 28px">Enroll Now →</a>
+            <a href="./excel-job-ready/index.html" class="btn-ghost" style="font-size:.85rem;padding:13px 24px">View Details →</a>
+          </div>
+        </div>
+        <div class="spotlight-right">
+          <div class="excel-mock">
+            <div class="excel-titlebar">
+              <div class="e-dot" style="background:#ff5f56"></div>
+              <div class="e-dot" style="background:#ffbd2e"></div>
+              <div class="e-dot" style="background:#27c93f"></div>
+              <div class="e-tab"><div class="e-tab-item active">MIS_Report.xlsx</div></div>
+            </div>
+            <div class="excel-toolbar">
+              <div class="e-tool-btn">File</div>
+              <div class="e-tool-btn">Home</div>
+              <div class="e-tool-btn">Insert</div>
+              <div class="e-tool-btn" style="color:var(--em)">Formulas</div>
+              <div class="e-tool-btn">Data</div>
+            </div>
+            <div class="excel-grid">
+              <div class="e-header"><div class="e-hcell">№</div><div class="e-hcell">Name</div><div class="e-hcell">Sales</div><div class="e-hcell">Target</div><div class="e-hcell">Hit%</div><div class="e-hcell">Status</div></div>
+              <div class="e-row hl"><div class="e-cell rn">1</div><div class="e-cell">Rahul K.</div><div class="e-cell num">₹48,200</div><div class="e-cell num">₹45,000</div><div class="e-cell g">✓ 107%</div><div class="e-cell g">✅ Hit</div></div>
+              <div class="e-row"><div class="e-cell rn">2</div><div class="e-cell">Priya M.</div><div class="e-cell num">₹62,100</div><div class="e-cell num">₹60,000</div><div class="e-cell g">✓ 103%</div><div class="e-cell g">✅ Hit</div></div>
+              <div class="e-row"><div class="e-cell rn">3</div><div class="e-cell">Aman T.</div><div class="e-cell num">₹35,500</div><div class="e-cell num">₹45,000</div><div class="e-cell o">⚠ 79%</div><div class="e-cell o">🔄 Low</div></div>
+              <div class="e-row hl"><div class="e-cell rn">4</div><div class="e-cell">Neha S.</div><div class="e-cell num">₹71,800</div><div class="e-cell num">₹60,000</div><div class="e-cell g">✓ 120%</div><div class="e-cell g">⭐ Top</div></div>
+              <div class="e-row"><div class="e-cell rn">5</div><div class="e-cell">Vikram P.</div><div class="e-cell num">₹54,300</div><div class="e-cell num">₹50,000</div><div class="e-cell g">✓ 108%</div><div class="e-cell g">✅ Hit</div></div>
+            </div>
+            <div class="e-formula"><span class="e-formula-label">fx</span><span class="e-formula-val">=VLOOKUP(A2,Sheet2!A:D,3,0)<span class="e-cursor"></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-sec sec">
+  <div class="wrap">
+    <div class="stats-row reveal">
+      <div class="stat-box s-em"><span class="stat-icon">👥</span><div class="stat-num live-counter">500</div><div class="stat-label">Students Trained</div></div>
+      <div class="stat-box s-blue"><span class="stat-icon">📚</span><div class="stat-num">9</div><div class="stat-label">Course Modules</div></div>
+      <div class="stat-box s-violet"><span class="stat-icon">⭐</span><div class="stat-num">4.9<span style="font-size:1.8rem">★</span></div><div class="stat-label">Average Rating</div></div>
+      <div class="stat-box s-amber"><span class="stat-icon">🎁</span><div class="stat-num">5</div><div class="stat-label">Free Bonuses</div></div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ══ PRODUCT CARDS v2 ══ */
+.prod-sec{background:var(--bg2)}
+.prod-grid-v2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:0}
+.pcard{background:var(--bg3);border:1px solid var(--b1);border-radius:22px;overflow:hidden;position:relative;transition:transform .3s,border-color .3s,box-shadow .3s;cursor:pointer;text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.pcard:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.pcard.wide{grid-column:1/-1;flex-direction:row}
+/* Accent top bar */
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;z-index:1}
+.pcard.c-green::before{background:linear-gradient(90deg,var(--em),var(--cyan2))}
+.pcard.c-amber::before{background:linear-gradient(90deg,var(--amber2),#f87171)}
+.pcard.c-blue::before{background:linear-gradient(90deg,var(--blue2),var(--violet2))}
+.pcard.c-violet::before{background:linear-gradient(90deg,var(--violet2),var(--pink2))}
+.pcard.c-green:hover{border-color:rgba(0,232,122,.35);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 40px rgba(0,232,122,.06)}
+.pcard.c-amber:hover{border-color:rgba(251,191,36,.35)}
+.pcard.c-blue:hover{border-color:rgba(96,165,250,.35)}
+.pcard.c-violet:hover{border-color:rgba(167,139,250,.35)}
+/* Left text side */
+.pcard-left{padding:28px 28px 24px;display:flex;flex-direction:column;flex:1;min-width:0}
+.pcard.wide .pcard-left{padding:32px 36px 28px;max-width:380px}
+/* Right visual side */
+.pcard-right{flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.2)}
+.pcard.wide .pcard-right{width:340px;padding:24px;border-left:1px solid var(--b1)}
+.pcard:not(.wide) .pcard-right{border-top:1px solid var(--b1);min-height:180px}
+/* Card text */
+.pcard-badge{display:inline-flex;align-items:center;gap:5px;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:14px;width:fit-content}
+.c-green .pcard-badge{background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.25)}
+.c-amber .pcard-badge{background:rgba(251,191,36,.12);color:var(--amber2);border:1px solid rgba(251,191,36,.25)}
+.c-blue .pcard-badge{background:rgba(96,165,250,.12);color:var(--blue2);border:1px solid rgba(96,165,250,.25)}
+.c-violet .pcard-badge{background:rgba(167,139,250,.12);color:var(--violet2);border:1px solid rgba(167,139,250,.25)}
+.pcard-name{font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-.025em;color:var(--t1);margin-bottom:8px;line-height:1.1}
+.pcard.wide .pcard-name{font-size:2rem}
+.pcard-desc{font-size:.82rem;color:var(--t2);line-height:1.7;margin-bottom:16px;flex:1}
+.pcard-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+.pcard-tag{font-size:.6rem;font-weight:500;padding:3px 9px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--b1);color:var(--t3)}
+.pcard-foot{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--b1)}
+.pcard-price-new{font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700}
+.c-green .pcard-price-new{color:var(--em)}
+.c-amber .pcard-price-new{color:var(--amber2)}
+.c-blue .pcard-price-new{color:var(--blue2)}
+.c-violet .pcard-price-new{color:var(--violet2)}
+.pcard-price-old{font-size:.72rem;color:var(--t4);text-decoration:line-through;margin-right:5px}
+.pcard-arrow{width:34px;height:34px;border-radius:50%;border:1px solid var(--b2);display:grid;place-items:center;font-size:.9rem;color:var(--t3);transition:all .25s;flex-shrink:0}
+.pcard:hover .pcard-arrow{transform:rotate(-45deg)}
+.c-green:hover .pcard-arrow{background:var(--em);border-color:var(--em);color:#000}
+.c-amber:hover .pcard-arrow{background:var(--amber2);border-color:var(--amber2);color:#000}
+.c-blue:hover .pcard-arrow{background:var(--blue2);border-color:var(--blue2);color:#000}
+.c-violet:hover .pcard-arrow{background:var(--violet2);border-color:var(--violet2);color:#000}
+
+/* ── EXCEL DASHBOARD (animated) ── */
+.excel-dash{width:100%;background:#0d1117;border-radius:12px;overflow:hidden;font-family:'Outfit',sans-serif}
+.ed-bar{background:#161b22;padding:8px 12px;display:flex;align-items:center;gap:5px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ed-dot{width:8px;height:8px;border-radius:50%}
+.ed-title{flex:1;font-size:.58rem;color:rgba(255,255,255,.3);margin-left:6px}
+.ed-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px}
+.ed-kpi{border-radius:8px;padding:8px;text-align:center}
+.ed-kpi-val{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;line-height:1;margin-bottom:2px}
+.ed-kpi-lbl{font-size:.52rem;opacity:.6}
+.ed-chart{padding:0 10px 10px;display:flex;align-items:flex-end;gap:4px;height:70px}
+.ed-bar-item{flex:1;border-radius:3px 3px 0 0;position:relative;transition:height .6s cubic-bezier(.34,1.56,.64,1)}
+.ed-row-table{padding:0 10px 8px}
+.ed-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;padding:4px 6px;border-radius:5px;font-size:.56rem;margin-bottom:2px}
+.ed-row:nth-child(odd){background:rgba(255,255,255,.03)}
+/* animate bars on hover */
+.pcard:hover .ed-bar-item{opacity:1}
+
+/* ── EBOOK VISUAL (formula cards) ── */
+.ebook-vis{width:100%;padding:8px;display:flex;flex-direction:column;gap:5px}
+.ef-card{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.15);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;transition:all .3s}
+.pcard:hover .ef-card{transform:translateX(4px)}
+.pcard:hover .ef-card:nth-child(2){transition-delay:.06s}
+.pcard:hover .ef-card:nth-child(3){transition-delay:.12s}
+.pcard:hover .ef-card:nth-child(4){transition-delay:.18s}
+.pcard:hover .ef-card:nth-child(5){transition-delay:.24s}
+.ef-formula{font-family:monospace;font-size:.65rem;font-weight:700;padding:3px 7px;border-radius:5px;background:rgba(251,191,36,.15);color:var(--amber2);white-space:nowrap;flex-shrink:0}
+.ef-desc{font-size:.6rem;color:rgba(255,255,255,.5);flex:1;line-height:1.4}
+.ef-cat{font-size:.52rem;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+
+/* ── BUSINESS DASHBOARD (multi-chart) ── */
+.biz-dash{width:100%;background:#0a0f1a;border-radius:12px;overflow:hidden;padding:12px}
+.biz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.biz-title{font-size:.6rem;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase}
+.biz-status{font-size:.52rem;padding:2px 8px;border-radius:100px;background:rgba(96,165,250,.15);color:var(--blue2);border:1px solid rgba(96,165,250,.2)}
+.biz-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px}
+.biz-kpi{background:rgba(255,255,255,.04);border-radius:7px;padding:7px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.biz-kpi-val{font-family:'Clash Display',sans-serif;font-size:.85rem;font-weight:700;line-height:1;margin-bottom:1px}
+.biz-kpi-lbl{font-size:.5rem;color:rgba(255,255,255,.3)}
+.biz-charts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.biz-chart-box{background:rgba(255,255,255,.03);border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,.05)}
+.biz-chart-lbl{font-size:.52rem;color:rgba(255,255,255,.3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em}
+.biz-bars{display:flex;align-items:flex-end;gap:3px;height:50px}
+.biz-b{flex:1;border-radius:2px 2px 0 0;transition:height .5s ease}
+.biz-donut{width:50px;height:50px;border-radius:50%;margin:0 auto;position:relative;display:flex;align-items:center;justify-content:center}
+.biz-donut-val{font-family:'Clash Display',sans-serif;font-size:.7rem;font-weight:700;color:var(--blue2);position:absolute}
+
+/* ── TASKFLOW VISUAL (kanban) ── */
+.tf-board{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tf-col{background:rgba(255,255,255,.03);border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,.06)}
+.tf-col-head{font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.06)}
+.tf-task{border-radius:6px;padding:6px 7px;margin-bottom:4px;font-size:.56rem;line-height:1.4;transition:all .3s;border:1px solid transparent}
+.pcard:hover .tf-task{border-color:rgba(255,255,255,.08)}
+.pcard:hover .tf-task:nth-child(2){transition-delay:.05s}
+.pcard:hover .tf-task:nth-child(3){transition-delay:.1s}
+.tf-task-tag{display:inline-block;font-size:.48rem;padding:1px 5px;border-radius:3px;margin-top:3px;font-weight:600}
+.tf-progress{margin-top:8px;background:rgba(255,255,255,.06);border-radius:3px;height:3px;overflow:hidden}
+.tf-prog-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.pcard:hover .tf-prog-fill{width:var(--pw) !important}
+
+@media(max-width:960px){.prod-grid-v2{grid-template-columns:1fr}.pcard.wide{flex-direction:column}.pcard.wide .pcard-right{width:100%;border-left:none;border-top:1px solid var(--b1)}.pcard.wide .pcard-left{max-width:100%}}
+@media(max-width:600px){.pcard-name{font-size:1.2rem}.pcard.wide .pcard-name{font-size:1.5rem}.pcard-desc{font-size:.78rem}.pcard-right{min-height:160px}}
+</style>
+
+<section id="products" style="background:var(--bg);padding:100px 0 80px;position:relative;z-index:1">
+
+<!-- ══ SECTION HEADER ══ -->
+<div style="max-width:680px;margin:0 auto 72px;padding:0 24px;text-align:center">
+  <div class="sec-eyebrow reveal" style="justify-content:center">Our Products</div>
+  <h2 class="sec-h2 reveal d1" style="text-align:center;margin-bottom:16px">Ek platform.<br><span class="grad">Multiple tools.</span></h2>
+  <p style="font-size:.95rem;color:var(--t2);line-height:1.8;max-width:480px;margin:0 auto" class="reveal d2">Har product ek specific problem solve karta hai. Together — ek complete career ecosystem.</p>
+</div>
+
+<!-- ══ PRODUCT 1: EXCEL JOB READY ══ -->
+<div class="sp-card reveal" style="--acc:#00e87a;--acc-rgb:0,232,122;--acc2:#22d3ee;margin:0 auto 32px;max-width:860px;padding:0 20px" onclick="window.location.href='./excel-job-ready/index.html'" style="cursor:pointer">
+  <div class="sp-inner" style="background:linear-gradient(145deg,#080f0a,#0a1810);border:1px solid rgba(0,232,122,.18);border-radius:28px;overflow:hidden;position:relative">
+    <!-- Top accent line -->
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),var(--acc2),transparent)"></div>
+    <!-- Glow -->
+    <div style="position:absolute;top:-60px;right:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(0,232,122,.07) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:0;min-height:360px">
+      <!-- Left: Content -->
+      <div style="padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <!-- Badge row -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.3);color:var(--em);padding:4px 12px;border-radius:100px">📊 Course</span>
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 12px;border-radius:100px">🏆 Flagship</span>
+          </div>
+          <!-- Title -->
+          <h3 style="font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;letter-spacing:-.03em;color:var(--t1);line-height:1.05;margin-bottom:14px">Excel<br>Job Ready</h3>
+          <!-- Description -->
+          <p style="font-size:.9rem;color:var(--t2);line-height:1.75;margin-bottom:22px;max-width:340px">India ka most practical Excel course — real office files, MIS reports, dashboards. Hinglish mein. Job ke liye ready.</p>
+          <!-- Benefits -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:28px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(0,232,122,.15);border:1px solid rgba(0,232,122,.4);display:grid;place-items:center;flex-shrink:0;font-size:.55rem">✓</span>9 modules — basics se MIS dashboards tak</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(0,232,122,.15);border:1px solid rgba(0,232,122,.4);display:grid;place-items:center;flex-shrink:0;font-size:.55rem">✓</span>5 free bonuses + lifetime access + certificate</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(0,232,122,.15);border:1px solid rgba(0,232,122,.4);display:grid;place-items:center;flex-shrink:0;font-size:.55rem">✓</span><span class="live-counter">500</span>+ students enrolled — 4.9★ rating</div>
+          </div>
+        </div>
+        <!-- Bottom: Price + CTA -->
+        <div>
+          <!-- Trust row -->
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <div style="display:flex;gap:1px">
+              <span style="color:var(--amber2);font-size:.75rem">★★★★★</span>
+            </div>
+            <span style="font-size:.72rem;color:var(--t3)">4.9/5 · <span class="live-counter">500</span>+ students · Most Popular</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div>
+              <span style="font-size:.82rem;color:var(--t4);text-decoration:line-through">₹4,999</span>
+              <div style="font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--em);line-height:1">₹799</div>
+              <span style="font-size:.62rem;color:rgba(0,232,122,.6);font-weight:600">84% OFF — Today only</span>
+            </div>
+            <button onclick="openEnrollModal()" style="flex:1;min-width:180px;background:var(--em);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.92rem;padding:14px 28px;border-radius:14px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(0,232,122,.35);letter-spacing:.02em"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 40px rgba(0,232,122,.5)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 0 24px rgba(0,232,122,.35)'">
+              🚀 Enroll Now — Instant Access
+            </button>
+          </div>
+          <div style="margin-top:10px;font-size:.65rem;color:var(--t3)">🛡️ 7-day money-back guarantee · ♾️ Lifetime access · 📱 Mobile friendly</div>
+        </div>
+      </div>
+
+      <!-- Right: Live Dashboard -->
+      <div style="background:rgba(0,0,0,.3);border-left:1px solid rgba(0,232,122,.1);padding:24px 20px;display:flex;flex-direction:column;justify-content:center">
+        <!-- Titlebar -->
+        <div style="background:#161b22;border-radius:10px 10px 0 0;padding:7px 12px;display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,.06);border-bottom:none">
+          <div style="width:8px;height:8px;border-radius:50%;background:#ff5f56"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#ffbd2e"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:#27c93f"></div>
+          <span style="flex:1;text-align:center;font-size:.48rem;color:rgba(255,255,255,.35)">📊 Sales MIS Dashboard</span>
+          <span style="font-size:.44rem;color:rgba(0,232,122,.7);font-weight:700">● LIVE</span>
+        </div>
+        <!-- Dashboard body -->
+        <div style="background:#0b1118;border:1px solid rgba(255,255,255,.06);border-radius:0 0 10px 10px;overflow:hidden">
+          <!-- KPI row -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid rgba(255,255,255,.05)">
+            <div style="padding:8px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.04)"><div style="font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--em)" id="kpi1">₹24L</div><div style="font-size:.42rem;color:rgba(0,232,122,.45)">Revenue ▲18%</div></div>
+            <div style="padding:8px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.04)"><div style="font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--blue2)" id="kpi2">84%</div><div style="font-size:.42rem;color:rgba(96,165,250,.45)">Target ▲6%</div></div>
+            <div style="padding:8px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.04)"><div style="font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--amber2)">142</div><div style="font-size:.42rem;color:rgba(251,191,36,.45)">Orders ▲12%</div></div>
+            <div style="padding:8px 6px;text-align:center"><div style="font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:700;color:var(--pink2)">4.9★</div><div style="font-size:.42rem;color:rgba(244,114,182,.45)">Rating</div></div>
+          </div>
+          <!-- Charts -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.04)">
+            <!-- Bar chart -->
+            <div style="background:#0b1118;padding:10px">
+              <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.25);margin-bottom:5px">Monthly Sales</div>
+              <div id="excelBarWrap" style="display:flex;align-items:flex-end;gap:4px;height:52px">
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Oct" data-sales="18.4" data-target="78" data-orders="98" data-mis="38" data-vl="30" data-pv="20" data-ot="12"><div class="ed-bar-item" style="width:100%;background:rgba(0,232,122,.22);border-radius:2px 2px 0 0;height:0;transition:height .5s ease"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(255,255,255,.2);line-height:1">Oct</div></div>
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Nov" data-sales="21.2" data-target="82" data-orders="114" data-mis="40" data-vl="29" data-pv="19" data-ot="12"><div class="ed-bar-item" style="width:100%;background:rgba(0,232,122,.32);border-radius:2px 2px 0 0;height:0;transition:height .5s ease .07s"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(255,255,255,.2);line-height:1">Nov</div></div>
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Dec" data-sales="26.8" data-target="85" data-orders="128" data-mis="42" data-vl="28" data-pv="18" data-ot="12"><div class="ed-bar-item" style="width:100%;background:rgba(0,232,122,.42);border-radius:2px 2px 0 0;height:0;transition:height .5s ease .14s"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(255,255,255,.2);line-height:1">Dec</div></div>
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Jan" data-sales="30.5" data-target="88" data-orders="138" data-mis="44" data-vl="27" data-pv="17" data-ot="12"><div class="ed-bar-item" style="width:100%;background:rgba(0,232,122,.55);border-radius:2px 2px 0 0;height:0;transition:height .5s ease .21s"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(255,255,255,.2);line-height:1">Jan</div></div>
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Feb" data-sales="24.1" data-target="80" data-orders="121" data-mis="41" data-vl="28" data-pv="19" data-ot="12"><div class="ed-bar-item" style="width:100%;background:rgba(0,232,122,.42);border-radius:2px 2px 0 0;height:0;transition:height .5s ease .28s"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(255,255,255,.2);line-height:1">Feb</div></div>
+                <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;flex:1;height:100%;cursor:pointer" data-month="Mar" data-sales="37.2" data-target="95" data-orders="164" data-mis="46" data-vl="26" data-pv="17" data-ot="11"><div class="ed-bar-item" style="width:100%;background:var(--em);border-radius:2px 2px 0 0;height:0;transition:height .5s ease .35s;box-shadow:0 0 6px rgba(0,232,122,.4)"></div><div class="bar-lbl" style="font-size:.32rem;color:rgba(0,232,122,.7);font-weight:700;line-height:1">Mar</div></div>
+              </div>
+            </div>
+            <!-- Donut -->
+            <div style="background:#0b1118;padding:10px;display:flex;flex-direction:column;align-items:center">
+              <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.25);margin-bottom:5px;width:100%">Category Split</div>
+              <div style="position:relative;width:56px;height:56px;flex-shrink:0">
+                <svg viewBox="0 0 36 36" width="56" height="56" style="transform:rotate(-90deg)">
+                  <circle cx="18" cy="18" r="13" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="5"/>
+                  <circle id="pie1" cx="18" cy="18" r="13" fill="none" stroke="var(--em)" stroke-width="5" stroke-dasharray="0 82" stroke-linecap="butt" style="transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease"/>
+                  <circle id="pie2" cx="18" cy="18" r="13" fill="none" stroke="var(--blue2)" stroke-width="5" stroke-dasharray="0 82" stroke-dashoffset="-34" stroke-linecap="butt" style="transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease"/>
+                  <circle id="pie3" cx="18" cy="18" r="13" fill="none" stroke="var(--amber2)" stroke-width="5" stroke-dasharray="0 82" stroke-dashoffset="-56" stroke-linecap="butt" style="transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease"/>
+                  <circle id="pie4" cx="18" cy="18" r="13" fill="none" stroke="var(--pink2)" stroke-width="5" stroke-dasharray="0 82" stroke-dashoffset="-70" stroke-linecap="butt" style="transition:stroke-dasharray .5s ease,stroke-dashoffset .5s ease"/>
+                </svg>
+                <div id="pieCenter" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column">
+                  <span id="pieCenterPct" style="font-family:'Clash Display',sans-serif;font-size:.6rem;font-weight:700;color:var(--em);transition:all .3s">42%</span>
+                  <span id="pieCenterLabel" style="font-size:.32rem;color:rgba(255,255,255,.3)">MIS</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px;width:100%;margin-top:4px">
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--em);flex-shrink:0"></div><span id="leg1t">MIS 42%</span></div>
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--blue2);flex-shrink:0"></div><span id="leg2t">VLOOKUP 28%</span></div>
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--amber2);flex-shrink:0"></div><span id="leg3t">Pivot 18%</span></div>
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--pink2);flex-shrink:0"></div><span id="leg4t">Other 12%</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Data table -->
+          <div style="border-top:1px solid rgba(255,255,255,.05)">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:4px 10px;background:rgba(255,255,255,.03)">
+              <span style="font-size:.4rem;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase">Name</span>
+              <span style="font-size:.4rem;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;text-align:right">Sales</span>
+              <span style="font-size:.4rem;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;text-align:right">Target</span>
+              <span style="font-size:.4rem;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;text-align:right">Status</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:4px 10px;background:rgba(0,232,122,.03)">
+              <span style="font-size:.5rem;color:rgba(255,255,255,.7)">Neha S.</span><span style="font-size:.5rem;color:rgba(255,255,255,.45);text-align:right">₹71,800</span><span style="font-size:.5rem;color:var(--em);font-weight:700;text-align:right">120%</span><span style="font-size:.45rem;color:var(--amber2);text-align:right">⭐ Top</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:4px 10px">
+              <span style="font-size:.5rem;color:rgba(255,255,255,.7)">Rahul K.</span><span style="font-size:.5rem;color:rgba(255,255,255,.45);text-align:right">₹48,200</span><span style="font-size:.5rem;color:var(--em);font-weight:700;text-align:right">107%</span><span style="font-size:.45rem;color:var(--em);text-align:right">✓ Hit</span>
+            </div>
+          </div>
+          <!-- Formula bar -->
+          <div style="padding:4px 10px 5px;background:#0f151e;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:5px">
+            <span style="font-size:.44rem;color:rgba(255,255,255,.2);font-family:monospace;background:rgba(255,255,255,.04);padding:1px 4px;border-radius:2px">fx</span>
+            <span style="font-size:.46rem;color:rgba(0,232,122,.6);font-family:monospace">=VLOOKUP(A2,Data!$A:$E,4,0)<span style="animation:blink 1s infinite;display:inline-block">▋</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT 2: FORMULA EBOOK ══ -->
+<div class="sp-card reveal" style="--acc:#fbbf24;--acc-rgb:251,191,36;margin:0 auto 32px;max-width:860px;padding:0 20px">
+  <div class="sp-inner" style="background:linear-gradient(145deg,#0d0d08,#131008);border:1px solid rgba(251,191,36,.15);border-radius:28px;overflow:hidden;position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber2),#f87171,transparent)"></div>
+    <div style="position:absolute;top:-60px;left:-40px;width:280px;height:280px;background:radial-gradient(circle,rgba(251,191,36,.06) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:0;min-height:340px">
+      <div style="padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);color:var(--amber2);padding:4px 12px;border-radius:100px">📘 eBook</span>
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 12px;border-radius:100px">⚡ Instant PDF</span>
+          </div>
+          <h3 style="font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;letter-spacing:-.03em;color:var(--t1);line-height:1.05;margin-bottom:14px">Formula<br>eBook</h3>
+          <p style="font-size:.9rem;color:var(--t2);line-height:1.75;margin-bottom:22px;max-width:320px">100 essential Excel formulas — categories, examples, shortcuts. Print karo ya phone pe rakh lo. Office mein quick reference.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:28px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--amber2)">✓</span>VLOOKUP, IF, SUMIF, PIVOT — sab ek jagah</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--amber2)">✓</span>Real examples with screenshots — beginner friendly</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--amber2)">✓</span>Print-ready PDF — mobile friendly format</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <span style="color:var(--amber2);font-size:.75rem">★★★★★</span>
+            <span style="font-size:.72rem;color:var(--t3)">4.8/5 · 1,200+ downloads · Best Seller</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div>
+              <span style="font-size:.82rem;color:var(--t4);text-decoration:line-through">₹299</span>
+              <div style="font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--amber2);line-height:1">₹149</div>
+              <span style="font-size:.62rem;color:rgba(251,191,36,.6);font-weight:600">50% OFF — Limited time</span>
+            </div>
+            <button onclick="openEnrollModal('complete')" style="flex:1;min-width:180px;background:var(--amber2);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.92rem;padding:14px 28px;border-radius:14px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(251,191,36,.3);letter-spacing:.02em"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 40px rgba(251,191,36,.5)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 0 24px rgba(251,191,36,.3)'">
+              📘 Get eBook — Download Now
+            </button>
+          </div>
+          <div style="margin-top:10px;font-size:.65rem;color:var(--t3)">📥 Instant PDF download · No shipping · Works offline</div>
+        </div>
+      </div>
+
+      <!-- Right: Formula cards visual -->
+      <div style="background:rgba(0,0,0,.25);border-left:1px solid rgba(251,191,36,.1);padding:28px 22px;display:flex;flex-direction:column;justify-content:center;gap:0">
+        <div style="font-size:.5rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(251,191,36,.45);margin-bottom:10px">📘 Formula Quick Reference</div>
+        <div class="ef-card" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin-bottom:6px;transition:all .35s">
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--em);margin-bottom:3px">VLOOKUP</div>
+          <div style="font-size:.7rem;color:var(--t2);margin-bottom:6px">Ek table se doosre mein data dhundho</div>
+          <span style="font-size:.55rem;padding:2px 8px;border-radius:100px;background:rgba(0,232,122,.1);color:var(--em);font-weight:600">Lookup</span>
+        </div>
+        <div class="ef-card" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin-bottom:6px;transition:all .35s">
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--blue2);margin-bottom:3px">IF( )</div>
+          <div style="font-size:.7rem;color:var(--t2);margin-bottom:6px">Condition ke basis pe value return karo</div>
+          <span style="font-size:.55rem;padding:2px 8px;border-radius:100px;background:rgba(96,165,250,.1);color:var(--blue2);font-weight:600">Logic</span>
+        </div>
+        <div class="ef-card" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin-bottom:6px;transition:all .35s">
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--amber2);margin-bottom:3px">SUMIF</div>
+          <div style="font-size:.7rem;color:var(--t2);margin-bottom:6px">Condition wale cells ka sum karo</div>
+          <span style="font-size:.55rem;padding:2px 8px;border-radius:100px;background:rgba(251,191,36,.1);color:var(--amber2);font-weight:600">Math</span>
+        </div>
+        <div class="ef-card" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 12px;margin-bottom:6px;transition:all .35s">
+          <div style="font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:700;color:var(--violet2);margin-bottom:3px">PIVOT</div>
+          <div style="font-size:.7rem;color:var(--t2);margin-bottom:6px">Data summarize aur analyze karo</div>
+          <span style="font-size:.55rem;padding:2px 8px;border-radius:100px;background:rgba(167,139,250,.1);color:var(--violet2);font-weight:600">Data</span>
+        </div>
+        <div style="text-align:center;font-size:.55rem;color:rgba(251,191,36,.35);margin-top:4px">+ 96 more formulas inside →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT 3: BUSINESS DASHBOARD ══ -->
+<div class="sp-card reveal" style="--acc:#60a5fa;margin:0 auto 32px;max-width:860px;padding:0 20px">
+  <div class="sp-inner" style="background:linear-gradient(145deg,#080c14,#0a0f1c);border:1px solid rgba(96,165,250,.15);border-radius:28px;overflow:hidden;position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue2),var(--violet2),transparent)"></div>
+    <div style="position:absolute;bottom:-40px;right:-40px;width:280px;height:280px;background:radial-gradient(circle,rgba(96,165,250,.07) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:0;min-height:340px">
+      <div style="padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);color:var(--blue2);padding:4px 12px;border-radius:100px">📈 Excel Tool</span>
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 12px;border-radius:100px">⚡ Plug & Play</span>
+          </div>
+          <h3 style="font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;letter-spacing:-.03em;color:var(--t1);line-height:1.05;margin-bottom:14px">Business<br>Dashboard</h3>
+          <p style="font-size:.9rem;color:var(--t2);line-height:1.75;margin-bottom:22px;max-width:320px">Ready-made Excel dashboard — sales, expenses, inventory ek file mein. Small business ke liye perfect. Sirf data daalo, report ready.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:28px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--blue2)">✓</span>Sales, Expenses, Inventory — 3 reports in 1 file</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--blue2)">✓</span>Auto charts — sirf data enter karo, graphs ban jaate</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--blue2)">✓</span>Works on Excel 2016+ — No subscription needed</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <span style="color:var(--amber2);font-size:.75rem">★★★★★</span>
+            <span style="font-size:.72rem;color:var(--t3)">4.7/5 · 800+ users · Small Biz Favourite</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div>
+              <span style="font-size:.82rem;color:var(--t4);text-decoration:line-through">₹999</span>
+              <div style="font-family:'Clash Display',sans-serif;font-size:2rem;font-weight:700;color:var(--blue2);line-height:1">₹499</div>
+              <span style="font-size:.62rem;color:rgba(96,165,250,.6);font-weight:600">50% OFF — Launch price</span>
+            </div>
+            <button onclick="openEnrollModal('complete')" style="flex:1;min-width:180px;background:var(--blue2);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.92rem;padding:14px 28px;border-radius:14px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(96,165,250,.3);letter-spacing:.02em"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 40px rgba(96,165,250,.5)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 0 24px rgba(96,165,250,.3)'">
+              📈 Get Dashboard — Instant Access
+            </button>
+          </div>
+          <div style="margin-top:10px;font-size:.65rem;color:var(--t3)">📥 Instant .xlsx download · Works offline · No macros needed</div>
+        </div>
+      </div>
+
+      <!-- Right: Business Dashboard visual -->
+      <div style="background:rgba(0,0,0,.25);border-left:1px solid rgba(96,165,250,.1);padding:20px 18px;display:flex;flex-direction:column;justify-content:center">
+        <div style="background:#0b1220;border:1px solid rgba(96,165,250,.12);border-radius:12px;overflow:hidden">
+          <div style="padding:8px 12px;background:rgba(96,165,250,.06);border-bottom:1px solid rgba(96,165,250,.1);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.5rem;font-weight:700;color:var(--blue2);letter-spacing:.05em">Business Overview</span>
+            <span id="bizStatus" style="font-size:.45rem;color:rgba(96,165,250,.6);font-weight:700">● Q1 2026</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid rgba(255,255,255,.05)">
+            <div style="padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.04)"><div style="font-family:'Clash Display',sans-serif;font-size:.8rem;font-weight:700;color:var(--blue2);transition:all .25s" id="bizRev">₹4.2L</div><div style="font-size:.42rem;color:rgba(255,255,255,.3)">Revenue</div></div>
+            <div style="padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.04)"><div style="font-family:'Clash Display',sans-serif;font-size:.8rem;font-weight:700;color:var(--em);transition:all .25s" id="bizGrow">+18%</div><div style="font-size:.42rem;color:rgba(255,255,255,.3)">Growth</div></div>
+            <div style="padding:8px 8px;text-align:center"><div style="font-family:'Clash Display',sans-serif;font-size:.8rem;font-weight:700;color:var(--amber2);transition:all .25s" id="bizOrd">142</div><div style="font-size:.42rem;color:rgba(255,255,255,.3)">Orders</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.04);padding:0">
+            <div style="background:#0b1220;padding:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25)">Monthly Sales</div>
+                <div id="bizBarTip" style="font-size:.4rem;color:var(--blue2);opacity:0;transition:opacity .2s;font-weight:700">—</div>
+              </div>
+              <div id="bizBarWrap" style="display:flex;align-items:flex-end;gap:3px;height:44px">
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Oct" data-rev="2.8" data-grow="+12%" data-ord="96" data-stock="58" data-ops="28" data-misc="14"><div class="biz-b" style="width:100%;height:0;background:rgba(96,165,250,.3);border-radius:2px 2px 0 0;transition:height .5s ease,filter .2s"></div></div>
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Nov" data-rev="3.1" data-grow="+14%" data-ord="108" data-stock="60" data-ops="27" data-misc="13"><div class="biz-b" style="width:100%;height:0;background:rgba(96,165,250,.4);border-radius:2px 2px 0 0;transition:height .5s ease .07s,filter .2s"></div></div>
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Dec" data-rev="3.6" data-grow="+16%" data-ord="122" data-stock="61" data-ops="26" data-misc="13"><div class="biz-b" style="width:100%;height:0;background:rgba(96,165,250,.35);border-radius:2px 2px 0 0;transition:height .5s ease .14s,filter .2s"></div></div>
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Jan" data-rev="4.0" data-grow="+18%" data-ord="135" data-stock="62" data-ops="25" data-misc="13"><div class="biz-b" style="width:100%;height:0;background:rgba(96,165,250,.55);border-radius:2px 2px 0 0;transition:height .5s ease .21s,filter .2s"></div></div>
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Feb" data-rev="3.8" data-grow="+15%" data-ord="128" data-stock="61" data-ops="26" data-misc="13"><div class="biz-b" style="width:100%;height:0;background:rgba(96,165,250,.45);border-radius:2px 2px 0 0;transition:height .5s ease .28s,filter .2s"></div></div>
+                <div class="biz-bar-col" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:pointer" data-month="Mar" data-rev="4.2" data-grow="+20%" data-ord="142" data-stock="62" data-ops="25" data-misc="13"><div class="biz-b" style="width:100%;height:0;background:var(--blue2);border-radius:2px 2px 0 0;transition:height .5s ease .35s,filter .2s;box-shadow:0 0 6px rgba(96,165,250,.5)"></div></div>
+              </div>
+              <div style="display:flex;gap:3px;margin-top:2px">
+                <div style="flex:1;text-align:center;font-size:.32rem;color:rgba(255,255,255,.18)">Oct</div><div style="flex:1;text-align:center;font-size:.32rem;color:rgba(255,255,255,.18)">Nov</div><div style="flex:1;text-align:center;font-size:.32rem;color:rgba(255,255,255,.18)">Dec</div><div style="flex:1;text-align:center;font-size:.32rem;color:rgba(255,255,255,.18)">Jan</div><div style="flex:1;text-align:center;font-size:.32rem;color:rgba(255,255,255,.18)">Feb</div><div style="flex:1;text-align:center;font-size:.32rem;color:rgba(96,165,250,.6);font-weight:700">Mar</div>
+              </div>
+            </div>
+            <div style="background:#0b1220;padding:10px;display:flex;flex-direction:column;align-items:center">
+              <div style="font-size:.44rem;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);margin-bottom:4px;width:100%">Expenses</div>
+              <div style="position:relative;width:52px;height:52px">
+                <svg viewBox="0 0 36 36" width="52" height="52" style="transform:rotate(-90deg)">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="4"/>
+                  <circle id="bizPie1" cx="18" cy="18" r="14" fill="none" stroke="var(--blue2)" stroke-width="4" stroke-dasharray="0 88" stroke-linecap="butt" style="transition:stroke-dasharray .4s ease"/>
+                  <circle id="bizPie2" cx="18" cy="18" r="14" fill="none" stroke="var(--violet2)" stroke-width="4" stroke-dasharray="0 88" stroke-dashoffset="0" stroke-linecap="butt" style="transition:stroke-dasharray .4s ease,stroke-dashoffset .4s ease"/>
+                  <circle id="bizPie3" cx="18" cy="18" r="14" fill="none" stroke="var(--amber2)" stroke-width="4" stroke-dasharray="0 88" stroke-dashoffset="0" stroke-linecap="butt" style="transition:stroke-dasharray .4s ease,stroke-dashoffset .4s ease"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column">
+                  <span id="bizPiePct" style="font-family:'Clash Display',sans-serif;font-size:.58rem;font-weight:700;color:var(--blue2);transition:all .3s">62%</span>
+                  <span id="bizPieLbl" style="font-size:.32rem;color:rgba(255,255,255,.3)">Stock</span>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px;width:100%;margin-top:4px">
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--blue2);flex-shrink:0"></div><span id="bizLeg1">Stock 62%</span></div>
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--violet2);flex-shrink:0"></div><span id="bizLeg2">Ops 25%</span></div>
+                <div style="display:flex;align-items:center;gap:3px;font-size:.4rem;color:rgba(255,255,255,.35)"><div style="width:4px;height:4px;border-radius:50%;background:var(--amber2);flex-shrink:0"></div><span id="bizLeg3">Misc 13%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRODUCT 4: TASKFLOW ══ -->
+<div class="sp-card reveal" style="--acc:#a78bfa;margin:0 auto 0;max-width:860px;padding:0 20px">
+  <div class="sp-inner" style="background:linear-gradient(145deg,#0b0810,#0e0a18);border:1px solid rgba(167,139,250,.15);border-radius:28px;overflow:hidden;position:relative">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--violet2),var(--pink2),transparent)"></div>
+    <div style="position:absolute;top:-40px;right:-60px;width:260px;height:260px;background:radial-gradient(circle,rgba(167,139,250,.07) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;top:14px;right:20px;z-index:2;font-size:.52rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--violet2);color:#fff;padding:3px 10px;border-radius:100px">Coming Soon</div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:0;min-height:340px">
+      <div style="padding:44px 40px;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:var(--violet2);padding:4px 12px;border-radius:100px">✅ App</span>
+            <span style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.5);padding:4px 12px;border-radius:100px">🆓 Free Beta</span>
+          </div>
+          <h3 style="font-family:'Clash Display',sans-serif;font-size:2.4rem;font-weight:700;letter-spacing:-.03em;color:var(--t1);line-height:1.05;margin-bottom:14px">Task<br>Flow</h3>
+          <p style="font-size:.9rem;color:var(--t2);line-height:1.75;margin-bottom:22px;max-width:320px">Productivity app for Indian professionals — tasks, deadlines, team work. Simple. Powerful. Made for how India actually works.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:28px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--violet2)">✓</span>Kanban board — drag & drop tasks</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--violet2)">✓</span>Team collaboration + deadline tracking</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--t1)"><span style="width:18px;height:18px;border-radius:50%;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.35);display:grid;place-items:center;flex-shrink:0;font-size:.55rem;color:var(--violet2)">✓</span>Mobile first — works on any device</div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+            <span style="font-size:.72rem;color:var(--violet2)">👥</span>
+            <span style="font-size:.72rem;color:var(--t3)">500+ waitlist · Free beta access · Launch Q2 2026</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div>
+              <div style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;color:var(--violet2);line-height:1">Free</div>
+              <span style="font-size:.62rem;color:rgba(167,139,250,.6);font-weight:600">Beta access — no credit card</span>
+            </div>
+            <button onclick="window.open('https://wa.me/918826340509?text=Hi%2C+I+want+to+join+TaskFlow+beta','_blank')" style="flex:1;min-width:180px;background:linear-gradient(135deg,var(--violet2),var(--pink2));color:#fff;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.92rem;padding:14px 28px;border-radius:14px;border:none;cursor:pointer;transition:all .2s;box-shadow:0 0 24px rgba(167,139,250,.3);letter-spacing:.02em"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 40px rgba(167,139,250,.5)'"
+              onmouseout="this.style.transform='';this.style.boxShadow='0 0 24px rgba(167,139,250,.3)'">
+              🔔 Notify Me — Join Waitlist
+            </button>
+          </div>
+          <div style="margin-top:10px;font-size:.65rem;color:var(--t3)">🚀 Be first to access · Free during beta · No commitment</div>
+        </div>
+      </div>
+
+      <!-- Right: Taskflow kanban -->
+      <div style="background:rgba(0,0,0,.2);border-left:1px solid rgba(167,139,250,.1);padding:18px 16px;display:flex;flex-direction:column;justify-content:center">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:.48rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(167,139,250,.55)">📋 My Tasks — Today</div>
+          <div style="display:flex;gap:8px">
+            <div style="text-align:center"><div id="tfTodo" style="font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.5);transition:all .3s">3</div><div style="font-size:.32rem;color:rgba(255,255,255,.2)">Todo</div></div>
+            <div style="text-align:center"><div id="tfProg" style="font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:var(--amber2);transition:all .3s">2</div><div style="font-size:.32rem;color:rgba(255,255,255,.2)">Active</div></div>
+            <div style="text-align:center"><div id="tfDone" style="font-family:'Clash Display',sans-serif;font-size:.75rem;font-weight:700;color:var(--em);transition:all .3s">4</div><div style="font-size:.32rem;color:rgba(255,255,255,.2)">Done</div></div>
+          </div>
+        </div>
+        <!-- Overall bar -->
+        <div style="background:rgba(255,255,255,.05);border-radius:4px;height:3px;margin-bottom:8px;overflow:hidden"><div id="tfOverallBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--violet2),var(--em));border-radius:4px;transition:width .6s ease"></div></div>
+        <div class="tf-board">
+          <div class="tf-col">
+            <div class="tf-col-head" style="color:rgba(255,255,255,.3);font-size:.48rem">📋 Todo <span style="background:rgba(255,255,255,.07);padding:1px 4px;border-radius:3px;font-size:.4rem" id="tfTodoCount">3</span></div>
+            <div class="tf-task tf-clickable" id="tft1" data-title="MIS Report" data-prog="0" style="background:rgba(167,139,250,.08);cursor:pointer;transition:all .25s;font-size:.58rem">MIS Report banao<div><span class="tf-task-tag" style="background:rgba(239,68,68,.15);color:var(--red2);font-size:.48rem">Urgent</span></div></div>
+            <div class="tf-task tf-clickable" id="tft2" style="background:rgba(167,139,250,.05);cursor:pointer;transition:all .25s;font-size:.58rem">Client call prep<div><span class="tf-task-tag" style="background:rgba(251,191,36,.12);color:var(--amber2);font-size:.48rem">Today</span></div></div>
+            <div class="tf-task tf-clickable" id="tft3" style="background:rgba(167,139,250,.05);cursor:pointer;transition:all .25s;font-size:.58rem">Invoice update<div><span class="tf-task-tag" style="background:rgba(96,165,250,.12);color:var(--blue2);font-size:.48rem">Finance</span></div></div>
+          </div>
+          <div class="tf-col">
+            <div class="tf-col-head" style="color:rgba(251,191,36,.6);font-size:.48rem">⚡ Active <span style="background:rgba(251,191,36,.1);padding:1px 4px;border-radius:3px;color:var(--amber2);font-size:.4rem" id="tfProgCount">2</span></div>
+            <div class="tf-task tf-clickable" id="tft4" style="background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.15);cursor:pointer;transition:all .25s;font-size:.58rem">Dashboard design<div class="tf-progress"><div class="tf-prog-fill" id="tfp4" style="width:0%;background:var(--amber2);transition:width .5s ease"></div></div></div>
+            <div class="tf-task tf-clickable" id="tft5" style="background:rgba(251,191,36,.04);cursor:pointer;transition:all .25s;font-size:.58rem">Team review<div class="tf-progress"><div class="tf-prog-fill" id="tfp5" style="width:0%;background:var(--amber2);transition:width .5s ease"></div></div></div>
+          </div>
+          <div class="tf-col">
+            <div class="tf-col-head" style="color:rgba(0,232,122,.6);font-size:.48rem">✅ Done <span style="background:rgba(0,232,122,.08);padding:1px 4px;border-radius:3px;color:var(--em);font-size:.4rem" id="tfDoneCount">4</span></div>
+            <div class="tf-task tf-done-task tf-clickable" id="tft6" style="cursor:pointer;font-size:.5rem">VLOOKUP fix ✓</div>
+            <div class="tf-task tf-done-task tf-clickable" id="tft7" style="cursor:pointer;font-size:.5rem">Monthly report ✓</div>
+            <div class="tf-task tf-done-task tf-clickable" id="tft8" style="cursor:pointer;font-size:.5rem">Pivot update ✓</div>
+            <div class="tf-task tf-done-task tf-clickable" id="tft9" style="cursor:pointer;font-size:.5rem">Budget sheet ✓</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,.04)">
+          <div style="font-size:.44rem;color:rgba(255,255,255,.18)">9 tasks · 3 members</div>
+          <div id="tfPct" style="font-size:.46rem;color:var(--violet2);font-weight:700;transition:all .3s">44% complete</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Responsive styles for spotlight cards -->
+<style>
+.sp-card .sp-inner>div[style*="grid-template-columns"]{transition:all .3s}
+@media(max-width:820px){
+  .sp-card .sp-inner>div[style*="grid-template-columns"]{display:flex!important;flex-direction:column!important}
+  .sp-card .sp-inner>div>div:last-child{border-left:none!important;border-top:1px solid rgba(255,255,255,.06)!important;width:100%!important}
+  .sp-card .sp-inner h3{font-size:1.8rem!important}
+  .sp-card{padding:0 12px!important}
+}
+@media(max-width:480px){
+  .sp-card .sp-inner>div>div:first-child{padding:28px 20px!important}
+  .sp-card .sp-inner h3{font-size:1.5rem!important}
+}
+</style>
+
+</section>
+
+<section class="bento-sec sec" id="features">
+  <div class="wrap"><div class="sec-eyebrow reveal">Why Choose Us</div><h2 class="sec-h2 reveal d1">Sirf course nahi —<br><span class="grad2">ek complete system.</span></h2></div>
+  <div class="wrap" style="margin-top:0">
+    <div class="bento-grid">
+      <div class="bento b-em tall reveal">
+        <span class="bento-icon">🎯</span>
+        <div class="bento-title">100% Job-Focused</div>
+        <div class="bento-desc">Har module real office scenario pe based hai. Theory nahi — actual kaam jo office mein milega.</div>
+        <div class="mini-progress">
+          <div class="mp-row"><span class="mp-label">MIS Reports</span><div class="mp-bar-wrap"><div class="mp-bar" style="width:95%;background:var(--em)"></div></div><span style="font-size:.65rem;color:var(--em)">95%</span></div>
+          <div class="mp-row"><span class="mp-label">VLOOKUP</span><div class="mp-bar-wrap"><div class="mp-bar" style="width:88%;background:var(--cyan2)"></div></div><span style="font-size:.65rem;color:var(--cyan2)">88%</span></div>
+          <div class="mp-row"><span class="mp-label">Pivot Tables</span><div class="mp-bar-wrap"><div class="mp-bar" style="width:92%;background:var(--blue2)"></div></div><span style="font-size:.65rem;color:var(--blue2)">92%</span></div>
+          <div class="mp-row"><span class="mp-label">Dashboards</span><div class="mp-bar-wrap"><div class="mp-bar" style="width:85%;background:var(--violet2)"></div></div><span style="font-size:.65rem;color:var(--violet2)">85%</span></div>
+        </div>
+        <div class="bento-num">01</div>
+      </div>
+      <div class="bento b-blue reveal d1"><span class="bento-icon">🗣️</span><div class="bento-title">Hinglish Mein</div><div class="bento-desc">Complicated English nahi — simple Hinglish mein samjhaya jaata hai. India ke liye banaya gaya.</div><div class="bento-num">02</div></div>
+      <div class="bento b-amber reveal d2"><span class="bento-icon">⚡</span><div class="bento-title">Lifetime Access</div><div class="bento-desc">Ek baar enroll karo, hamesha ke liye access pao. Koi monthly fee nahi, koi expiry nahi.</div><div class="bento-num">03</div></div>
+      <div class="bento b-violet wide reveal d1">
+        <span class="bento-icon">📊</span>
+        <div class="bento-title">Real Results — Students Ki Kahani</div>
+        <div class="bento-desc"><span class="live-counter">500</span>+ students ne career change kiya. Promotions, new jobs, salary hike — yeh numbers real hain.</div>
+        <div class="mini-chart">
+          <div class="mc-bar" style="height:35%;background:rgba(0,232,122,.25)"></div>
+          <div class="mc-bar" style="height:52%;background:rgba(0,232,122,.35)"></div>
+          <div class="mc-bar" style="height:68%;background:rgba(0,232,122,.45)"></div>
+          <div class="mc-bar" style="height:75%;background:rgba(0,232,122,.55)"></div>
+          <div class="mc-bar" style="height:85%;background:rgba(0,232,122,.65)"></div>
+          <div class="mc-bar" style="height:78%;background:rgba(0,232,122,.55)"></div>
+          <div class="mc-bar" style="height:92%;background:rgba(0,232,122,.75)"></div>
+          <div class="mc-bar" style="height:100%;background:rgba(0,232,122,.9);border:1px solid var(--em)"></div>
+        </div>
+        <div style="font-size:.65rem;color:var(--t3);margin-top:6px">📈 Student growth — Month 1 to Month 8</div>
+        <div class="bento-num">04</div>
+      </div>
+      <div class="bento b-cyan reveal d2"><span class="bento-icon">🏅</span><div class="bento-title">Certificate</div><div class="bento-desc">Completion certificate — LinkedIn aur resume pe add karo. Employers notice karte hain.</div><div class="bento-num">05</div></div>
+      <div class="bento b-em reveal d1"><span class="bento-icon">💬</span><div class="bento-title">Doubt Support</div><div class="bento-desc">WhatsApp pe teacher se directly poocho. Koi bhi doubt ho — hum help karenge.</div><div class="bento-num">06</div></div>
+      <div class="bento b-pink reveal d3">
+        <span class="bento-icon">🎁</span>
+        <div class="bento-title">5 Free Bonuses</div>
+        <div class="bento-desc">Shortcuts PDF, Interview Guide, Resume Guide, Practice Sheets + Formula eBook — sab FREE.</div>
+        <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+          <span style="font-size:.62rem;padding:3px 9px;border-radius:6px;background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.2);color:var(--pink2)">⌨️ Shortcuts</span>
+          <span style="font-size:.62rem;padding:3px 9px;border-radius:6px;background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.2);color:var(--pink2)">🎤 Interview</span>
+          <span style="font-size:.62rem;padding:3px 9px;border-radius:6px;background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.2);color:var(--pink2)">📄 Resume</span>
+          <span style="font-size:.62rem;padding:3px 9px;border-radius:6px;background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.2);color:var(--pink2)">📘 eBook</span>
+        </div>
+        <div class="bento-num">07</div>
+      </div>
+      <div class="bento b-blue reveal d2"><span class="bento-icon">🛡️</span><div class="bento-title">Money-Back Guarantee</div><div class="bento-desc">Satisfied nahi? Full refund. No questions asked. Zero risk.</div><div class="bento-num">08</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="curric-sec sec" id="curriculum">
+  <div class="wrap">
+    <div class="sec-eyebrow reveal">Curriculum</div>
+    <h2 class="sec-h2 reveal d1">9 Modules. <span class="grad3">Ek Clear Path.</span></h2>
+    <p class="sec-lead reveal d2">Zero se professional tak — structured learning jo actually kaam karta hai.</p>
+    <div class="modules-grid">
+      <div class="mod-item reveal"><div class="mod-num-badge" style="background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.2)">M01</div><div class="mod-info"><div class="mod-name">📐 Excel Basics</div><div class="mod-topics">Cells, rows, columns, formatting, keyboard shortcuts, file handling</div></div></div>
+      <div class="mod-item reveal d1"><div class="mod-num-badge" style="background:rgba(96,165,250,.12);color:var(--blue2);border:1px solid rgba(96,165,250,.2)">M02</div><div class="mod-info"><div class="mod-name">🔢 Formulas & Functions</div><div class="mod-topics">SUM, AVERAGE, COUNT, IF, Nested IF, logical formulas — 40+</div></div></div>
+      <div class="mod-item reveal d2"><div class="mod-num-badge" style="background:rgba(167,139,250,.12);color:var(--violet2);border:1px solid rgba(167,139,250,.2)">M03</div><div class="mod-info"><div class="mod-name">🔍 Lookup & Reference</div><div class="mod-topics">VLOOKUP, HLOOKUP, XLOOKUP, INDEX, MATCH — sabse important</div></div></div>
+      <div class="mod-item reveal"><div class="mod-num-badge" style="background:rgba(251,191,36,.12);color:var(--amber2);border:1px solid rgba(251,191,36,.2)">M04</div><div class="mod-info"><div class="mod-name">🧹 Data Cleaning</div><div class="mod-topics">Remove duplicates, text formulas, date handling, data validation</div></div></div>
+      <div class="mod-item reveal d1"><div class="mod-num-badge" style="background:rgba(34,211,238,.12);color:var(--cyan2);border:1px solid rgba(34,211,238,.2)">M05</div><div class="mod-info"><div class="mod-name">📊 Data Analysis</div><div class="mod-topics">Sorting, filtering, conditional formatting for real insights</div></div></div>
+      <div class="mod-item reveal d2"><div class="mod-num-badge" style="background:rgba(244,114,182,.12);color:var(--pink2);border:1px solid rgba(244,114,182,.2)">M06</div><div class="mod-info"><div class="mod-name">🔄 Pivot Tables</div><div class="mod-topics">Reports in minutes — large data easily analyze karo</div></div></div>
+      <div class="mod-item reveal"><div class="mod-num-badge" style="background:rgba(239,68,68,.12);color:var(--red2);border:1px solid rgba(239,68,68,.2)">M07</div><div class="mod-info"><div class="mod-name">📈 Charts & Dashboards</div><div class="mod-topics">Professional charts, visual reports, management dashboards</div></div></div>
+      <div class="mod-item reveal d1"><div class="mod-num-badge" style="background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.2)">M08</div><div class="mod-info"><div class="mod-name">⚡ Automation Basics</div><div class="mod-topics">Basic macros aur advanced tools jo time bachate hain</div></div></div>
+      <div class="mod-item capstone reveal d2"><div class="mod-num-badge" style="background:linear-gradient(135deg,var(--em),var(--cyan2));color:#000;font-size:.65rem">M09</div><div class="mod-info"><div class="mod-name">💼 Real Job Practice — Capstone</div><div class="mod-topics">Invoice data, sales reports, attendance sheets, MIS reports — actual company files</div></div><span style="margin-left:auto;font-size:.62rem;font-weight:700;padding:4px 12px;background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;color:var(--em);white-space:nowrap;flex-shrink:0">⭐ CAPSTONE</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="testi-sec sec" id="stories">
+  <div class="wrap"><div class="sec-eyebrow reveal">Student Stories</div><h2 class="sec-h2 reveal d1">Real log. <span class="grad">Real results.</span></h2><p class="sec-lead reveal d2"><span class="live-counter">500</span>+ students ne apni life change ki. Yeh unki kahaniyan hain.</p></div>
+  <div class="testi-rows">
+    <div class="testi-row-wrap"><div class="testi-row row1">
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.2)">✓ Got Promoted</span></div><div class="tc-q">"Excel se darta tha — ab office mein sabse fast hoon. 2 mahine mein promotion!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--em),#00b36b)">RS</div><div><div class="tc-name">Rohit S.</div><div class="tc-role">Office Executive · Delhi</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(96,165,250,.12);color:var(--blue2);border:1px solid rgba(96,165,250,.2)">✓ Got First Job</span></div><div class="tc-q">"Fresh graduate tha. Is course ne mujhe Excel interview ke liye ready kiya. Pehli company mein select!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--blue2),var(--violet2))">VT</div><div><div class="tc-name">Vikram T.</div><div class="tc-role">Data Analyst · Hyderabad</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(251,191,36,.12);color:var(--amber2);border:1px solid rgba(251,191,36,.2)">✓ Salary Hike</span></div><div class="tc-q">"Ek mahine mein itna seekha jo 2 saal mein nahi seekha. Salary 30% badh gayi!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--amber2),var(--red2))">SG</div><div><div class="tc-name">Sunita G.</div><div class="tc-role">HR Executive · Bangalore</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(167,139,250,.12);color:var(--violet2);border:1px solid rgba(167,139,250,.2)">✓ Interview Cleared</span></div><div class="tc-q">"Pehle har Excel test fail hota tha. Is course ke baad 3 companies mein clear kiya!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--violet2),var(--pink2))">NP</div><div><div class="tc-name">Neha P.</div><div class="tc-role">MIS Executive · Pune</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(34,211,238,.12);color:var(--cyan2);border:1px solid rgba(34,211,238,.2)">✓ 3x Faster</span></div><div class="tc-q">"Reports jo 2 ghante mein hoti thi, ab 20 minute mein. Best ₹799 invest!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--cyan2),var(--blue2))">AK</div><div><div class="tc-name">Aman K.</div><div class="tc-role">Accounts Asst. · Mumbai</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.2)">✓ Got Promoted</span></div><div class="tc-q">"Excel se darta tha — ab office mein sabse fast hoon. 2 mahine mein promotion!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--em),#00b36b)">RS</div><div><div class="tc-name">Rohit S.</div><div class="tc-role">Office Executive · Delhi</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(96,165,250,.12);color:var(--blue2);border:1px solid rgba(96,165,250,.2)">✓ Got First Job</span></div><div class="tc-q">"Pehli company mein hi select ho gaya Excel course ki wajah se!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--blue2),var(--violet2))">VT</div><div><div class="tc-name">Vikram T.</div><div class="tc-role">Data Analyst · Hyderabad</div></div></div></div>
+    </div></div>
+    <div class="testi-row-wrap"><div class="testi-row row2">
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(244,114,182,.12);color:var(--pink2);border:1px solid rgba(244,114,182,.2)">✓ Confidence Boost</span></div><div class="tc-q">"Pehle Excel open karne se ghabrahat hoti thi. Ab manager ke saamne dashboard present karta hoon!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--pink2),var(--violet2))">RK</div><div><div class="tc-name">Rohini K.</div><div class="tc-role">Admin Executive · Chennai</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(0,232,122,.12);color:var(--em);border:1px solid rgba(0,232,122,.2)">✓ Office Star</span></div><div class="tc-q">"Ab office mein sab mujhse Excel poochte hain. 6 mahine mein expert ban gaya!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--em),var(--cyan2))">MS</div><div><div class="tc-name">Mohit S.</div><div class="tc-role">Sales Coord. · Jaipur</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(34,211,238,.12);color:var(--cyan2);border:1px solid rgba(34,211,238,.2)">✓ New Career</span></div><div class="tc-q">"Housewife thi — freelance Excel work start kiya. Ab ghar baith ke ₹25,000/month!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--cyan2),var(--blue2))">PJ</div><div><div class="tc-name">Pooja J.</div><div class="tc-role">Freelancer · Ahmedabad</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(96,165,250,.12);color:var(--blue2);border:1px solid rgba(96,165,250,.2)">✓ MIS Expert</span></div><div class="tc-q">"VLOOKUP aur Pivot Tables ne meri zindagi badal di. Company mein MIS ka kaam mujhe mila!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--blue2),var(--violet2))">AT</div><div><div class="tc-name">Ankit T.</div><div class="tc-role">MIS Executive · Gurgaon</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(251,191,36,.12);color:var(--amber2);border:1px solid rgba(251,191,36,.2)">✓ Business Growth</span></div><div class="tc-q">"Apne shop ka data track karna seekha. Ab monthly report banaata hoon — bahut helpful!"</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--amber2),var(--em))">KP</div><div><div class="tc-name">Kiran P.</div><div class="tc-role">Shop Owner · Surat</div></div></div></div>
+      <div class="tc"><div class="tc-top"><div class="tc-stars">★★★★★</div><span class="tc-result" style="background:rgba(244,114,182,.12);color:var(--pink2);border:1px solid rgba(244,114,182,.2)">✓ Confidence</span></div><div class="tc-q">"Ab manager ke saamne dashboard present karta hoon! Pehle darta tha."</div><div class="tc-auth"><div class="tc-av" style="background:linear-gradient(135deg,var(--pink2),var(--violet2))">RK</div><div><div class="tc-name">Rohini K.</div><div class="tc-role">Admin Executive · Chennai</div></div></div></div>
+    </div></div>
+  </div>
+</section>
+
+<section class="pricing-sec sec" id="pricing">
+  <div class="wrap-sm" style="text-align:center">
+    <div class="sec-eyebrow reveal" style="justify-content:center">Pricing</div>
+    <h2 class="sec-h2 reveal d1">Simple pricing.<br><span class="grad">Bada value.</span></h2>
+    <p class="sec-lead reveal d2" style="margin:0 auto">One-time payment. Lifetime access. Koi subscription nahi.</p>
+  </div>
+  <div class="pricing-grid reveal d2">
+    <div class="price-card"><span class="price-icon">🔰</span><div class="price-plan">Basic</div><div class="price-orig">₹2,999</div><div class="price-val" style="color:var(--blue2)">₹599</div><div class="price-desc">Course only — ek solid start</div><ul class="price-feats"><li><span class="feat-icon">✅</span> All 9 course modules</li><li><span class="feat-icon">✅</span> Practice files</li><li><span class="feat-icon">✅</span> Certificate</li><li class="no"><span class="feat-icon">❌</span> Bonus materials</li><li class="no"><span class="feat-icon">❌</span> Doubt support</li></ul><a href="./excel-job-ready/index.html" class="price-btn" onclick="openEnrollModal('basic');return false;" href="javascript:void(0)">Get Basic Access</a></div>
+    <div class="price-card pop"><div class="pop-tag">⭐ MOST POPULAR</div><span class="price-icon">🚀</span><div class="price-plan">Complete</div><div class="price-orig">₹4,999</div><div class="price-val">₹799</div><div class="price-desc">Sab kuch — job ke liye ready</div><ul class="price-feats"><li><span class="feat-icon">✅</span> All 9 course modules</li><li><span class="feat-icon">✅</span> Practice files + Certificate</li><li><span class="feat-icon">✅</span> 5 Free bonus materials</li><li><span class="feat-icon">✅</span> 📘 Formula eBook FREE</li><li><span class="feat-icon">✅</span> Doubt clearing support</li></ul><a href="./excel-job-ready/index.html" class="price-btn" onclick="openEnrollModal('complete');return false;" href="javascript:void(0)">🟢 Enroll Now →</a></div>
+    <div class="price-card"><span class="price-icon">💎</span><div class="price-plan">Premium</div><div class="price-orig">₹7,999</div><div class="price-val" style="color:var(--violet2)">₹2,999</div><div class="price-desc">Full course + personal guidance</div><ul class="price-feats"><li><span class="feat-icon">✅</span> All 9 course modules</li><li><span class="feat-icon">✅</span> Practice files + Certificate</li><li><span class="feat-icon">✅</span> All 5 bonus materials</li><li><span class="feat-icon">✅</span> Doubt clearing support</li><li><span class="feat-icon">⭐</span> Priority 1-on-1 support</li></ul><a href="./excel-job-ready/index.html" class="price-btn" onclick="openEnrollModal('premium');return false;" href="javascript:void(0)">Get Premium</a></div>
+  </div>
+  <div class="guarantee-strip reveal">🛡️ <strong>Money-back guarantee</strong> — No questions. &nbsp;|&nbsp; ♾️ <strong>Lifetime access</strong> &nbsp;|&nbsp; 📱 <strong>Mobile + Desktop</strong></div>
+</section>
+
+<section class="faq-sec sec" id="faq">
+  <div class="wrap-sm">
+    <div class="sec-eyebrow reveal" style="justify-content:center">FAQ</div>
+    <h2 class="sec-h2 reveal d1" style="text-align:center">Common <span class="grad2">Questions</span></h2>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">🎯 Kya yeh course beginners ke liye hai?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Bilkul! Course zero se shuru hota hai. Koi prior Excel knowledge zaroor nahi.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">⏱️ Course complete karne mein kitna time lagega?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Most students 3-4 weeks mein complete karte hain (1 hour/day). Lifetime access hai, kabhi bhi revisit karo.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">🏅 Kya certificate milega?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Haan! Resume aur LinkedIn pe add kar sakte ho. Employers is certificate ko recognize karte hain.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">📱 Kya mobile pe seekh sakte hain?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Haan, course mobile aur laptop dono pe perfectly work karta hai. Kabhi bhi, kahin bhi.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">💬 Doubts kaisa clear hoga?</span><span class="faq-q-icon">+</span></div><div class="faq-a">WhatsApp pe directly teacher se poocho. Complete aur Premium plans mein doubt clearing included hai.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">🛡️ Refund policy kya hai?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Full money-back guarantee. Contact: +91 88263 40509 — full refund process karenge. No questions asked.</div></div>
+      <div class="faq-item"><div class="faq-q"><span class="faq-q-text">🗣️ Course kis language mein hai?</span><span class="faq-q-icon">+</span></div><div class="faq-a">Simple Hinglish mein — Hindi aur English mix. India ke students ke liye most comfortable.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT SECTION ══ -->
+<section class="sec" id="about" style="background:var(--bg2)">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+      <!-- Left: Story -->
+      <div class="reveal">
+        <div class="sec-eyebrow">Your Instructor</div>
+        <h2 class="sec-h2">Neeraj ke saath<br><span class="grad">seekho — office expert se.</span></h2>
+        <p style="font-size:.95rem;color:var(--t2);line-height:1.85;margin-bottom:22px">Main Neeraj hoon — Excel aur digital skills trainer. Mujhe pata hai office mein actually kya kaam aata hai — isliye maine theory hatao, real files lao approach li.</p>
+        <p style="font-size:.95rem;color:var(--t2);line-height:1.85;margin-bottom:28px">Mera course banaya hai unke liye jo actually job mein use hone wali skills chahte hain — VLOOKUP, MIS reports, Pivot Tables — sab real examples ke saath, simple Hinglish mein.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px 14px;font-size:.8rem;color:var(--t2)">🎓 <strong style="color:var(--t1)"><span class="live-counter">500</span>+</strong> Students</div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px 14px;font-size:.8rem;color:var(--t2)">⭐ <strong style="color:var(--t1)">4.9/5</strong> Rating</div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px 14px;font-size:.8rem;color:var(--t2)">📹 <strong style="color:var(--t1)">YouTube</strong> Creator</div>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:8px 14px;font-size:.8rem;color:var(--t2)">🇮🇳 <strong style="color:var(--t1)">Gurgaon</strong> Based</div>
+        </div>
+      </div>
+      <!-- Right: Card -->
+      <div class="reveal d2">
+        <div style="background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.02));border:1px solid rgba(0,232,122,.2);border-radius:var(--r3);padding:36px;text-align:center;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent)"></div>
+          <!-- Avatar -->
+          <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;font-size:2.2rem;margin:0 auto 16px;box-shadow:0 0 30px rgba(0,232,122,.35)">👨‍💻</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px">Neeraj</div>
+          <div style="font-size:.78rem;color:var(--em);font-weight:600;margin-bottom:16px;letter-spacing:.04em">Excel Trainer · Skill2Job Founder</div>
+          <p style="font-size:.82rem;color:var(--t2);line-height:1.75;margin-bottom:20px">"Mera goal simple hai — aapko woh skills dena jo actually office mein kaam aayein. Koi boring theory nahi, sirf real kaam."</p>
+          <!-- Social links -->
+          <div style="display:flex;gap:8px;justify-content:center">
+            <a href="https://wa.me/918826340509" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366;font-size:.75rem;font-weight:600;padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(37,211,102,.2)'" onmouseout="this.style.background='rgba(37,211,102,.12)'">💬 WhatsApp</a>
+            <a href="https://t.me/skill2jobai" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(42,165,224,.12);border:1px solid rgba(42,165,224,.25);color:#2CA5E0;font-size:.75rem;font-weight:600;padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(42,165,224,.2)'" onmouseout="this.style.background='rgba(42,165,224,.12)'">✈️ Telegram</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ WHATSAPP COMMUNITY ══ -->
+<section class="sec" id="community" style="background:var(--bg)">
+  <div class="wrap">
+    <div style="background:linear-gradient(135deg,rgba(37,211,102,.08),rgba(37,211,102,.02));border:1px solid rgba(37,211,102,.25);border-radius:var(--r3);padding:56px 48px;text-align:center;position:relative;overflow:hidden" class="reveal">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#25D366,transparent)"></div>
+      <!-- Glow -->
+      <div style="position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(37,211,102,.1) 0%,transparent 70%);left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1">
+        <!-- WA Icon -->
+        <div style="width:72px;height:72px;background:#25D366;border-radius:50%;display:grid;place-items:center;margin:0 auto 20px;box-shadow:0 0 30px rgba(37,211,102,.4);font-size:2rem">💬</div>
+        <div class="sec-eyebrow" style="justify-content:center;margin-bottom:12px;color:#25D366">
+          <span style="background:#25D366"></span>Free Community<span style="background:#25D366"></span>
+        </div>
+        <h2 class="sec-h2" style="margin-bottom:14px">Humari WhatsApp<br><span style="background:linear-gradient(90deg,#25D366,#128C7E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Community Join Karo</span></h2>
+        <p style="font-size:1rem;color:var(--t2);max-width:480px;margin:0 auto 32px;line-height:1.8">Free Excel tips, job alerts, practice files aur <span class="live-counter">500</span>+ students ka support — sab ek jagah. Bilkul free!</p>
+        <!-- Benefits row -->
+        <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:32px">
+          <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">📊 Daily Excel tips</div>
+          <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">💼 Job alerts</div>
+          <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">📁 Free practice files</div>
+          <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">🤝 Doubt clearing</div>
+          <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:100px;padding:7px 16px;font-size:.78rem;color:var(--t2)">🎁 Exclusive discounts</div>
+        </div>
+        <!-- CTA -->
+        <a href="https://wa.me/918826340509?text=Hi%2C%20I%20want%20to%20join%20the%20Skill2Job%20WhatsApp%20community" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:1rem;padding:16px 40px;border-radius:100px;text-decoration:none;transition:all .2s;box-shadow:0 8px 32px rgba(37,211,102,.35)" onmouseover="this.style.background='#22c55e';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#25D366';this.style.transform='translateY(0)'">
+          💬 Join Free Community →
+        </a>
+        <p style="font-size:.72rem;color:var(--t3);margin-top:14px"><span class="live-counter">500</span>+ members · 100% free · Kabhi bhi leave kar sakte ho</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FINAL CTA ══ -->
+<section class="final-sec">
+  <div class="f-orb-1"></div><div class="f-orb-2"></div><div class="f-orb-3"></div>
+  <div class="final-inner reveal">
+    <div class="sec-eyebrow" style="justify-content:center;margin-bottom:18px">Ab deri mat karo</div>
+    <div class="final-h2">Apna career<br><span class="h1-l2" style="display:inline">aaj start karo.</span></div>
+    <p class="final-p"><span class="live-counter">500</span>+ students pehle se apni life change kar rahe hain. Aapka turn hai.</p>
+    <div class="final-btns">
+      <a href="javascript:void(0)" onclick="openEnrollModal()" class="btn-glow" style="font-size:.95rem;padding:16px 42px">🚀 Enroll Now — ₹799 →</a>
+      <a href="#products" class="btn-ghost" style="font-size:.95rem;padding:16px 32px">📦 See All Products</a>
+    </div>
+    <div class="final-note">🛡️ <span>Money-back guarantee</span> &nbsp;·&nbsp; ♾️ <span>Lifetime access</span> &nbsp;·&nbsp; 📱 <span>Mobile friendly</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-top">
+      <div><a href="javascript:void(0)" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="foot-brand-logo"><div class="foot-logo-box">S2</div><span class="foot-brand-name">Skill2Job</span></a><div class="foot-tagline">India's premium digital skills platform. Build Skills. Build Career. Build Life.</div><div class="foot-social">
+  <a href="https://linkedin.com" target="_blank" rel="noopener" class="foot-soc" title="LinkedIn">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+  </a>
+  <a href="https://instagram.com" target="_blank" rel="noopener" class="foot-soc" title="Instagram">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  </a>
+  <a href="https://youtube.com" target="_blank" rel="noopener" class="foot-soc" title="YouTube">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+  </a>
+  <a href="https://x.com" target="_blank" rel="noopener" class="foot-soc" title="X (Twitter)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  </a>
+</div></div>
+      <div class="foot-col"><div class="foot-col-title">Products</div><a href="./excel-job-ready/index.html">📊 Excel Job Ready</a><a href="#">📘 Formula eBook</a><a href="#">📈 Business Dashboard</a><a href="#">✅ TaskFlow App</a></div>
+      <div class="foot-col"><div class="foot-col-title">Company</div><a href="javascript:void(0)" onclick="openPage('about')">👋 About Us</a><a href="javascript:void(0)" onclick="openPage('blog')">📝 Blog</a><a href="javascript:void(0)" onclick="openPage('careers')">💼 Careers</a><a href="#faq">❓ FAQ</a><a href="javascript:void(0)" onclick="openEMI()">📊 EMI Calculator</a></div>
+      <div class="foot-col"><div class="foot-col-title">Contact</div><a href="tel:+918826340509">📱 +91 88263 40509</a><a href="https://wa.me/918826340509">💬 WhatsApp Support</a><a href="/cdn-cgi/l/email-protection#3a4951535656085055585b537a5d575b535614595557">✉️ <span class="__cf_email__" data-cfemail="cab9a1a3a6a6f8a0a5a8aba38aada7aba3a6e4a9a5a7">[email&#160;protected]</span></a><a href="https://t.me/skill2jobai">✈️ Telegram</a></div>
+    </div>
+    <div class="footer-bottom"><span>© 2026 Skill2Job. All rights reserved. Delhi, India.</span><div class="footer-bottom-links"><a href="javascript:void(0)" onclick="openPage('privacy')">Privacy Policy</a><a href="javascript:void(0)" onclick="openPage('terms')">Terms</a><a href="javascript:void(0)" onclick="openPage('refund')">Refund Policy</a></div></div>
+  </div>
+</footer>
+
+<script>
+/* ══ NAV SCROLL ══ */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('solid',scrollY>40);
+},{passive:true});
+
+/* ══ MOBILE MENU ══ */
+function closeMobMenu(){
+  document.getElementById('mobMenu').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+/* ══ SCROLL REVEAL ══ */
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('up');ro.unobserve(e.target);}
+  });
+},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ══ COUNTER ANIMATION ══ */
+function counter(el,target,dur=1600){
+  const s=Date.now();
+  const tick=()=>{
+    const p=Math.min(1,(Date.now()-s)/dur);
+    const ease=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(ease*target).toLocaleString('en-IN');
+    if(p<1)requestAnimationFrame(tick);
+  };
+  tick();
+}
+const co=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const t=parseInt(e.target.dataset.count);
+      if(!isNaN(t))counter(e.target,t);
+      co.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>co.observe(el));
+
+/* ══ FAQ ══ */
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const item=q.parentElement;
+    const was=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!was)item.classList.add('open');
+  });
+});
+
+/* ══ PARTICLES ══ */
+const pc=document.getElementById('particles');
+if(pc){
+  const colors=['rgba(0,232,122,.5)','rgba(96,165,250,.5)','rgba(167,139,250,.4)','rgba(236,72,153,.4)','rgba(251,191,36,.5)','rgba(34,211,238,.4)'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');
+    const s=Math.random()*3+1;
+    const d=Math.random()*14+7;
+    p.style.cssText='width:'+s+'px;height:'+s+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';border-radius:50%;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;animation:float '+d+'s '+(Math.random()*d)+'s ease-in-out infinite;position:absolute;pointer-events:none';
+    pc.appendChild(p);
+  }
+}
+
+/* ══ NAV ACTIVE HIGHLIGHT ══ */
+const navAs=document.querySelectorAll('.nav-links a');
+const secs=document.querySelectorAll('section[id]');
+const secObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      navAs.forEach(a=>{
+        const isActive=a.getAttribute('href')==='#'+id;
+        a.style.color=isActive?'var(--t1)':'';
+        a.style.fontWeight=isActive?'600':'';
+      });
+    }
+  });
+},{threshold:.4});
+secs.forEach(s=>secObs.observe(s));
+
+/* ══ SMOOTH ANCHOR SCROLL ══ */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const target=document.querySelector(a.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+
+
+/* ══════════════════════════
+   ENROLL MODAL
+══════════════════════════ */
+const RAZORPAY_LINKS = {
+  basic:    'https://rzp.io/rzp/dSdOkK2',
+  complete: 'https://rzp.io/rzp/Noktx055',
+  premium:  'https://rzp.io/rzp/aO7vsN4q'
 };
 const PLAN_NAMES = {
   basic:    'Basic (₹599)',
@@ -796,23 +1988,18 @@ const PLAN_NAMES = {
 let currentPlan = 'complete';
 
 function openEnrollModal(plan) {
-  // If already purchased → go to portal
   if (window.currentFirebaseUser) {
     var key = window.currentFirebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
-    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.plan) {
-          window.location.href = '/student-portal/';
-          return;
-        }
-        // Not purchased → show payment modal
-        _openEnrollModalDirect(plan);
-      });
+    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
+      .then(r=>r.json()).then(data=>{
+        if (data && data.plan) { syncPortalLocalUser(window.currentFirebaseUser,data); window.location.href='/student-portal/'; }
+        else _openEnrollModalDirect(plan||'complete');
+      }).catch(()=>_openEnrollModalDirect(plan||'complete'));
     return;
   }
-  // Not logged in → show payment modal (login will happen at Pay step)
-  _openEnrollModalDirect(plan);
+  var saved = localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
+  if (saved) { try { var u=JSON.parse(saved); if(u.plan){window.location.href='/student-portal/';return;} } catch(e){} }
+  openGoogleLoginModal('enroll', plan||'complete');
 }
 function _openEnrollModalDirect(plan) {
   currentPlan = plan || 'complete';
@@ -861,18 +2048,10 @@ function openStudentLoginModal() {
   handleNavLogin();
 }
 function handleNavLogin() {
-  // If Firebase user already logged in
-  if (window.currentFirebaseUser) {
-    window.location.href = '/student-portal/';
-    return;
-  }
-  // Old localStorage check
-  var saved = localStorage.getItem('ejr_user');
-  if (saved) { window.location.href = '/student-portal/'; return; }
-  // Show Google login
-  window._pendingPlan = null;
-  document.getElementById('googleLoginModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  if (window.currentFirebaseUser) { window.location.href='/student-portal/'; return; }
+  var saved = localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
+  if (saved) { window.location.href='/student-portal/'; return; }
+  openGoogleLoginModal('login','complete');
 }
 function closeStudentLoginModal() {
   document.getElementById('studentLoginModal').classList.remove('open');
@@ -887,38 +2066,27 @@ function slSwitch(tab) {
   if (m) m.className = 'slogin-msg';
 }
 function slDoLogin() {
-  var email = document.getElementById('slEmail').value.trim();
-  var pass  = document.getElementById('slPass').value;
-  var msg   = document.getElementById('slMsg');
-  if (!email || !pass) { msg.className = 'slogin-msg err'; msg.textContent = 'Email aur password dono bharo.'; return; }
-  var saved = localStorage.getItem('ejr_user');
-  if (saved) {
-    try {
-      var u = JSON.parse(saved);
-      if (u.email === email && u.password === pass) {
-        msg.className = 'slogin-msg ok'; msg.textContent = '✅ Login successful! Redirecting...';
-        setTimeout(function() { window.location.href = '/student-portal/'; }, 800);
-        return;
-      }
-    } catch(e) {}
-  }
-  msg.className = 'slogin-msg err';
-  msg.textContent = '❌ Email ya password galat hai. Pehli baar? Activate tab use karo.';
+  var email=document.getElementById('slEmail').value.trim();
+  var pass=document.getElementById('slPass').value;
+  var msg=document.getElementById('slMsg');
+  if(!email||!pass){msg.className='slogin-msg err';msg.textContent='Email aur password dono bharo.';return;}
+  var raw=localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
+  if(raw){try{var u=JSON.parse(raw);if(u.email===email&&u.password===pass){savePortalUserObject(u);msg.className='slogin-msg ok';msg.textContent='✅ Redirecting...';setTimeout(function(){window.location.href='/student-portal/';},800);return;}}catch(e){}}
+  msg.className='slogin-msg err';msg.textContent='❌ Galat details. Google Sign In try karo.';
 }
 function slDoActivate() {
-  var name  = document.getElementById('slName').value.trim();
-  var email = document.getElementById('slActEmail').value.trim();
-  var code  = document.getElementById('slCode').value.trim().toUpperCase();
-  var msg   = document.getElementById('slActMsg');
-  if (!name || !email || !code) { msg.className = 'slogin-msg err'; msg.textContent = 'Saare fields bharo.'; return; }
-  if (DEMO_CODES.indexOf(code) !== -1) {
-    var pass = email.split('@')[0] + '2024';
-    localStorage.setItem('ejr_user', JSON.stringify({name:name,email:email,password:pass,code:code}));
-    msg.className = 'slogin-msg ok'; msg.textContent = '🎉 Course activated! Redirecting...';
-    setTimeout(function() { window.location.href = '/student-portal/'; }, 900);
+  var name=document.getElementById('slName').value.trim();
+  var email=document.getElementById('slActEmail').value.trim();
+  var code=document.getElementById('slCode').value.trim().toUpperCase();
+  var msg=document.getElementById('slActMsg');
+  if(!name||!email||!code){msg.className='slogin-msg err';msg.textContent='Saare fields bharo.';return;}
+  if(DEMO_CODES.indexOf(code)!==-1){
+    var pass=email.split('@')[0]+'2024';
+    savePortalUserObject({name:name,email:email,password:pass,plan:'complete',code:code,joinDate:new Date().toLocaleDateString('en-IN'),activatedAt:Date.now()});
+    msg.className='slogin-msg ok';msg.textContent='✅ Activated! Redirecting...';
+    setTimeout(function(){window.location.href='/student-portal/';},900);
   } else {
-    msg.className = 'slogin-msg err';
-    msg.textContent = '❌ Code galat hai. WhatsApp pe code maango.';
+    msg.className='slogin-msg err';msg.textContent='❌ Code galat hai. WhatsApp pe code lo.';
   }
 }
 
