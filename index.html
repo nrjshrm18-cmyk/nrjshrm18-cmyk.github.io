@@ -724,17 +724,20 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
       .then((result) => {
         const user = result.user;
         window.currentFirebaseUser = user;
-        closeGoogleLoginModal();
-        // Check Firebase if user already purchased
+        // Check Firebase if already purchased
         const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
         fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
           .then(r => r.json())
           .then(data => {
             if (data && data.plan) {
-              // Already purchased → portal pe jao
+              // Already purchased → portal
               window.location.href = '/student-portal/';
             } else {
-              // Naya user → payment modal
+              // New user → close modal, continue browsing
+              document.getElementById('googleLoginModal').classList.remove('open');
+              document.body.style.overflow = '';
+              window.currentFirebaseUser = user;
+              // Now open payment
               openEnrollModal(window._pendingPlan || 'complete');
             }
           });
@@ -1929,12 +1932,6 @@ const PLAN_NAMES = {
 let currentPlan = 'complete';
 
 function openEnrollModal(plan) {
-  // Check if user is logged in via Google
-  if (!window.currentFirebaseUser) {
-    // Show Google login first
-    showGoogleLoginModal(plan);
-    return;
-  }
   currentPlan = plan || 'complete';
   document.querySelectorAll('.plan-opt').forEach(function(opt) {
     var val = opt.querySelector('input').value;
@@ -1943,17 +1940,6 @@ function openEnrollModal(plan) {
   });
   document.getElementById('enrollModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-}
-
-function showGoogleLoginModal(plan) {
-  window._pendingPlan = plan || 'complete';
-  document.getElementById('googleLoginModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeGoogleLoginModal() {
-  document.getElementById('googleLoginModal').classList.remove('open');
-  document.body.style.overflow = '';
 }
 function closeEnrollModal() {
   document.getElementById('enrollModal').classList.remove('open');
@@ -1965,6 +1951,14 @@ function selectPlan(el, plan) {
   el.classList.add('selected');
 }
 function handlePay() {
+  if (!window.currentFirebaseUser) {
+    // Not logged in → show Google login first
+    window._pendingPlan = currentPlan;
+    closeEnrollModal();
+    document.getElementById('googleLoginModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    return;
+  }
   var link = RAZORPAY_LINKS[currentPlan];
   if (!link || link.indexOf('YOUR_') === 0) { handleWA(); return; }
   window.open(link, '_blank');
