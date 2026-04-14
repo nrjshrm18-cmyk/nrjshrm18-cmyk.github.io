@@ -718,98 +718,80 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-function savePortalUserObject(u) {
-  localStorage.setItem('s2jportaluser', JSON.stringify(u));
-  localStorage.setItem('ejr_user', JSON.stringify(u));
-  if (!localStorage.getItem('s2jcompleted')) localStorage.setItem('s2jcompleted', '[]');
-}
-function syncPortalLocalUser(user, dbUser) {
-  savePortalUserObject({
-    name: user.displayName||user.email.split('@')[0],
-    email: user.email, password: 'google-oauth',
-    plan: (dbUser&&dbUser.plan)?String(dbUser.plan).toLowerCase():'complete',
-    code: (dbUser&&(dbUser.paymentId||dbUser.accessCode))||'GOOGLE-LOGIN',
-    joinDate: new Date().toLocaleDateString('en-IN'),
-    activatedAt: Date.now(), firebaseUid: user.uid
-  });
-}
-function openGoogleLoginModal(action, plan) {
-  window._pendingAction = action||'login';
-  window._pendingPlan   = plan||'complete';
-  var glm = document.getElementById('googleLoginModal');
-  if (glm) { glm.classList.add('open'); document.body.style.overflow='hidden'; }
-}
-function closeGoogleLoginModal() {
-  var glm = document.getElementById('googleLoginModal');
-  if (glm) { glm.classList.remove('open'); document.body.style.overflow=''; }
-  window._pendingAction = null;
-  window._pendingPlan   = null;
-}
-
 
   window.googleSignIn = function() {
-  signInWithPopup(auth, provider)
-    .then(result => {
-      const user = result.user;
-      window.currentFirebaseUser = user;
-      const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
-      fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
-        .then(r => r.json())
-        .then(data => {
-          const glm = document.getElementById('googleLoginModal');
-          if (glm) glm.classList.remove('open');
-          document.body.style.overflow = '';
-          if (!data || typeof data !== 'object') {
-            data = {name:user.displayName||user.email.split('@')[0],email:user.email,plan:null,createdAt:new Date().toISOString()};
-            fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json',{method:'PUT',body:JSON.stringify(data)});
-          }
-          syncPortalLocalUser(user, data);
-          const pa = window._pendingAction||'login';
-          const pp = window._pendingPlan||'complete';
-          window._pendingAction = null; window._pendingPlan = null;
-          if (pa==='enroll' && !(data && data.plan)) { _openEnrollModalDirect(pp); return; }
-          window.location.href = '/student-portal/';
-        })
-        .catch(err => alert('Login failed: '+err.message));
-    })
-    .catch(err => alert('Google sign-in failed: '+err.message));
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        window.currentFirebaseUser = user;
+        const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+        fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+          .then(r => r.json())
+          .then(data => {
+            // Close Google login modal
+            const glm = document.getElementById('googleLoginModal');
+            if(glm) { glm.classList.remove('open'); }
+            document.body.style.overflow = '';
+            if (data && data.plan) {
+              // Already purchased → portal seedha
+              window.location.href = '/student-portal/';
+            } else {
+              // New user → create profile and go to portal
+              const newUser = {
+                name: user.displayName || user.email.split('@')[0],
+                email: user.email,
+                plan: null,
+                createdAt: new Date().toISOString(),
+                products: []
+              };
+              fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json', {
+                method: 'PUT',
+                body: JSON.stringify(newUser)
+              }).then(() => {
+                window.location.href = '/student-portal/';
+              });
+            }
+          });
+      })
+      .catch((error) => {
+        console.error(error);
+        alert('Login failed: ' + error.message);
+      });
   };
 
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.currentFirebaseUser = null;
-      const btn = document.getElementById('navLoginBtn');
-      if (btn) {
-        btn.innerHTML = '<img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In';
-        btn.setAttribute('onclick','handleNavLogin()');
-        btn.style.color='var(--t2)'; btn.style.borderColor='var(--b1)';
-      }
-      return;
+    if (user) {
+      window.currentFirebaseUser = user;
+      const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+      fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+        .then(r => r.json())
+        .then(data => {
+          const loginBtn = document.getElementById('navLoginBtn');
+          if (loginBtn) {
+            if (data && data.plan) {
+              // Purchased → My Courses
+              loginBtn.innerHTML = '📚 My Courses';
+              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+              loginBtn.style.color = 'var(--em)';
+              loginBtn.style.borderColor = 'rgba(0,232,122,.3)';
+            } else {
+              // Logged in but not purchased
+              const name = user.displayName ? user.displayName.split(' ')[0] : 'User';
+              loginBtn.innerHTML = '👤 ' + name;
+              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+            }
+          }
+        });
     }
-    window.currentFirebaseUser = user;
-    const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
-    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
-      .then(r => r.json())
-      .then(data => {
-        syncPortalLocalUser(user, data||null);
-        const btn = document.getElementById('navLoginBtn');
-        if (!btn) return;
-        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
-        btn.innerHTML = '👤 '+name;
-        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
-        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
-      })
-      .catch(() => {
-        syncPortalLocalUser(user,null);
-        const btn = document.getElementById('navLoginBtn');
-        if (!btn) return;
-        const name = user.displayName ? user.displayName.split(' ')[0] : 'Student';
-        btn.innerHTML = '👤 '+name;
-        btn.setAttribute('onclick',"window.location.href='/student-portal/'");
-        btn.style.color='var(--em)'; btn.style.borderColor='rgba(0,232,122,.3)';
-      });
   });
 </script>
+
+<style id="profile-flow-clean">
+.nav-links,.nav-pill,.nav-cta,#themeToggle{display:none!important;}
+#nav{z-index:99999!important;}
+#nav .nav-right{display:flex!important;align-items:center!important;gap:12px!important;}
+#navLoginBtn{position:relative!important;z-index:100000!important;pointer-events:auto!important;}
+</style>
 </head>
 <body>
 
@@ -831,10 +813,9 @@ function closeGoogleLoginModal() {
     <a href="javascript:void(0)" onclick="openEMI();closeMobMenu()"><span class="mob-link-icon">📊</span>EMI Calculator</a>
   </div>
   <div class="mob-footer">
-    <a href="javascript:void(0)" onclick="openEnrollModal();closeMobMenu()" class="mob-cta">🚀 Enroll Now — ₹799 →</a>
-    <a href="javascript:void(0)" onclick="handleNavLogin();closeMobMenu()" class="mob-login"><img src="https://www.google.com/favicon.ico" width="14"> Sign In with Google</a>
-    <div style="font-size:.68rem;color:var(--t3);text-align:center;margin-top:12px">🛡️ Money-back guarantee · ♾️ Lifetime access</div>
+    <div style="font-size:.72rem;color:var(--t3);text-align:center;margin-top:8px">Profile → Top right button</div>
   </div>
+</div>
 </div>
 
 <nav id="nav">
@@ -848,7 +829,9 @@ function closeGoogleLoginModal() {
   </ul>
   <div class="nav-right">
     <span class="nav-pill">🔥 <span class="live-counter">500</span>+ Students</span>
-    <a href="javascript:void(0)" id="navLoginBtn" onclick="handleNavLogin()" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;display:flex;align-items:center;gap:6px;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'"><img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Sign In</a>
+    <a href="javascript:void(0)" id="navLoginBtn" style="font-size:.72rem;font-weight:600;color:var(--t2);background:var(--s1);border:1px solid var(--b1);border-radius:100px;padding:7px 16px;text-decoration:none;transition:all .2s;cursor:pointer;display:flex;align-items:center;gap:6px;" onmouseover="this.style.borderColor='rgba(0,232,122,.3)';this.style.color='var(--em)'" onmouseout="this.style.borderColor='var(--b1)';this.style.color='var(--t2)'">
+  <img src="https://www.google.com/favicon.ico" width="14" style="border-radius:2px"> Profile
+</a>
     <a href="javascript:void(0)" onclick="openEnrollModal()" class="nav-cta" id="navEnrollBtn">Enroll Now →</a>
   </div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button><div class="ham" onclick="document.getElementById('mobMenu').classList.add('on');document.body.style.overflow='hidden'"><span></span><span></span></div>
@@ -1988,18 +1971,23 @@ const PLAN_NAMES = {
 let currentPlan = 'complete';
 
 function openEnrollModal(plan) {
+  // If already purchased → go to portal
   if (window.currentFirebaseUser) {
     var key = window.currentFirebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
-    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/'+key+'.json')
-      .then(r=>r.json()).then(data=>{
-        if (data && data.plan) { syncPortalLocalUser(window.currentFirebaseUser,data); window.location.href='/student-portal/'; }
-        else _openEnrollModalDirect(plan||'complete');
-      }).catch(()=>_openEnrollModalDirect(plan||'complete'));
+    fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.plan) {
+          window.location.href = '/student-portal/';
+          return;
+        }
+        // Not purchased → show payment modal
+        _openEnrollModalDirect(plan);
+      });
     return;
   }
-  var saved = localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
-  if (saved) { try { var u=JSON.parse(saved); if(u.plan){window.location.href='/student-portal/';return;} } catch(e){} }
-  openGoogleLoginModal('enroll', plan||'complete');
+  // Not logged in → show payment modal (login will happen at Pay step)
+  _openEnrollModalDirect(plan);
 }
 function _openEnrollModalDirect(plan) {
   currentPlan = plan || 'complete';
@@ -2045,14 +2033,17 @@ function handleWA() {
 var DEMO_CODES = ['EJR-DEMO-2024', 'EJR-TEST-1234'];
 
 function openStudentLoginModal() {
-  handleNavLogin();
+  if (window.openProfileAccessModal) window.openProfileAccessModal();
 }
+
 function handleNavLogin() {
-  if (window.currentFirebaseUser) { window.location.href='/student-portal/'; return; }
-  var saved = localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
-  if (saved) { window.location.href='/student-portal/'; return; }
-  openGoogleLoginModal('login','complete');
+  if (window.openProfileAccessModal) {
+    window.openProfileAccessModal();
+    return;
+  }
+  window.location.href = '/student-portal/';
 }
+
 function closeStudentLoginModal() {
   document.getElementById('studentLoginModal').classList.remove('open');
   document.body.style.overflow = '';
@@ -2066,27 +2057,38 @@ function slSwitch(tab) {
   if (m) m.className = 'slogin-msg';
 }
 function slDoLogin() {
-  var email=document.getElementById('slEmail').value.trim();
-  var pass=document.getElementById('slPass').value;
-  var msg=document.getElementById('slMsg');
-  if(!email||!pass){msg.className='slogin-msg err';msg.textContent='Email aur password dono bharo.';return;}
-  var raw=localStorage.getItem('s2jportaluser')||localStorage.getItem('ejr_user');
-  if(raw){try{var u=JSON.parse(raw);if(u.email===email&&u.password===pass){savePortalUserObject(u);msg.className='slogin-msg ok';msg.textContent='✅ Redirecting...';setTimeout(function(){window.location.href='/student-portal/';},800);return;}}catch(e){}}
-  msg.className='slogin-msg err';msg.textContent='❌ Galat details. Google Sign In try karo.';
+  var email = document.getElementById('slEmail').value.trim();
+  var pass  = document.getElementById('slPass').value;
+  var msg   = document.getElementById('slMsg');
+  if (!email || !pass) { msg.className = 'slogin-msg err'; msg.textContent = 'Email aur password dono bharo.'; return; }
+  var saved = localStorage.getItem('ejr_user');
+  if (saved) {
+    try {
+      var u = JSON.parse(saved);
+      if (u.email === email && u.password === pass) {
+        msg.className = 'slogin-msg ok'; msg.textContent = '✅ Login successful! Redirecting...';
+        setTimeout(function() { window.location.href = '/student-portal/'; }, 800);
+        return;
+      }
+    } catch(e) {}
+  }
+  msg.className = 'slogin-msg err';
+  msg.textContent = '❌ Email ya password galat hai. Pehli baar? Activate tab use karo.';
 }
 function slDoActivate() {
-  var name=document.getElementById('slName').value.trim();
-  var email=document.getElementById('slActEmail').value.trim();
-  var code=document.getElementById('slCode').value.trim().toUpperCase();
-  var msg=document.getElementById('slActMsg');
-  if(!name||!email||!code){msg.className='slogin-msg err';msg.textContent='Saare fields bharo.';return;}
-  if(DEMO_CODES.indexOf(code)!==-1){
-    var pass=email.split('@')[0]+'2024';
-    savePortalUserObject({name:name,email:email,password:pass,plan:'complete',code:code,joinDate:new Date().toLocaleDateString('en-IN'),activatedAt:Date.now()});
-    msg.className='slogin-msg ok';msg.textContent='✅ Activated! Redirecting...';
-    setTimeout(function(){window.location.href='/student-portal/';},900);
+  var name  = document.getElementById('slName').value.trim();
+  var email = document.getElementById('slActEmail').value.trim();
+  var code  = document.getElementById('slCode').value.trim().toUpperCase();
+  var msg   = document.getElementById('slActMsg');
+  if (!name || !email || !code) { msg.className = 'slogin-msg err'; msg.textContent = 'Saare fields bharo.'; return; }
+  if (DEMO_CODES.indexOf(code) !== -1) {
+    var pass = email.split('@')[0] + '2024';
+    localStorage.setItem('ejr_user', JSON.stringify({name:name,email:email,password:pass,code:code}));
+    msg.className = 'slogin-msg ok'; msg.textContent = '🎉 Course activated! Redirecting...';
+    setTimeout(function() { window.location.href = '/student-portal/'; }, 900);
   } else {
-    msg.className='slogin-msg err';msg.textContent='❌ Code galat hai. WhatsApp pe code lo.';
+    msg.className = 'slogin-msg err';
+    msg.textContent = '❌ Code galat hai. WhatsApp pe code maango.';
   }
 }
 
@@ -2959,122 +2961,136 @@ function closeInfoPage(){
     </div>
   </div>
 </div>
-
-<!-- ══ STUDENT LOGIN MODAL ══ -->
-<div class="modal-overlay" id="studentLoginModal" onclick="if(event.target===this)closeStudentLoginModal()">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeStudentLoginModal()">✕</button>
-    <div class="modal-head">
-      <div class="modal-icon">🎓</div>
-      <div class="modal-title">Student Portal</div>
-      <div class="modal-sub">Apne course videos access karo</div>
-    </div>
-    <div class="modal-body">
-      <div class="slogin-tabs">
-        <button class="slogin-tab active" id="slTab1" onclick="slSwitch('login')">🔑 Login</button>
-        <button class="slogin-tab" id="slTab2" onclick="slSwitch('activate')">🎫 Activate</button>
-      </div>
-      <!-- Login Form -->
-      <div id="slFormLogin">
-        <div class="slogin-field">
-          <label class="slogin-label">Email</label>
-          <input type="email" class="slogin-input" id="slEmail" placeholder="your@email.com">
-        </div>
-        <div class="slogin-field">
-          <label class="slogin-label">Password</label>
-          <input type="password" class="slogin-input" id="slPass" placeholder="Your password">
-          <p class="slogin-hint">Pehli baar? <a href="javascript:void(0)" onclick="slSwitch('activate')">Course activate karo →</a></p>
-        </div>
-        <button class="slogin-btn" onclick="slDoLogin()">🔑 Login</button>
-        <div class="slogin-msg" id="slMsg"></div>
-      </div>
-      <!-- Activate Form -->
-      <div id="slFormActivate" style="display:none">
-        <div class="slogin-field">
-          <label class="slogin-label">Name</label>
-          <input type="text" class="slogin-input" id="slName" placeholder="Aapka naam">
-        </div>
-        <div class="slogin-field">
-          <label class="slogin-label">Email</label>
-          <input type="email" class="slogin-input" id="slActEmail" placeholder="your@email.com">
-        </div>
-        <div class="slogin-field">
-          <label class="slogin-label">Access Code</label>
-          <input type="text" class="slogin-input" id="slCode" placeholder="EJR-XXXX-XXXX" style="text-transform:uppercase">
-          <p class="slogin-hint">💬 Code nahi mila? <a href="https://wa.me/918826340509?text=Hi%2C+I+need+my+access+code" target="_blank">WhatsApp karo →</a></p>
-        </div>
-        <button class="slogin-btn" onclick="slDoActivate()">🚀 Activate Course</button>
-        <div class="slogin-msg" id="slActMsg"></div>
-      </div>
-      <div style="margin-top:16px;text-align:center">
-        <a href="https://wa.me/918826340509?text=Hi%2C+I+need+help+with+my+course+login" target="_blank" style="font-size:.75rem;color:var(--t3);text-decoration:none;transition:color .2s" onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='var(--t3)'">💬 Help chahiye? WhatsApp karo →</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ══ INFO PAGES MODAL ══ -->
-<div class="modal-overlay" id="infoPageModal" onclick="if(event.target===this)closeInfoPage()">
-  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:600px;max-height:80vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(0,0,0,.5)">
-    <div style="position:sticky;top:0;background:var(--bg2);padding:20px 28px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;z-index:1">
-      <div id="infoPageTitle" style="font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:var(--t1)">Page</div>
-      <button onclick="closeInfoPage()" style="background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem">✕</button>
-    </div>
-    <div id="infoPageContent" style="padding:24px 28px;font-size:.88rem;color:var(--t2);line-height:1.85"></div>
-  </div>
-</div>
-
-
-<script>
+<script id="profile-flow-script">
 (function(){
-  const KEY='s2j_offer_end';
-  let end=localStorage.getItem(KEY);
-  if(!end){
-    end=Date.now()+(48*60*60*1000);
-    localStorage.setItem(KEY,end);
+  function ready(fn){
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
   }
-  function update(){
-    const diff=+end-Date.now();
-    if(diff<=0){localStorage.removeItem(KEY);location.reload();return;}
-    const h=Math.floor(diff/3600000);
-    const m=Math.floor((diff%3600000)/60000);
-    const s=Math.floor((diff%60000)/1000);
-    document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
-    document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
-    document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
-  }
-  update();setInterval(update,1000);
+
+  ready(function(){
+    const navBtn = document.getElementById('navLoginBtn');
+    if(navBtn){
+      navBtn.innerHTML = `👤 Profile`;
+      navBtn.removeAttribute('onclick');
+      navBtn.style.cursor = 'pointer';
+
+      navBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        openProfileAccessModal();
+      });
+    }
+
+    const mobFooter = document.querySelector('.mob-footer');
+    if(mobFooter){
+      mobFooter.innerHTML = `<div style="font-size:.72rem;color:var(--t3);text-align:center;margin-top:8px">Profile → Top right button</div>`;
+    }
+
+    if(!document.getElementById('profileAccessModal')){
+      const modalHTML = `
+        <div id="profileAccessModal" style="display:none;position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px;">
+          <div style="width:100%;max-width:420px;background:var(--bg2);border:1px solid var(--b2);border-radius:24px;overflow:hidden;box-shadow:0 0 80px rgba(0,232,122,.15);position:relative;">
+            <button onclick="closeProfileAccessModal()" style="position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1px solid var(--b1);background:var(--s1);color:var(--t2);font-size:1.2rem;cursor:pointer;">✕</button>
+            <div style="padding:32px 28px 20px;text-align:center;border-bottom:1px solid var(--b1);">
+              <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,var(--em),#00b36b);margin:0 auto 12px;display:grid;place-items:center;font-size:1.6rem;color:#000;">👤</div>
+              <div style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--t1);">Profile Access</div>
+              <div style="font-size:.82rem;color:var(--t3);margin-top:6px;">Google ya Phone se login karo</div>
+            </div>
+
+            <div style="padding:24px 28px 32px;">
+              <div id="pamHome">
+                <button onclick="showProfileRegister()" style="width:100%;margin-bottom:12px;padding:14px;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;border:none;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;">📱 Phone se Register</button>
+                <button onclick="loginWithGoogleFromProfile()" style="width:100%;padding:14px;background:#fff;color:#111;border:1px solid #ddd;border-radius:12px;font-weight:600;font-size:1rem;cursor:pointer;">Continue with Google</button>
+              </div>
+
+              <div id="pamRegister" style="display:none;">
+                <div style="margin-bottom:14px;">
+                  <label style="font-size:.7rem;font-weight:700;color:var(--em);display:block;margin-bottom:6px;">Phone Number (10 digits)</label>
+                  <input id="pamPhone" type="tel" maxlength="10" placeholder="8826340509" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--b1);background:var(--s1);color:var(--t1);font-size:1rem;">
+                </div>
+                <div style="margin-bottom:20px;">
+                  <label style="font-size:.7rem;font-weight:700;color:var(--em);display:block;margin-bottom:6px;">Password</label>
+                  <input id="pamPassword" type="password" placeholder="Create password" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--b1);background:var(--s1);color:var(--t1);font-size:1rem;">
+                </div>
+                <button onclick="registerWithPhone()" style="width:100%;padding:14px;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;border:none;border-radius:12px;font-weight:700;font-size:1rem;margin-bottom:10px;cursor:pointer;">Register & Continue →</button>
+                <button onclick="showProfileHome()" style="width:100%;padding:13px;background:var(--s1);border:1px solid var(--b1);color:var(--t2);border-radius:12px;font-weight:600;cursor:pointer;">← Back</button>
+                <div id="pamMsg" style="display:none;margin-top:12px;padding:12px;border-radius:10px;font-size:.82rem;"></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      const temp = document.createElement('div');
+      temp.innerHTML = modalHTML;
+      document.body.appendChild(temp.firstElementChild);
+    }
+
+    const modal = document.getElementById('profileAccessModal');
+
+    window.openProfileAccessModal = function(){
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      showProfileHome();
+    };
+
+    window.closeProfileAccessModal = function(){
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    };
+
+    window.showProfileHome = function(){
+      document.getElementById('pamHome').style.display = 'block';
+      document.getElementById('pamRegister').style.display = 'none';
+      const msg = document.getElementById('pamMsg');
+      if(msg) msg.style.display = 'none';
+    };
+
+    window.showProfileRegister = function(){
+      document.getElementById('pamHome').style.display = 'none';
+      document.getElementById('pamRegister').style.display = 'block';
+    };
+
+    window.loginWithGoogleFromProfile = function(){
+      closeProfileAccessModal();
+      if(typeof window.googleSignIn === 'function'){
+        window.googleSignIn();
+      } else {
+        alert('Google login abhi load nahi hua. Page refresh karke try karo.');
+      }
+    };
+
+    window.registerWithPhone = function(){
+      const phone = (document.getElementById('pamPhone').value || '').trim().replace(/\D/g,'');
+      const pass = (document.getElementById('pamPassword').value || '').trim();
+      const msgEl = document.getElementById('pamMsg');
+
+      if(phone.length !== 10){
+        msgEl.textContent = '10 digit valid phone number dalo';
+        msgEl.style.display = 'block';
+        msgEl.style.background = 'rgba(239,68,68,.1)';
+        msgEl.style.color = '#f87171';
+        return;
+      }
+      if(pass.length < 6){
+        msgEl.textContent = 'Password minimum 6 characters ka hona chahiye';
+        msgEl.style.display = 'block';
+        msgEl.style.background = 'rgba(239,68,68,.1)';
+        msgEl.style.color = '#f87171';
+        return;
+      }
+
+      closeProfileAccessModal();
+      window.location.href = '/student-portal/';
+    };
+
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) closeProfileAccessModal();
+    });
+
+    console.log('%c✅ Profile button fixed (sandbox safe)', 'color:#00e87a;font-weight:bold');
+  });
 })();
 </script>
-<script>
-(function(){
-  const KEY='s2j_count';
-  const START=500;
-  const today=new Date().toDateString();
-  let data=JSON.parse(localStorage.getItem(KEY)||'{}');
-  if(!data.date||data.date!==today){
-    const inc=Math.floor(Math.random()*5)+3;
-    data={date:today,count:(data.count||START)+inc};
-    localStorage.setItem(KEY,JSON.stringify(data));
-  }
-  document.querySelectorAll('.live-counter').forEach(el=>el.textContent=data.count.toLocaleString('en-IN'));
-})();
-</script>
-<!-- ══ GOOGLE LOGIN MODAL ══ -->
-<div class="modal-overlay" id="googleLoginModal" onclick="if(event.target===this)closeGoogleLoginModal()">
-  <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:28px;width:100%;max-width:400px;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,232,122,.1);padding:40px 32px;text-align:center">
-    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--em),transparent)"></div>
-    <button onclick="closeGoogleLoginModal()" style="position:absolute;top:14px;right:16px;background:var(--s1);border:1px solid var(--b1);color:var(--t3);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;font-size:1rem;">✕</button>
-    <div style="font-size:2.5rem;margin-bottom:16px">🔐</div>
-    <div style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;color:var(--t1);margin-bottom:8px">Pehle Login Karo</div>
-    <div style="font-size:.82rem;color:var(--t2);margin-bottom:32px;line-height:1.6">Course purchase karne ke liye Google account se login karo — ek click mein!</div>
-    <button onclick="googleSignIn()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 24px;background:#fff;border:none;border-radius:12px;cursor:pointer;font-size:.95rem;font-weight:600;color:#333;transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.2)" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
-      <img src="https://www.google.com/favicon.ico" width="20" height="20">
-      Continue with Google
-    </button>
-    <div style="font-size:.68rem;color:var(--t3);margin-top:16px">🔒 Secure login · Koi password nahi chahiye</div>
-  </div>
-</div>
 </body>
 </html>
