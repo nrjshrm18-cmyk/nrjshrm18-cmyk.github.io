@@ -186,23 +186,77 @@ let currentUser = null;
 let completedModules = [];
 let currentModuleId = null;
 
-window.goHome = () => { window.location.href = '/'; };
-window.doGoogleLogin = () => signInWithPopup(auth, provider).catch(err => showMsg(err.message || 'Google login failed', 'error'));
+window.goHome = () => {
+  window.location.href = '/';
+};
 
-window.doLogin = function() {
+window.doGoogleLogin = async function () {
+  try {
+    showMsg('Signing in with Google...', 'success');
+
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const savedUser = {
+      name: user.displayName || (user.email ? user.email.split('@')[0] : 'Student'),
+      email: (user.email || '').toLowerCase(),
+      photoURL: user.photoURL || '',
+      provider: 'google',
+      loginAt: Date.now()
+    };
+
+    localStorage.setItem('s2jportaluser', JSON.stringify(savedUser));
+    currentUser = savedUser;
+    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+
+    showMsg('Google login successful.', 'success');
+    showPortal();
+  } catch (err) {
+    showMsg(err?.message || 'Google login failed.', 'error');
+  }
+};
+
+window.doLogin = function () {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass = document.getElementById('loginPass').value;
   const saved = readSavedUser();
-  if (!email || !pass) return showMsg('Email aur password dono bharein.', 'error');
+
+  if (!email || !pass) {
+    return showMsg('Email aur password dono bharein.', 'error');
+  }
+
   if (saved && String(saved.email || '').toLowerCase() === email && saved.password === pass) {
     currentUser = saved;
     completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
     showPortal();
     return;
   }
+
   showMsg('Login failed. Agar homepage se Google sign-in kiya hai to Continue with Google use karo.', 'error');
 };
 
+window.init = function () {
+  const saved = readSavedUser();
+
+  if (saved) {
+    currentUser = saved;
+    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+    showPortal();
+  }
+};
+
+window.requireAuth = function () {
+  const saved = readSavedUser();
+
+  if (!saved) {
+    window.location.href = '/';
+    return false;
+  }
+
+  currentUser = saved;
+  completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+  return true;
+};
 window.doLogout = async function() {
   localStorage.removeItem('s2jportaluser');
   localStorage.removeItem('ejr_user');
@@ -495,12 +549,16 @@ window.downloadCert = function() {
     }
 
     async function doGoogleLogin() {
-      const msg = document.getElementById('authMsg') || document.getElementById('loginMsg');
-      try {
-        showMsg(msg, 'Google login Firebase setup ke baad chalega.', 'error');
-      } catch (err) {}
-      throw new Error('Google auth not connected yet');
-    }
+  const msg = document.getElementById('authMsg') || document.getElementById('loginMsg');
+
+  try {
+    showMsg(msg, 'Signing in with Google...', 'success');
+    await signInWithPopup(auth, provider);
+    showMsg(msg, 'Login successful.', 'success');
+  } catch (error) {
+    showMsg(msg, error.message || 'Google sign-in failed.', 'error');
+  }
+}
 
     function goHome() {
       window.location.href = '/';
