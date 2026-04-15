@@ -470,24 +470,13 @@ window.goHome = function() { window.location.href = '/'; };
 
 // ── INIT ─────────────────────────────────────────────────────────
 window.init = function() {
-  // Check localStorage first for instant load
-  try {
-    const s = localStorage.getItem('s2jportaluser');
-    if (s) {
-      const saved = JSON.parse(s);
-      if (saved && saved.plan) {
-        currentUser = saved;
-        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-        showPortal();
-        return;
-      }
-    }
-  } catch(e) {}
-  // Then listen for Firebase auth state
+  // ALWAYS verify with Firebase DB — never trust localStorage plan alone
+  // This prevents stale/fake plan data from granting access
   _auth.onAuthStateChanged(async function(fbUser) {
     if (fbUser) {
       const dbUser = await fetchDbUser(fbUser.email);
       if (dbUser && dbUser.plan) {
+        // ✅ Verified from DB — grant access
         const user = {
           name:     fbUser.displayName || fbUser.email.split('@')[0],
           email:    fbUser.email.toLowerCase(),
@@ -500,11 +489,13 @@ window.init = function() {
         currentUser = user;
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
         showPortal();
-      } else if (fbUser) {
+      } else {
+        // ❌ No valid plan in DB — clear stale localStorage and show no-plan screen
+        localStorage.removeItem('s2jportaluser');
         showNoPlanScreen(fbUser.displayName || fbUser.email, fbUser.email);
       }
     }
-    // else: stay on auth screen (already visible by default)
+    // else: not logged in — stay on auth screen (default)
   });
 };
 
