@@ -165,7 +165,7 @@
       Course khareedne ke baad yahan access milega.
     </div>
     <div id="noPlanUserInfo" style="background:rgba(255,255,255,.04);border:1px solid var(--b1);border-radius:12px;padding:12px;margin-bottom:20px;font-size:.82rem;color:var(--t2)"></div>
-    <a href="/" class="btn-primary" style="display:block;text-decoration:none;text-align:center;padding:14px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700">
+    <a href="https://rzp.io/rzp/Noktx055" target="_blank" class="btn-primary" style="display:block;text-decoration:none;text-align:center;padding:14px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700">
       🛒 Course Khareedne Jaao
     </a>
     <button class="ghost-btn" onclick="doLogout()" style="margin-top:8px">Logout</button>
@@ -183,7 +183,7 @@
     </div>
     <div class="top-right">
       <div id="navUserName" style="color:var(--t2);font-size:.8rem">Welcome</div>
-      <button class="logout" onclick="window.location.href='/'" style="margin-right:4px">🏠 Home</button>
+      <button class="logout" onclick="window.location.href='https://rzp.io/rzp/Noktx055' target='_blank'" style="margin-right:4px">🏠 Home</button>
       <button class="logout" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -462,6 +462,8 @@ window.doLogout = async function() {
 window.goHome = function() { window.location.href = '/'; };
 
 // ── INIT ─────────────────────────────────────────────────────────
+let _activationPoller = null;
+
 window.init = function() {
   // Verify with Firebase DB on every load
   _auth.onAuthStateChanged(async function(fbUser) {
@@ -479,12 +481,48 @@ window.init = function() {
       localStorage.setItem('s2jportaluser', JSON.stringify(user));
       currentUser = user;
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      // Always open portal — course access gated inside
       showPortal();
+
+      // If no plan yet, start polling for activation (every 6s, max 10 mins)
+      if (!hasPlan) startActivationPoller(fbUser.email);
     }
     // else: not logged in — stay on auth screen
   });
 };
+
+function startActivationPoller(email) {
+  if (_activationPoller) return; // already polling
+  let attempts = 0;
+  const MAX = 100; // ~10 min at 6s interval
+  _activationPoller = setInterval(async function() {
+    attempts++;
+    if (attempts > MAX) { clearInterval(_activationPoller); return; }
+    const dbUser = await fetchDbUser(email);
+    if (dbUser && dbUser.plan) {
+      clearInterval(_activationPoller);
+      _activationPoller = null;
+      // Plan activated! Update user and refresh portal
+      currentUser.plan    = dbUser.plan;
+      currentUser.code    = dbUser.paymentId || dbUser.accessCode || 'PAID';
+      localStorage.setItem('s2jportaluser', JSON.stringify(currentUser));
+      // Show activation success banner
+      showActivationSuccess(dbUser.plan);
+      // Re-render courses and portal
+      renderModules();
+      populatePortal();
+      const banner = document.getElementById('enrollBanner');
+      if (banner) banner.style.display = 'none';
+    }
+  }, 6000);
+}
+
+function showActivationSuccess(plan) {
+  const msg = document.createElement('div');
+  msg.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:Clash Display,sans-serif;font-weight:700;padding:16px 28px;border-radius:14px;box-shadow:0 8px 32px rgba(0,232,122,.4);font-size:.95rem;text-align:center;animation:fadeInDown .4s ease';
+  msg.innerHTML = '🎉 Course Activate Ho Gaya! Welcome aboard! Refresh kar ke enjoy karo.';
+  document.body.appendChild(msg);
+  setTimeout(() => { msg.style.opacity='0'; msg.style.transition='opacity .5s'; setTimeout(()=>msg.remove(), 500); }, 5000);
+}
 
 // ── SCREENS ──────────────────────────────────────────────────────
 function showPortal() {
@@ -588,7 +626,7 @@ function renderModules() {
           Saare <strong style="color:var(--t1)">9 modules</strong> aur <strong style="color:var(--t1)">22 classes</strong> unlock karne ke liye<br>
           course purchase karo. Sirf <strong style="color:var(--em)">₹799</strong> — lifetime access.
         </div>
-        <a href="/" style="display:inline-block;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;padding:13px 32px;border-radius:12px;text-decoration:none;font-size:.95rem">
+        <a href="https://rzp.io/rzp/Noktx055" target="_blank" style="display:inline-block;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;padding:13px 32px;border-radius:12px;text-decoration:none;font-size:.95rem">
           🛒 Abhi Purchase Karo — ₹799
         </a>
         <div style="margin-top:12px;font-size:.72rem;color:var(--t3)">✅ Money-back guarantee &nbsp;|&nbsp; ✅ Lifetime access &nbsp;|&nbsp; ✅ Mobile friendly</div>
@@ -621,8 +659,8 @@ function renderModules() {
 window.openModule = function(id) {
   if (!(currentUser && currentUser.plan)) {
     // Not purchased — scroll to purchase wall
-    document.getElementById('sec-courses').querySelector('a[href="/"]') &&
-    document.getElementById('sec-courses').querySelector('a[href="/"]').scrollIntoView({behavior:'smooth'});
+    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]') &&
+    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]').scrollIntoView({behavior:'smooth'});
     return;
   }
   const mod = MODULES.find(m => m.id === id);
