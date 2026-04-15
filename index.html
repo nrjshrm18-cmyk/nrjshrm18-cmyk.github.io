@@ -706,10 +706,9 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
   body{padding-bottom:88px}
 }
 </style>
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyAvjl2CNBkEP0l285ItxXRN7S8SM5m6zG8",
     authDomain: "skill2job-96b9c.firebaseapp.com",
@@ -720,33 +719,28 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
     appId: "1:414662169688:web:a3ba3e70015b9e52e6662d"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
-  window.googleSignIn = function() {
-    signInWithPopup(auth, provider)
-      .then(async (result) => {
+  function googleSignIn() {
+    auth.signInWithPopup(provider)
+      .then(async function(result) {
         const user = result.user;
         window.currentFirebaseUser = user;
         const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
-        const userUrl = 'https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json';
-
-        const res = await fetch(userUrl);
+        const res = await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json');
         const data = await res.json();
 
         const glm = document.getElementById('googleLoginModal');
-        if(glm) { glm.classList.remove('open'); }
+        if (glm) glm.classList.remove('open');
         const slm = document.getElementById('studentLoginModal');
-        if(slm) { slm.classList.remove('open'); }
+        if (slm) slm.classList.remove('open');
         document.body.style.overflow = '';
 
         if (data && data.plan) {
           window.location.href = '/student-portal/';
-          return;
-        }
-
-        if (!data) {
+        } else {
           const newUser = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -754,56 +748,43 @@ footer{background:var(--bg);border-top:1px solid var(--b1);padding:60px 20px 32p
             createdAt: new Date().toISOString(),
             products: []
           };
-          await fetch(userUrl, {
+          await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(newUser)
           });
+          alert('Account ban gaya! Ab pehle course purchase ya activate kijiye.');
+          if (typeof openEnrollModal === 'function') openEnrollModal('complete');
         }
-
-        alert('Account ban gaya hai. Ab pehle course purchase ya activate kijiye.');
-        openEnrollModal('complete');
       })
-      .catch((error) => {
+      .catch(function(error) {
         console.error(error);
         alert('Login failed: ' + error.message);
       });
-  };
-              fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json', {
-                method: 'PUT',
-                body: JSON.stringify(newUser)
-              }).then(() => {
-                window.location.href = '/student-portal/';
-              });
-            }
-          });
-      })
-      .catch((error) => {
-        console.error(error);
-        alert('Login failed: ' + error.message);
-      });
-  };
+  }
 
-  onAuthStateChanged(auth, (user) => {
+  window.googleSignIn = googleSignIn;
+
+  auth.onAuthStateChanged(function(user) {
     if (user) {
       window.currentFirebaseUser = user;
       const key = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
       fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + key + '.json')
-        .then(r => r.json())
-        .then(data => {
-          const loginBtn = document.getElementById('navLoginBtn');
-          if (loginBtn) {
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          const btn = document.getElementById('navProfileBtn');
+          if (btn) {
             if (data && data.plan) {
-              // Purchased → My Courses
-              loginBtn.innerHTML = '📚 My Courses';
-              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
-              loginBtn.style.color = 'var(--em)';
-              loginBtn.style.borderColor = 'rgba(0,232,122,.3)';
+              btn.innerHTML = '\uD83D\uDCDA';
+              btn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+              btn.style.borderColor = 'rgba(0,232,122,.5)';
+              btn.style.color = 'var(--em)';
             } else {
-              // Logged in but not purchased
-              const name = user.displayName ? user.displayName.split(' ')[0] : 'User';
-              loginBtn.innerHTML = '👤 ' + name;
-              loginBtn.setAttribute('onclick', 'window.location.href="/student-portal/"');
+              const name = user.displayName ? user.displayName.split(' ')[0] : 'You';
+              btn.title = name + ' — Click to go to portal';
+              btn.style.borderColor = 'rgba(0,232,122,.3)';
+              btn.style.color = 'var(--em)';
+              btn.setAttribute('onclick', 'window.location.href="/student-portal/"');
             }
           }
         });
