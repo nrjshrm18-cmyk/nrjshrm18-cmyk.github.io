@@ -151,6 +151,28 @@
   </div>
 </div>
 
+<!-- NO PLAN SCREEN -->
+<div id="noPlanScreen" style="display:none" class="auth-wrap">
+  <div class="auth-card" style="max-width:480px;text-align:center">
+    <div class="logo">
+      <div class="logo-box">S2</div>
+      <div class="logo-name">Skill2Job</div>
+    </div>
+    <div style="font-size:2.5rem;margin-bottom:12px">🔒</div>
+    <div class="auth-title" style="font-size:1.3rem">Koi Course Nahi Khareeda</div>
+    <div class="auth-sub" style="margin-bottom:24px">
+      Aapka account ban gaya hai lekin abhi tak koi course purchase nahi kiya.<br>
+      Course khareedne ke baad yahan access milega.
+    </div>
+    <div id="noPlanUserInfo" style="background:rgba(255,255,255,.04);border:1px solid var(--b1);border-radius:12px;padding:12px;margin-bottom:20px;font-size:.82rem;color:var(--t2)"></div>
+    <a href="/" class="btn-primary" style="display:block;text-decoration:none;text-align:center;padding:14px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700">
+      🛒 Course Khareedne Jaao
+    </a>
+    <button class="ghost-btn" onclick="doLogout()" style="margin-top:8px">Logout</button>
+  </div>
+</div>
+
+
 <!-- PORTAL -->
 <div id="portalScreen" class="portal">
   <div class="topbar">
@@ -161,6 +183,7 @@
     </div>
     <div class="top-right">
       <div id="navUserName" style="color:var(--t2);font-size:.8rem">Welcome</div>
+      <button class="logout" onclick="window.location.href='/'" style="margin-right:4px">🏠 Home</button>
       <button class="logout" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -268,10 +291,9 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAvjl2CNBkEP0l285ItxXRN7S8SM5m6zG8",
   authDomain: "skill2job-96b9c.firebaseapp.com",
@@ -281,11 +303,11 @@ const firebaseConfig = {
   messagingSenderId: "414662169688",
   appId: "1:414662169688:web:a3ba3e70015b9e52e6662d"
 };
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _provider = new firebase.auth.GoogleAuthProvider();
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
+// ── DATA ────────────────────────────────────────────────────────
 const MODULES = [
   { id:1, icon:'📊', title:'Module 01 — Excel Basics', duration:'45 min', description:'Cells, rows, columns, formatting aur file handling.', lessons:[
     {name:'Class 1 — Intro & Basics', duration:'10 min', videoId:'VbbCcbbtp9M'},
@@ -343,106 +365,182 @@ const DOWNLOADS = [
   {icon:'📝', name:'Class Notes PDF', desc:'Saari classes ke notes — revision ke liye perfect.', url:'', type:'pdf'},
 ];
 
+// ── STATE ───────────────────────────────────────────────────────
 let currentUser = null;
 let completedModules = [];
 let currentModuleId = null;
 
-// ─── AUTH HELPERS ──────────────────────────────────────────────
-function readSavedUser() {
-  try { const s = localStorage.getItem('s2jportaluser'); if (s) return JSON.parse(s); } catch(e){}
-  try { const o = localStorage.getItem('ejruser'); if (o) return JSON.parse(o); } catch(e){}
-  return null;
+// ── HELPERS ─────────────────────────────────────────────────────
+function dbKey(email) {
+  return String(email).replace(/\./g, '_').replace(/@/g, '_at_');
 }
-
-function showMsg(text, type = 'error') {
+async function fetchDbUser(email) {
+  try {
+    const res = await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + dbKey(email) + '.json');
+    return await res.json();
+  } catch(e) { return null; }
+}
+function showMsg(text, type) {
   const el = document.getElementById('authMsg');
+  if (!el) return;
   el.textContent = text;
-  el.className = 'msg show ' + type;
+  el.className = 'msg show ' + (type || 'error');
+}
+function hideAll() {
+  document.getElementById('authScreen').style.display    = 'none';
+  document.getElementById('noPlanScreen').style.display  = 'none';
+  document.getElementById('portalScreen').style.display  = 'none';
 }
 
-// ─── GOOGLE LOGIN ──────────────────────────────────────────────
-window.doGoogleLogin = async function () {
+// ── GOOGLE LOGIN ─────────────────────────────────────────────────
+window.doGoogleLogin = async function() {
   try {
     showMsg('Signing in with Google...', 'success');
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    const savedUser = {
-      name: user.displayName || (user.email ? user.email.split('@')[0] : 'Student'),
-      email: (user.email || '').toLowerCase(),
-      photoURL: user.photoURL || '',
-      provider: 'google',
-      plan: 'complete',
-      joinDate: new Date().toLocaleDateString('en-IN'),
-      loginAt: Date.now()
-    };
-    localStorage.setItem('s2jportaluser', JSON.stringify(savedUser));
-    currentUser = savedUser;
-    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-    showMsg('Login successful!', 'success');
-    showPortal();
-  } catch (err) {
+    const result = await _auth.signInWithPopup(_provider);
+    const fbUser = result.user;
+    const dbUser = await fetchDbUser(fbUser.email);
+
+    if (dbUser && dbUser.plan) {
+      // ✅ Purchased — save & show portal
+      const user = {
+        name:     fbUser.displayName || fbUser.email.split('@')[0],
+        email:    fbUser.email.toLowerCase(),
+        plan:     dbUser.plan,
+        code:     dbUser.paymentId || dbUser.accessCode || 'GOOGLE',
+        joinDate: dbUser.createdAt ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
+        provider: 'google'
+      };
+      localStorage.setItem('s2jportaluser', JSON.stringify(user));
+      currentUser = user;
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      showPortal();
+    } else {
+      // ❌ Not purchased — create/update DB entry, show no-plan screen
+      const newUser = {
+        name: fbUser.displayName || fbUser.email.split('@')[0],
+        email: fbUser.email,
+        plan: null,
+        createdAt: new Date().toISOString()
+      };
+      if (!dbUser) {
+        await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + dbKey(fbUser.email) + '.json', {
+          method: 'PUT',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(newUser)
+        });
+      }
+      showNoPlanScreen(fbUser.displayName || fbUser.email, fbUser.email);
+    }
+  } catch(err) {
     showMsg(err?.message || 'Google login failed.', 'error');
   }
 };
 window.googleSignIn = window.doGoogleLogin;
 
-// ─── EMAIL LOGIN ───────────────────────────────────────────────
-window.doLogin = function () {
+// ── EMAIL LOGIN ──────────────────────────────────────────────────
+window.doLogin = function() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('loginPass').value;
   if (!email || !pass) return showMsg('Email aur password dono bharein.', 'error');
-  const saved = readSavedUser();
-  if (saved && String(saved.email||'').toLowerCase() === email && saved.password === pass) {
-    currentUser = saved;
-    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-    showPortal();
-    return;
+  try {
+    const s = localStorage.getItem('s2jportaluser');
+    const saved = s ? JSON.parse(s) : null;
+    if (saved && String(saved.email||'').toLowerCase() === email && saved.password === pass) {
+      if (!saved.plan) { showNoPlanScreen(saved.name, saved.email); return; }
+      currentUser = saved;
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      showPortal();
+    } else {
+      showMsg('Login failed. Agar Google se login kiya hai to "Continue with Google" use karo.', 'error');
+    }
+  } catch(e) {
+    showMsg('Login error. Dobara try karo.', 'error');
   }
-  showMsg('Login failed. Agar Google se login kiya hai to "Continue with Google" use karo.', 'error');
 };
 
-window.goHome = function () { window.location.href = '/'; };
-
-window.doLogout = async function () {
+// ── LOGOUT ───────────────────────────────────────────────────────
+window.doLogout = async function() {
   localStorage.removeItem('s2jportaluser');
-  localStorage.removeItem('ejruser');
   currentUser = null;
-  try { await signOut(auth); } catch(e) {}
+  try { await _auth.signOut(); } catch(e) {}
   location.reload();
 };
 
-// ─── INIT ──────────────────────────────────────────────────────
-window.init = function () {
-  const saved = readSavedUser();
-  if (saved) {
-    currentUser = saved;
-    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-    showPortal();
-  }
+window.goHome = function() { window.location.href = '/'; };
+
+// ── INIT ─────────────────────────────────────────────────────────
+window.init = function() {
+  // Check localStorage first for instant load
+  try {
+    const s = localStorage.getItem('s2jportaluser');
+    if (s) {
+      const saved = JSON.parse(s);
+      if (saved && saved.plan) {
+        currentUser = saved;
+        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        showPortal();
+        return;
+      }
+    }
+  } catch(e) {}
+  // Then listen for Firebase auth state
+  _auth.onAuthStateChanged(async function(fbUser) {
+    if (fbUser) {
+      const dbUser = await fetchDbUser(fbUser.email);
+      if (dbUser && dbUser.plan) {
+        const user = {
+          name:     fbUser.displayName || fbUser.email.split('@')[0],
+          email:    fbUser.email.toLowerCase(),
+          plan:     dbUser.plan,
+          code:     dbUser.paymentId || dbUser.accessCode || 'GOOGLE',
+          joinDate: dbUser.createdAt ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
+          provider: 'google'
+        };
+        localStorage.setItem('s2jportaluser', JSON.stringify(user));
+        currentUser = user;
+        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        showPortal();
+      } else if (fbUser) {
+        showNoPlanScreen(fbUser.displayName || fbUser.email, fbUser.email);
+      }
+    }
+    // else: stay on auth screen (already visible by default)
+  });
 };
 
-// ─── PORTAL UI ─────────────────────────────────────────────────
+// ── SCREENS ──────────────────────────────────────────────────────
 function showPortal() {
-  document.getElementById('authScreen').style.display = 'none';
+  hideAll();
   document.getElementById('portalScreen').style.display = 'block';
   populatePortal();
 }
 
+function showNoPlanScreen(name, email) {
+  hideAll();
+  document.getElementById('noPlanScreen').style.display = 'flex';
+  const info = document.getElementById('noPlanUserInfo');
+  if (info) info.innerHTML = '👤 <strong>' + (name||'') + '</strong> &nbsp;|&nbsp; ' + (email||'');
+}
+
+// ── PORTAL POPULATE ───────────────────────────────────────────────
 function populatePortal() {
-  const u = currentUser || {name:'Student', email:'', plan:'complete', code:'', joinDate: new Date().toLocaleDateString('en-IN')};
+  const u = currentUser || {};
   const firstName = (u.name || 'Student').split(' ')[0];
-  const planText = (u.plan || 'complete').charAt(0).toUpperCase() + (u.plan || 'complete').slice(1);
-  document.getElementById('navUserName').textContent = firstName;
-  document.getElementById('dashName').textContent = firstName;
-  document.getElementById('planBadge').textContent = planText;
-  document.getElementById('statPlan').textContent = planText;
-  document.getElementById('profileName').textContent = u.name;
-  document.getElementById('profileEmail').textContent = u.email;
-  document.getElementById('profilePlan').textContent = planText;
-  document.getElementById('profileDate').textContent = u.joinDate;
-  document.getElementById('profileCode').textContent = u.code || 'GOOGLE-LOGIN';
-  document.getElementById('certName').textContent = u.name || 'Your Name';
-  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-IN');
+  const rawPlan = u.plan || 'free';
+  const planText = rawPlan.charAt(0).toUpperCase() + rawPlan.slice(1);
+
+  document.getElementById('navUserName').textContent  = firstName;
+  document.getElementById('dashName').textContent     = firstName;
+  document.getElementById('planBadge').textContent    = planText;
+  document.getElementById('statPlan').textContent     = planText;
+  document.getElementById('profileName').textContent  = u.name  || '—';
+  document.getElementById('profileEmail').textContent = u.email || '—';
+  document.getElementById('profilePlan').textContent  = planText;
+  document.getElementById('profileDate').textContent  = u.joinDate || '—';
+  document.getElementById('profileCode').textContent  = u.code || '—';
+  document.getElementById('certName').textContent     = u.name || 'Your Name';
+  document.getElementById('certDate').textContent     = new Date().toLocaleDateString('en-IN');
+
   renderModules();
   renderDownloads();
   updateProgress();
@@ -456,15 +554,21 @@ function updateProgress() {
   document.getElementById('sidebarProgress').style.width = pct + '%';
   document.getElementById('sidebarProgressText').textContent = done + ' of ' + total + ' modules done';
   document.getElementById('profileProgress').textContent = done + '/' + total;
+
   const streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0}');
   document.getElementById('statStreak').textContent = streak.count || 0;
-  if (done === 0) document.getElementById('continueDesc').textContent = 'Start from Module 1.';
-  else if (done < total) document.getElementById('continueDesc').textContent = 'Module ' + (done + 1) + ' se continue karo.';
-  else document.getElementById('continueDesc').textContent = 'Course complete! Certificate download karo.';
+
+  if (done === 0)
+    document.getElementById('continueDesc').textContent = 'Start from Module 1.';
+  else if (done < total)
+    document.getElementById('continueDesc').textContent = 'Module ' + (done + 1) + ' se continue karo.';
+  else
+    document.getElementById('continueDesc').textContent = 'Course complete! Certificate download karo. 🎉';
+
   if (done === total) {
     document.getElementById('certBtn').disabled = false;
-    document.getElementById('certBtn').textContent = 'Download Certificate';
-    document.getElementById('certLockMsg').textContent = 'Congratulations! Certificate ready hai.';
+    document.getElementById('certBtn').textContent = '🏆 Download Certificate';
+    document.getElementById('certLockMsg').textContent = 'Congratulations! Certificate ready hai. ✅';
   } else {
     document.getElementById('certBtn').disabled = true;
     document.getElementById('certBtn').textContent = 'Complete Course to Unlock';
@@ -472,19 +576,23 @@ function updateProgress() {
   }
 }
 
+// ── MODULES ───────────────────────────────────────────────────────
 function renderModules() {
   const list = document.getElementById('modulesList');
   list.innerHTML = MODULES.map(m => {
     const done = completedModules.includes(m.id);
     return `<div class="module${done?' done':''}" onclick="openModule(${m.id})">
       <div class="micon">${m.icon}</div>
-      <div class="mmeta"><h4>${m.title}</h4><p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p></div>
+      <div class="mmeta">
+        <h4>${m.title}</h4>
+        <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+      </div>
       <div class="mplay">${done ? '✓' : '▶'}</div>
     </div>`;
   }).join('');
 }
 
-window.openModule = function (id) {
+window.openModule = function(id) {
   const mod = MODULES.find(m => m.id === id);
   if (!mod) return;
   currentModuleId = id;
@@ -493,11 +601,11 @@ window.openModule = function (id) {
   renderLessons(mod, 0);
   playLesson(mod, 0);
   document.getElementById('videoSection').scrollIntoView({behavior:'smooth'});
+  document.getElementById('markDoneBtn').textContent = completedModules.includes(id) ? '✓ Already Completed' : 'Mark Module Complete';
 };
 
 function renderLessons(mod, activeIdx) {
-  const el = document.getElementById('lessonsList');
-  el.innerHTML = mod.lessons.map((l, i) => `
+  document.getElementById('lessonsList').innerHTML = mod.lessons.map((l, i) => `
     <div class="lesson${i===activeIdx?' active':''}" onclick="playLessonById(${mod.id},${i})">
       <div class="lesson-num">${i+1}</div>
       <div class="lesson-name">${l.name}</div>
@@ -505,7 +613,7 @@ function renderLessons(mod, activeIdx) {
     </div>`).join('');
 }
 
-window.playLessonById = function (moduleId, idx) {
+window.playLessonById = function(moduleId, idx) {
   const mod = MODULES.find(m => m.id === moduleId);
   if (!mod) return;
   renderLessons(mod, idx);
@@ -514,13 +622,14 @@ window.playLessonById = function (moduleId, idx) {
 
 function playLesson(mod, idx) {
   const lesson = mod.lessons[idx];
-  document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1`;
-  document.getElementById('videoTitle').textContent = lesson.name;
+  document.getElementById('ytPlayer').src =
+    'https://www.youtube.com/embed/' + lesson.videoId + '?rel=0&modestbranding=1';
+  document.getElementById('videoTitle').textContent    = lesson.name;
   document.getElementById('videoDuration').textContent = lesson.duration;
   updateStreak();
 }
 
-window.markModuleDone = function () {
+window.markModuleDone = function() {
   if (!currentModuleId) return;
   if (!completedModules.includes(currentModuleId)) {
     completedModules.push(currentModuleId);
@@ -528,7 +637,7 @@ window.markModuleDone = function () {
   }
   renderModules();
   updateProgress();
-  document.getElementById('markDoneBtn').textContent = '✓ Completed!';
+  document.getElementById('markDoneBtn').textContent = '✓ Already Completed';
 };
 
 function updateStreak() {
@@ -536,33 +645,36 @@ function updateStreak() {
   const yesterday = new Date(Date.now() - 86400000).toDateString();
   let streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0,"lastDate":""}');
   if (streak.lastDate === today) return;
-  streak.count = streak.lastDate === yesterday ? streak.count + 1 : 1;
+  streak.count    = streak.lastDate === yesterday ? streak.count + 1 : 1;
   streak.lastDate = today;
   localStorage.setItem('s2jstreak', JSON.stringify(streak));
   document.getElementById('statStreak').textContent = streak.count;
 }
 
+// ── DOWNLOADS ─────────────────────────────────────────────────────
 function renderDownloads() {
-  const grid = document.getElementById('downloadsGrid');
-  grid.innerHTML = DOWNLOADS.map(d => `
+  document.getElementById('downloadsGrid').innerHTML = DOWNLOADS.map(d => `
     <div class="dl">
       <div style="font-size:1.8rem">${d.icon}</div>
-      <h4>${d.name}</h4><p>${d.desc}</p>
+      <h4>${d.name}</h4>
+      <p>${d.desc}</p>
       <a href="${d.url || 'javascript:void(0)'}" onclick="${d.url ? '' : "alert('Coming soon! Files jald upload honge.')"}">
         Download ${d.type.toUpperCase()}
       </a>
     </div>`).join('');
 }
 
-window.showSection = function (name) {
+// ── SECTIONS ──────────────────────────────────────────────────────
+window.showSection = function(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('active');
   document.querySelectorAll('.sidebar .nav-item, .mobile-nav .nav-item').forEach(n => n.classList.remove('active'));
-  const a = document.getElementById('nav-' + name);   if (a) a.classList.add('active');
-  const b = document.getElementById('mn-' + name);    if (b) b.classList.add('active');
+  const a = document.getElementById('nav-' + name); if (a) a.classList.add('active');
+  const b = document.getElementById('mn-' + name);  if (b) b.classList.add('active');
 };
 
-window.downloadCert = function () {
+// ── CERTIFICATE DOWNLOAD ──────────────────────────────────────────
+window.downloadCert = function() {
   if (!currentUser || completedModules.length < MODULES.length) return;
   const name = currentUser.name || 'Student';
   const date = new Date().toLocaleDateString('en-IN', {year:'numeric', month:'long', day:'numeric'});
@@ -587,12 +699,12 @@ window.downloadCert = function () {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = `Skill2Job-Certificate-${name.replace(/\s/g,'-')}.html`;
+  a.download = 'Skill2Job-Certificate-' + name.replace(/\s+/g,'-') + '.html';
   a.click();
   URL.revokeObjectURL(url);
 };
 
-// START
+// ── START ─────────────────────────────────────────────────────────
 window.init();
 </script>
 </body>
