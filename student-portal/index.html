@@ -1,715 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Student Portal — Skill2Job</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #080a0f;
-  --bg2: #0d1117;
-  --bg3: #131920;
-  --em: #00e87a;
-  --em2: #00ff88;
-  --blue: #60a5fa;
-  --violet: #a78bfa;
-  --amber: #fbbf24;
-  --pink: #f472b6;
-  --t1: #f0f6fc;
-  --t2: #8b949e;
-  --t3: #484f58;
-  --b1: rgba(255,255,255,.08);
-  --b2: rgba(255,255,255,.04);
-  --r: 16px;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--t1); min-height:100vh; overflow-x:hidden; }
-
-/* ── Auth Screen ── */
-#authScreen {
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(0,232,122,.15), transparent),
-              radial-gradient(ellipse 60% 40% at 80% 80%, rgba(96,165,250,.08), transparent),
-              var(--bg);
-}
-.auth-card {
-  background: rgba(13,17,23,.9);
-  border: 1px solid var(--b1);
-  border-radius: 24px;
-  padding: 48px;
-  width: 100%;
-  max-width: 420px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 0 80px rgba(0,232,122,.08);
-}
-.auth-logo {
-  display:flex; align-items:center; gap:12px; margin-bottom:32px; justify-content:center;
-}
-.auth-logo-box {
-  width:40px; height:40px; border-radius:12px;
-  background:linear-gradient(135deg,var(--em),#00b36b);
-  display:grid; place-items:center;
-  font-family:'Clash Display',sans-serif;
-  font-size:.9rem; font-weight:700; color:#000;
-  box-shadow:0 0 20px rgba(0,232,122,.4);
-}
-.auth-logo-name { font-family:'Clash Display',sans-serif; font-size:1.2rem; font-weight:700; color:var(--t1); }
-.auth-title { font-family:'Clash Display',sans-serif; font-size:1.6rem; font-weight:700; color:var(--t1); margin-bottom:8px; text-align:center; }
-.auth-sub { font-size:.82rem; color:var(--t2); text-align:center; margin-bottom:32px; }
-.auth-tabs { display:flex; background:var(--bg3); border-radius:12px; padding:4px; margin-bottom:24px; }
-.auth-tab { flex:1; padding:10px; text-align:center; border-radius:9px; font-size:.8rem; font-weight:600; cursor:pointer; transition:all .2s; color:var(--t2); }
-.auth-tab.active { background:var(--bg2); color:var(--t1); box-shadow:0 2px 8px rgba(0,0,0,.3); }
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:.72rem; font-weight:600; color:var(--t2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.06em; }
-.field input {
-  width:100%; padding:12px 16px;
-  background:var(--bg3); border:1px solid var(--b1);
-  border-radius:10px; color:var(--t1); font-family:'Syne',sans-serif; font-size:.88rem;
-  transition:all .2s; outline:none;
-}
-.field input:focus { border-color:rgba(0,232,122,.4); box-shadow:0 0 0 3px rgba(0,232,122,.08); }
-.btn-primary {
-  width:100%; padding:14px; border:none; border-radius:12px;
-  background:linear-gradient(135deg,var(--em),#00b36b);
-  color:#000; font-family:'Clash Display',sans-serif;
-  font-size:.95rem; font-weight:700; cursor:pointer;
-  transition:all .2s; margin-top:8px;
-  box-shadow:0 0 24px rgba(0,232,122,.3);
-}
-.btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 32px rgba(0,232,122,.4); }
-.auth-msg { font-size:.78rem; margin-top:12px; text-align:center; padding:8px 12px; border-radius:8px; display:none; }
-.auth-msg.error { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.2); display:block; }
-.auth-msg.success { background:rgba(0,232,122,.1); color:var(--em); border:1px solid rgba(0,232,122,.2); display:block; }
-
-/* ── Portal Layout ── */
-#portalScreen { display:none; }
-.portal-nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  height:60px; padding:0 32px;
-  display:flex; align-items:center; justify-content:space-between;
-  background:rgba(8,10,15,.85); border-bottom:1px solid var(--b1);
-  backdrop-filter:blur(20px);
-}
-.portal-nav-left { display:flex; align-items:center; gap:12px; }
-.pnav-logo { width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,var(--em),#00b36b); display:grid; place-items:center; font-family:'Clash Display',sans-serif; font-size:.72rem; font-weight:700; color:#000; }
-.pnav-name { font-family:'Clash Display',sans-serif; font-size:1rem; font-weight:700; color:var(--t1); }
-.pnav-badge { font-size:.65rem; font-weight:700; padding:3px 10px; border-radius:100px; background:rgba(0,232,122,.1); border:1px solid rgba(0,232,122,.2); color:var(--em); }
-.portal-nav-right { display:flex; align-items:center; gap:12px; }
-.pnav-user { font-size:.78rem; color:var(--t2); }
-.pnav-logout { font-size:.72rem; padding:6px 14px; border-radius:100px; background:transparent; border:1px solid var(--b1); color:var(--t2); cursor:pointer; transition:all .2s; font-family:'Syne',sans-serif; }
-.pnav-logout:hover { border-color:rgba(239,68,68,.4); color:#f87171; }
-
-.portal-layout { display:flex; padding-top:60px; min-height:100vh; }
-
-/* ── Sidebar ── */
-.sidebar {
-  width:260px; flex-shrink:0;
-  background:var(--bg2); border-right:1px solid var(--b1);
-  padding:24px 16px; position:fixed; top:60px; bottom:0; overflow-y:auto;
-}
-.sidebar-section-title { font-size:.65rem; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:.1em; padding:0 12px; margin:16px 0 8px; }
-.sidebar-item {
-  display:flex; align-items:center; gap:10px;
-  padding:10px 12px; border-radius:10px;
-  font-size:.82rem; font-weight:500; color:var(--t2);
-  cursor:pointer; transition:all .2s; margin-bottom:2px;
-  text-decoration:none;
-}
-.sidebar-item:hover { background:var(--b2); color:var(--t1); }
-.sidebar-item.active { background:rgba(0,232,122,.1); color:var(--em); border:1px solid rgba(0,232,122,.15); }
-.sidebar-item .si-icon { font-size:1rem; width:20px; text-align:center; }
-.sidebar-progress { padding:16px 12px; margin-top:8px; background:var(--bg3); border-radius:12px; border:1px solid var(--b1); }
-.sp-title { font-size:.7rem; font-weight:600; color:var(--t2); margin-bottom:8px; }
-.sp-bar { height:6px; background:var(--b1); border-radius:100px; overflow:hidden; }
-.sp-fill { height:100%; background:linear-gradient(90deg,var(--em),var(--blue)); border-radius:100px; transition:width .5s ease; }
-.sp-text { font-size:.68rem; color:var(--t3); margin-top:6px; }
-
-/* ── Main Content ── */
-.portal-main { margin-left:260px; flex:1; padding:32px; max-width:1100px; }
-
-/* ── Section Tabs ── */
-.section { display:none; }
-.section.active { display:block; }
-
-/* ── Dashboard ── */
-.dash-welcome { margin-bottom:32px; }
-.dash-greeting { font-family:'Clash Display',sans-serif; font-size:1.8rem; font-weight:700; color:var(--t1); margin-bottom:6px; }
-.dash-sub { font-size:.88rem; color:var(--t2); }
-.dash-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
-.stat-card { background:var(--bg2); border:1px solid var(--b1); border-radius:16px; padding:20px; }
-.stat-num { font-family:'Clash Display',sans-serif; font-size:1.8rem; font-weight:700; color:var(--em); margin-bottom:4px; }
-.stat-label { font-size:.72rem; color:var(--t2); }
-
-/* ── Modules ── */
-.modules-grid { display:grid; gap:16px; }
-.module-card {
-  background:var(--bg2); border:1px solid var(--b1);
-  border-radius:16px; padding:20px; cursor:pointer;
-  transition:all .25s; display:flex; align-items:center; gap:16px;
-}
-.module-card:hover { border-color:rgba(0,232,122,.25); transform:translateX(4px); }
-.module-card.active-module { border-color:rgba(0,232,122,.4); background:rgba(0,232,122,.04); }
-.module-card.completed { border-color:rgba(0,232,122,.2); }
-.mc-icon { width:48px; height:48px; border-radius:12px; background:var(--bg3); display:grid; place-items:center; font-size:1.4rem; flex-shrink:0; border:1px solid var(--b1); }
-.mc-info { flex:1; }
-.mc-title { font-family:'Clash Display',sans-serif; font-size:.95rem; font-weight:600; color:var(--t1); margin-bottom:4px; }
-.mc-meta { font-size:.72rem; color:var(--t2); display:flex; gap:12px; }
-.mc-lessons { font-size:.68rem; color:var(--t3); margin-top:4px; }
-.mc-status { flex-shrink:0; }
-.mc-play { width:36px; height:36px; border-radius:50%; background:var(--em); display:grid; place-items:center; color:#000; font-size:.8rem; transition:all .2s; }
-.mc-play:hover { transform:scale(1.1); }
-.mc-done { width:36px; height:36px; border-radius:50%; background:rgba(0,232,122,.15); border:1px solid rgba(0,232,122,.3); display:grid; place-items:center; color:var(--em); font-size:.9rem; }
-
-/* ── Video Player ── */
-.video-section { margin-bottom:32px; }
-.video-player-wrap {
-  background:var(--bg2); border:1px solid var(--b1);
-  border-radius:20px; overflow:hidden;
-}
-.video-embed { width:100%; aspect-ratio:16/9; }
-.video-embed iframe { width:100%; height:100%; border:none; }
-.video-info { padding:20px 24px; }
-.video-title { font-family:'Clash Display',sans-serif; font-size:1.1rem; font-weight:700; color:var(--t1); margin-bottom:6px; }
-.video-meta { font-size:.78rem; color:var(--t2); display:flex; gap:16px; }
-.lessons-list { margin-top:16px; border-top:1px solid var(--b1); padding-top:16px; display:grid; gap:8px; }
-.lesson-item {
-  display:flex; align-items:center; gap:12px;
-  padding:10px 14px; border-radius:10px;
-  cursor:pointer; transition:all .2s; border:1px solid transparent;
-}
-.lesson-item:hover { background:var(--b2); }
-.lesson-item.active-lesson { background:rgba(0,232,122,.06); border-color:rgba(0,232,122,.2); }
-.li-num { width:24px; height:24px; border-radius:50%; background:var(--bg3); border:1px solid var(--b1); display:grid; place-items:center; font-size:.65rem; font-weight:700; color:var(--t3); flex-shrink:0; }
-.li-name { flex:1; font-size:.82rem; color:var(--t2); }
-.lesson-item.active-lesson .li-name { color:var(--t1); }
-.li-dur { font-size:.68rem; color:var(--t3); }
-
-/* ── Downloads ── */
-.downloads-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
-.dl-card {
-  background:var(--bg2); border:1px solid var(--b1);
-  border-radius:16px; padding:20px; transition:all .2s;
-}
-.dl-card:hover { border-color:rgba(96,165,250,.3); }
-.dl-icon { font-size:2rem; margin-bottom:12px; }
-.dl-name { font-family:'Clash Display',sans-serif; font-size:.95rem; font-weight:600; color:var(--t1); margin-bottom:6px; }
-.dl-desc { font-size:.75rem; color:var(--t2); margin-bottom:16px; line-height:1.5; }
-.dl-btn {
-  display:inline-flex; align-items:center; gap:6px;
-  padding:8px 16px; border-radius:8px;
-  background:rgba(96,165,250,.1); border:1px solid rgba(96,165,250,.2);
-  color:var(--blue); font-size:.75rem; font-weight:600;
-  text-decoration:none; transition:all .2s; cursor:pointer;
-}
-.dl-btn:hover { background:rgba(96,165,250,.2); }
-
-/* ── Certificate ── */
-.cert-section { text-align:center; padding:48px 32px; }
-.cert-preview {
-  background:linear-gradient(135deg,#0d1117,#131920);
-  border:2px solid rgba(0,232,122,.3);
-  border-radius:24px; padding:48px; max-width:600px; margin:0 auto 32px;
-  position:relative; overflow:hidden;
-  box-shadow:0 0 60px rgba(0,232,122,.1);
-}
-.cert-preview::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:3px;
-  background:linear-gradient(90deg,var(--em),var(--blue),var(--violet),var(--em));
-}
-.cert-badge { font-size:3rem; margin-bottom:16px; }
-.cert-title { font-family:'Clash Display',sans-serif; font-size:1.4rem; font-weight:700; color:var(--t1); margin-bottom:8px; }
-.cert-name { font-family:'Clash Display',sans-serif; font-size:2rem; font-weight:700; color:var(--em); margin:16px 0; }
-.cert-course { font-size:.9rem; color:var(--t2); margin-bottom:16px; }
-.cert-date { font-size:.75rem; color:var(--t3); }
-.cert-locked { opacity:.4; }
-.cert-lock-msg { font-size:.85rem; color:var(--t2); margin-bottom:24px; }
-.btn-download-cert {
-  display:inline-flex; align-items:center; gap:8px;
-  padding:14px 28px; border-radius:12px;
-  background:linear-gradient(135deg,var(--em),#00b36b);
-  color:#000; font-family:'Clash Display',sans-serif;
-  font-size:.9rem; font-weight:700; cursor:pointer;
-  border:none; transition:all .2s;
-  box-shadow:0 0 24px rgba(0,232,122,.3);
-}
-.btn-download-cert:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,232,122,.4); }
-.btn-download-cert:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-
-/* ── Profile ── */
-.profile-card { background:var(--bg2); border:1px solid var(--b1); border-radius:20px; padding:32px; max-width:500px; }
-.profile-avatar { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--em),var(--blue)); display:grid; place-items:center; font-family:'Clash Display',sans-serif; font-size:1.4rem; font-weight:700; color:#000; margin-bottom:16px; }
-.profile-name { font-family:'Clash Display',sans-serif; font-size:1.3rem; font-weight:700; color:var(--t1); margin-bottom:4px; }
-.profile-email { font-size:.82rem; color:var(--t2); margin-bottom:24px; }
-.profile-row { display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--b1); font-size:.85rem; }
-.profile-row:last-child { border-bottom:none; }
-.pr-label { color:var(--t2); }
-.pr-value { color:var(--t1); font-weight:600; }
-.plan-badge { padding:4px 12px; border-radius:100px; font-size:.7rem; font-weight:700; text-transform:uppercase; }
-.plan-basic { background:rgba(96,165,250,.1); color:var(--blue); border:1px solid rgba(96,165,250,.2); }
-.plan-complete { background:rgba(0,232,122,.1); color:var(--em); border:1px solid rgba(0,232,122,.2); }
-.plan-premium { background:rgba(167,139,250,.1); color:var(--violet); border:1px solid rgba(167,139,250,.2); }
-
-/* ── Mobile ── */
-@media(max-width:768px){
-  .sidebar { display:none; }
-  .portal-main { margin-left:0; padding:20px 16px; }
-  .dash-stats { grid-template-columns:repeat(2,1fr); }
-  .mobile-nav { display:flex !important; }
-}
-.mobile-nav {
-  display:none; position:fixed; bottom:0; left:0; right:0; z-index:100;
-  background:var(--bg2); border-top:1px solid var(--b1);
-  padding:8px 0 12px;
-}
-.mn-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:6px 0; color:var(--t3); font-size:.6rem; font-weight:600; transition:all .2s; }
-.mn-item.active { color:var(--em); }
-.mn-icon { font-size:1.2rem; }
+:root{--bg:#080a0f;--bg2:#0d1117;--bg3:#131920;--em:#00e87a;--em2:#00ff88;--blue:#60a5fa;--violet:#a78bfa;--amber:#fbbf24;--pink:#f472b6;--t1:#f0f6fc;--t2:#8b949e;--t3:#484f58;--b1:rgba(255,255,255,.08);--b2:rgba(255,255,255,.04);--r:16px}
+*{box-sizing:border-box;margin:0;padding:0} body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+button,input{font:inherit}
+a{color:inherit}
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at top, rgba(0,232,122,.14), transparent 45%), radial-gradient(ellipse at bottom right, rgba(96,165,250,.08), transparent 35%), var(--bg)}
+.auth-card{width:100%;max-width:440px;background:rgba(13,17,23,.92);border:1px solid var(--b1);border-radius:24px;padding:36px;box-shadow:0 0 80px rgba(0,232,122,.08)}
+.logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:24px}.logo-box{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--em),#00b36b);display:grid;place-items:center;color:#000;font-family:'Clash Display',sans-serif;font-weight:700}.logo-name{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700}
+.auth-title{font-family:'Clash Display',sans-serif;font-size:1.7rem;text-align:center;margin-bottom:8px}.auth-sub{font-size:.88rem;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:22px}
+.google-btn,.btn-primary,.ghost-btn{width:100%;border:none;border-radius:14px;padding:14px 16px;cursor:pointer;transition:.2s;font-family:'Clash Display',sans-serif;font-weight:700}
+.google-btn{background:#fff;color:#111;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}.google-btn:hover{transform:translateY(-1px)}
+.sep{display:flex;align-items:center;gap:10px;color:var(--t3);font-size:.75rem;margin:14px 0}.sep:before,.sep:after{content:"";flex:1;height:1px;background:var(--b1)}
+.field{margin-bottom:14px}.field label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:6px}.field input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--b1);background:var(--bg3);color:var(--t1);outline:none}.field input:focus{border-color:rgba(0,232,122,.35)}
+.btn-primary{background:linear-gradient(135deg,var(--em),#00b36b);color:#000}.ghost-btn{background:var(--bg3);border:1px solid var(--b1);color:var(--t2)}.ghost-btn:hover{border-color:rgba(255,255,255,.18);color:var(--t1)}
+.msg{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:.82rem}.msg.show{display:block}.msg.error{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}.msg.success{background:rgba(0,232,122,.1);color:var(--em);border:1px solid rgba(0,232,122,.2)}
+.portal{display:none}.topbar{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(8,10,15,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:30}.top-left,.top-right{display:flex;align-items:center;gap:12px}.badge{padding:4px 10px;border-radius:999px;border:1px solid rgba(0,232,122,.2);background:rgba(0,232,122,.08);color:var(--em);font-size:.68rem;font-weight:700}.logout{padding:8px 14px;border-radius:999px;background:transparent;color:var(--t2);border:1px solid var(--b1);cursor:pointer}
+.layout{display:flex;min-height:100vh;padding-top:60px}.sidebar{width:260px;flex-shrink:0;position:fixed;top:60px;bottom:0;left:0;background:var(--bg2);border-right:1px solid var(--b1);padding:18px 14px;overflow:auto}.nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;color:var(--t2);cursor:pointer;margin-bottom:4px}.nav-item.active{background:rgba(0,232,122,.1);color:var(--em);border:1px solid rgba(0,232,122,.15)}
+.progress-card{margin-top:18px;padding:14px;background:var(--bg3);border:1px solid var(--b1);border-radius:14px}.progress-title{font-size:.72rem;color:var(--t2);margin-bottom:8px}.bar{height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--em),var(--blue))}.progress-text{font-size:.72rem;color:var(--t3);margin-top:8px}
+.main{margin-left:260px;flex:1;padding:28px;max-width:1100px}.section{display:none}.section.active{display:block}.page-head{margin-bottom:24px}.page-head h2{font-family:'Clash Display',sans-serif;font-size:1.5rem;margin-bottom:6px}.page-head p{color:var(--t2);font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}.card{background:var(--bg2);border:1px solid var(--b1);border-radius:18px;padding:20px}.stat-num{font-family:'Clash Display',sans-serif;font-size:1.9rem;color:var(--em);margin-bottom:4px}.stat-label{font-size:.75rem;color:var(--t2)}
+.hero-card{background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(96,165,250,.05));border:1px solid rgba(0,232,122,.15);border-radius:20px;padding:24px;margin-bottom:24px}.hero-card h3{font-family:'Clash Display',sans-serif;margin-bottom:6px}.hero-card p{font-size:.84rem;color:var(--t2);margin-bottom:14px}
+.modules{display:grid;gap:14px}.module{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid var(--b1);padding:18px;border-radius:18px;cursor:pointer}.module:hover{border-color:rgba(0,232,122,.2)}.module.done{border-color:rgba(0,232,122,.22);background:rgba(0,232,122,.04)}.micon{width:46px;height:46px;border-radius:14px;background:var(--bg3);display:grid;place-items:center;font-size:1.2rem;border:1px solid var(--b1)}.mmeta{flex:1}.mmeta h4{font-size:.96rem;margin-bottom:4px}.mmeta p{font-size:.74rem;color:var(--t2);line-height:1.5}.mplay{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--em);color:#000;font-weight:700}
+.video-box{display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:20px;overflow:hidden;margin-bottom:22px}.video-embed{width:100%;aspect-ratio:16/9;background:#000}.video-embed iframe{width:100%;height:100%;border:none}.video-info{padding:18px 20px}.video-title{font-family:'Clash Display',sans-serif;font-size:1.05rem;margin-bottom:6px}.video-meta{font-size:.76rem;color:var(--t2);display:flex;gap:16px;flex-wrap:wrap}.lessons{display:grid;gap:8px;margin-top:16px}.lesson{display:flex;gap:10px;align-items:center;padding:11px 12px;border-radius:12px;background:var(--bg3);border:1px solid transparent;cursor:pointer}.lesson.active{border-color:rgba(0,232,122,.2);background:rgba(0,232,122,.06)}.lesson-num{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--bg2);border:1px solid var(--b1);font-size:.68rem;color:var(--t2)}.lesson-name{flex:1;font-size:.82rem}.lesson-dur{font-size:.68rem;color:var(--t3)}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.mini-btn{padding:10px 16px;border-radius:12px;border:1px solid var(--b1);background:var(--bg3);color:var(--t1);cursor:pointer}.mini-btn.primary{background:rgba(0,232,122,.1);border-color:rgba(0,232,122,.2);color:var(--em)}
+.downloads{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}.dl{background:var(--bg2);border:1px solid var(--b1);border-radius:18px;padding:18px}.dl h4{font-size:.95rem;margin:12px 0 6px}.dl p{font-size:.75rem;color:var(--t2);line-height:1.55;margin-bottom:14px}.dl a{display:inline-flex;padding:9px 14px;border-radius:10px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);color:var(--blue);text-decoration:none;font-size:.76rem;font-weight:700}
+.cert{max-width:700px;margin:auto;text-align:center}.cert-card{background:linear-gradient(135deg,#0d1117,#131920);border:2px solid rgba(0,232,122,.28);border-radius:24px;padding:36px}.cert-name{font-family:'Clash Display',sans-serif;font-size:2rem;color:var(--em);margin:14px 0}.cert-meta{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin:18px 0;padding:14px;background:rgba(255,255,255,.03);border-radius:14px}.cert-meta div{font-size:.8rem;color:var(--t2)}.cert-meta strong{display:block;color:var(--t1);margin-top:4px}
+.profile{max-width:560px}.profile .row{display:flex;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid var(--b1);font-size:.86rem}.profile .row:last-child{border-bottom:none}.muted{color:var(--t2)}
+.mobile-nav{display:none}
+@media (max-width: 900px){.sidebar{display:none}.main{margin-left:0;padding:20px 16px}.stats{grid-template-columns:repeat(2,1fr)}.mobile-nav{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--bg2);border-top:1px solid var(--b1);z-index:40}.mobile-nav .nav-item{flex:1;justify-content:center;border-radius:0;margin:0;padding:12px 8px;font-size:.74rem}body{padding-bottom:64px}}
 </style>
-
 </head>
-
 <body>
-
-<!-- ══ AUTH SCREEN ══ -->
-<div id="authScreen">
+<div id="authScreen" class="auth-wrap">
   <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-box">S2</div>
-      <span class="auth-logo-name">Skill2Job</span>
-    </div>
+    <div class="logo"><div class="logo-box">S2</div><div class="logo-name">Skill2Job</div></div>
     <div class="auth-title">Student Portal</div>
-    <div class="auth-sub">Apne purchased courses access karo</div>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tabLogin" onclick="switchTab('login')">🔑 Login</div>
-      <div class="auth-tab" id="tabActivate" onclick="switchTab('activate')">🎟️ Activate</div>
-    </div>
-
-    <!-- Login Form -->
-    <div id="formLogin">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="your@email.com">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="loginPass" placeholder="••••••••">
-
-      </div>
-      <button class="btn-primary" onclick="doLogin()">Login →</button>
-      <div class="auth-msg" id="loginMsg"></div>
-    </div>
-
-    <!-- Activate Form -->
-    <div id="formActivate" style="display:none">
-      <div class="field">
-        <label>Your Name</label>
-        <input type="text" id="actName" placeholder="Aapka naam">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="actEmail" placeholder="Payment wali email">
-      </div>
-      <div class="field">
-        <label>Access Code</label>
-        <input type="text" id="actCode" placeholder="EJR-XXXX-XXXX" style="text-transform:uppercase">
-      </div>
-      <div class="field">
-        <label>Create Password</label>
-        <input type="password" id="actPass" placeholder="Min 6 characters">
-      </div>
-      <button class="btn-primary" onclick="doActivate()">Activate Account →</button>
-      <div class="auth-msg" id="actMsg"></div>
-    </div>
-
+    <div class="auth-sub">Google se sign in karo ya apna existing portal login use karo. Homepage sign-in ke baad yeh page automatically open hona chahiye.</div>
+    <button class="google-btn" onclick="doGoogleLogin()"><span>🔐</span><span>Continue with Google</span></button>
+    <div class="sep">or</div>
+    <div class="field"><label>Email</label><input id="loginEmail" type="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="Your portal password"></div>
+    <button class="btn-primary" onclick="doLogin()">Login</button>
+    <button class="ghost-btn" style="margin-top:10px" onclick="goHome()">Back to Homepage</button>
+    <div id="authMsg" class="msg"></div>
   </div>
 </div>
 
-<!-- ══ PORTAL SCREEN ══ -->
-<div id="portalScreen">
-
-  <!-- Nav -->
-  <nav class="portal-nav">
-    <div class="portal-nav-left">
-      <div class="pnav-logo">S2</div>
-      <span class="pnav-name">Skill2Job</span>
-      <span class="pnav-badge" id="planBadge">Student</span>
-    </div>
-    <div class="portal-nav-right">
-      <span class="pnav-user" id="navUserName">👋 Welcome</span>
-      <button class="pnav-logout" onclick="doLogout()">Logout</button>
-    </div>
-  </nav>
-
-  <div class="portal-layout">
-
-    <!-- Sidebar -->
+<div id="portalScreen" class="portal">
+  <div class="topbar">
+    <div class="top-left"><div class="logo-box">S2</div><div style="font-family:'Clash Display',sans-serif">Skill2Job</div><div class="badge" id="planBadge">Student</div></div>
+    <div class="top-right"><div id="navUserName" style="color:var(--t2);font-size:.8rem">Welcome</div><button class="logout" onclick="doLogout()">Logout</button></div>
+  </div>
+  <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-section-title">Menu</div>
-      <div class="sidebar-item active" id="nav-dashboard" onclick="showSection('dashboard')">
-        <span class="si-icon">🏠</span> Dashboard
-      </div>
-      <div class="sidebar-item" id="nav-courses" onclick="showSection('courses')">
-        <span class="si-icon">📚</span> My Courses
-      </div>
-      <div class="sidebar-item" id="nav-downloads" onclick="showSection('downloads')">
-        <span class="si-icon">📁</span> Downloads
-      </div>
-      <div class="sidebar-item" id="nav-certificate" onclick="showSection('certificate')">
-        <span class="si-icon">🏆</span> Certificate
-      </div>
-      <div class="sidebar-item" id="nav-profile" onclick="showSection('profile')">
-        <span class="si-icon">👤</span> Profile
-      </div>
-
-      <div class="sidebar-section-title" style="margin-top:24px">Progress</div>
-      <div class="sidebar-progress">
-        <div class="sp-title">Course Completion</div>
-        <div class="sp-bar"><div class="sp-fill" id="sidebarProgress" style="width:0%"></div></div>
-        <div class="sp-text" id="sidebarProgressText">0 of 9 modules done</div>
-      </div>
-
-      <div style="margin-top:24px; padding:0 12px;">
-        <a href="/" style="font-size:.75rem; color:var(--t3); text-decoration:none; display:flex; align-items:center; gap:6px;">
-          ← Back to Skill2Job
-        </a>
+      <div class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">🏠 Dashboard</div>
+      <div class="nav-item" id="nav-courses" onclick="showSection('courses')">📚 My Courses</div>
+      <div class="nav-item" id="nav-downloads" onclick="showSection('downloads')">📁 Downloads</div>
+      <div class="nav-item" id="nav-certificate" onclick="showSection('certificate')">🏆 Certificate</div>
+      <div class="nav-item" id="nav-profile" onclick="showSection('profile')">👤 Profile</div>
+      <div class="progress-card">
+        <div class="progress-title">Course Completion</div>
+        <div class="bar"><div class="fill" id="sidebarProgress"></div></div>
+        <div class="progress-text" id="sidebarProgressText">0 of 9 modules done</div>
       </div>
     </aside>
-
-    <!-- Main -->
-    <main class="portal-main">
-
-      <!-- Dashboard Section -->
-      <div class="section active" id="sec-dashboard">
-        <div class="dash-welcome">
-          <div class="dash-greeting">Namaste, <span id="dashName">Student</span>! 👋</div>
-          <div class="dash-sub">Aaj kya seekhenge? Aapka course ready hai.</div>
+    <main class="main">
+      <section class="section active" id="sec-dashboard">
+        <div class="page-head"><h2>Namaste, <span id="dashName">Student</span>! 👋</h2><p id="continueDesc">Aaj kya seekhenge? Aapka course ready hai.</p></div>
+        <div class="stats">
+          <div class="card"><div class="stat-num" id="statModules">0/9</div><div class="stat-label">Modules Complete</div></div>
+          <div class="card"><div class="stat-num" style="color:var(--blue)" id="statVideos">22</div><div class="stat-label">Total Videos</div></div>
+          <div class="card"><div class="stat-num" style="color:var(--amber)" id="statStreak">0</div><div class="stat-label">Day Streak</div></div>
+          <div class="card"><div class="stat-num" style="color:var(--violet)" id="statPlan">Complete</div><div class="stat-label">Your Plan</div></div>
         </div>
-        <div class="dash-stats">
-          <div class="stat-card">
-            <div class="stat-num" id="statModules">0/9</div>
-            <div class="stat-label">Modules Complete</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" style="color:var(--blue)" id="statVideos">22</div>
-            <div class="stat-label">Total Videos</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" style="color:var(--amber)" id="statStreak">🔥 0</div>
-            <div class="stat-label">Day Streak</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" style="color:var(--violet)" id="statPlan">—</div>
-            <div class="stat-label">Your Plan</div>
+        <div class="hero-card"><h3>▶️ Continue Learning</h3><p>Start from Module 1 ya jahan last time chhoda tha wahan se continue karo.</p><button class="mini-btn primary" onclick="showSection('courses')">Start Now</button></div>
+      </section>
+
+      <section class="section" id="sec-courses">
+        <div class="page-head"><h2>📚 Excel Job Ready Course</h2><p>22 classes · 9 modules · Hinglish mein</p></div>
+        <div id="videoSection" class="video-box">
+          <div class="video-embed"><iframe id="ytPlayer" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>
+          <div class="video-info">
+            <div class="video-title" id="videoTitle">Select a lesson</div>
+            <div class="video-meta"><span id="videoModule"></span><span id="videoDuration"></span></div>
+            <div class="lessons" id="lessonsList"></div>
+            <div class="row-btns"><button class="mini-btn primary" id="markDoneBtn" onclick="markModuleDone()">Mark Module Complete</button></div>
           </div>
         </div>
+        <div class="modules" id="modulesList"></div>
+      </section>
 
-        <!-- Continue Learning -->
-        <div style="background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(96,165,250,.05));border:1px solid rgba(0,232,122,.15);border-radius:20px;padding:24px;margin-bottom:24px;">
-          <div style="font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:4px;">▶️ Continue Learning</div>
-          <div style="font-size:.8rem;color:var(--t2);margin-bottom:16px;" id="continueDesc">Start from Module 1</div>
-          <button onclick="showSection('courses')" style="padding:10px 24px;border-radius:10px;background:var(--em);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;font-size:.85rem;border:none;cursor:pointer;">Start Now →</button>
-        </div>
-      </div>
+      <section class="section" id="sec-downloads">
+        <div class="page-head"><h2>📁 Downloads</h2><p>Practice files, notes aur resources</p></div>
+        <div class="downloads" id="downloadsGrid"></div>
+      </section>
 
-      <!-- Courses Section -->
-      <div class="section" id="sec-courses">
-        <div style="margin-bottom:24px;">
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px;">📚 Excel Job Ready Course</div>
-          <div style="font-size:.82rem;color:var(--t2);">22 classes · 9 modules · Hinglish mein</div>
-        </div>
-
-        <!-- Video Player (hidden initially) -->
-        <div class="video-section" id="videoSection" style="display:none;">
-          <div class="video-player-wrap">
-            <div class="video-embed">
-              <iframe id="ytPlayer" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
-            </div>
-            <div class="video-info">
-              <div class="video-title" id="videoTitle">Select a lesson</div>
-              <div class="video-meta">
-                <span id="videoModule">—</span>
-                <span id="videoDuration">—</span>
-              </div>
-              <div class="lessons-list" id="lessonsList"></div>
-            </div>
-          </div>
-          <div style="margin-top:12px;text-align:right;">
-            <button onclick="markModuleDone()" id="markDoneBtn" style="padding:10px 20px;border-radius:10px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);color:var(--em);font-family:'Syne',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;">✅ Mark Module Complete</button>
-          </div>
-        </div>
-
-        <!-- Modules List -->
-        <div class="modules-grid" id="modulesList"></div>
-      </div>
-
-      <!-- Downloads Section -->
-      <div class="section" id="sec-downloads">
-        <div style="margin-bottom:24px;">
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px;">📁 Downloads</div>
-          <div style="font-size:.82rem;color:var(--t2);">Practice files, notes aur resources</div>
-        </div>
-        <div class="downloads-grid" id="downloadsGrid"></div>
-      </div>
-
-      <!-- Certificate Section -->
-      <div class="section" id="sec-certificate">
-        <div style="margin-bottom:24px;">
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px;">🏆 Certificate</div>
-          <div style="font-size:.82rem;color:var(--t2);">Course complete karo aur certificate download karo</div>
-        </div>
-        <div class="cert-section">
-          <div class="cert-preview" id="certPreview">
-            <div class="cert-badge">🏆</div>
-            <div class="cert-title">Certificate of Completion</div>
-            <div style="font-size:.8rem;color:var(--t2);margin-bottom:8px;">This is to certify that</div>
+      <section class="section" id="sec-certificate">
+        <div class="page-head"><h2>🏆 Certificate</h2><p>Course complete karo aur certificate download karo</p></div>
+        <div class="cert">
+          <div class="cert-card" id="certPreview">
+            <div style="font-size:2.5rem">🏆</div>
+            <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;margin-top:10px">Certificate of Completion</div>
+            <div style="margin-top:10px;color:var(--t2)">This is to certify that</div>
             <div class="cert-name" id="certName">Your Name</div>
-            <div class="cert-course">has successfully completed<br><strong>Excel Job Ready Course</strong></div>
-            <div style="display:flex;justify-content:center;gap:32px;margin:20px 0;padding:16px;background:var(--b2);border-radius:12px;">
-              <div style="text-align:center"><div style="font-size:.65rem;color:var(--t3);margin-bottom:4px">MODULES</div><div style="font-family:'Clash Display',sans-serif;font-weight:700;color:var(--em)">9/9</div></div>
-              <div style="text-align:center"><div style="font-size:.65rem;color:var(--t3);margin-bottom:4px">PLATFORM</div><div style="font-family:'Clash Display',sans-serif;font-weight:700;color:var(--t1)">Skill2Job</div></div>
-              <div style="text-align:center"><div style="font-size:.65rem;color:var(--t3);margin-bottom:4px">ISSUED</div><div style="font-family:'Clash Display',sans-serif;font-weight:700;color:var(--t1)" id="certDate">—</div></div>
+            <div style="color:var(--t2)">has successfully completed <strong style="color:var(--t1)">Excel Job Ready Course</strong></div>
+            <div class="cert-meta">
+              <div>MODULES<strong>9/9</strong></div>
+              <div>PLATFORM<strong>Skill2Job</strong></div>
+              <div>ISSUED<strong id="certDate"></strong></div>
             </div>
-            <div style="font-size:.7rem;color:var(--t3);">skill2jobai.com</div>
+            <div id="certLockMsg" style="color:var(--t2);margin-bottom:18px">Complete all 9 modules to unlock your certificate</div>
+            <button class="btn-primary" id="certBtn" onclick="downloadCert()" disabled>Complete Course to Unlock</button>
           </div>
-          <div class="cert-lock-msg" id="certLockMsg">Complete all 9 modules to unlock your certificate</div>
-          <button class="btn-download-cert" id="certBtn" onclick="downloadCert()" disabled>🔒 Complete Course to Unlock</button>
         </div>
-      </div>
+      </section>
 
-      <!-- Profile Section -->
-      <div class="section" id="sec-profile">
-        <div style="margin-bottom:24px;">
-          <div style="font-family:'Clash Display',sans-serif;font-size:1.4rem;font-weight:700;color:var(--t1);margin-bottom:4px;">👤 Profile</div>
+      <section class="section" id="sec-profile">
+        <div class="page-head"><h2>👤 Profile</h2><p>Student account details</p></div>
+        <div class="card profile">
+          <div class="row"><span class="muted">Name</span><strong id="profileName">—</strong></div>
+          <div class="row"><span class="muted">Email</span><strong id="profileEmail">—</strong></div>
+          <div class="row"><span class="muted">Plan</span><strong id="profilePlan">—</strong></div>
+          <div class="row"><span class="muted">Member Since</span><strong id="profileDate">—</strong></div>
+          <div class="row"><span class="muted">Modules Completed</span><strong id="profileProgress">0/9</strong></div>
+          <div class="row"><span class="muted">Access Code</span><strong id="profileCode">—</strong></div>
         </div>
-        <div class="profile-card">
-          <div class="profile-avatar" id="profileAvatar">?</div>
-          <div class="profile-name" id="profileName">—</div>
-          <div class="profile-email" id="profileEmail">—</div>
-          <div class="profile-row">
-            <span class="pr-label">Plan</span>
-            <span class="pr-value"><span class="plan-badge plan-complete" id="profilePlan">—</span></span>
-          </div>
-          <div class="profile-row">
-            <span class="pr-label">Member Since</span>
-            <span class="pr-value" id="profileDate">—</span>
-          </div>
-          <div class="profile-row">
-            <span class="pr-label">Modules Completed</span>
-            <span class="pr-value" id="profileProgress">0/9</span>
-          </div>
-          <div class="profile-row">
-            <span class="pr-label">Access Code</span>
-            <span class="pr-value" id="profileCode">—</span>
-          </div>
-        </div>
-      </div>
-
+      </section>
     </main>
   </div>
-
-  <!-- Mobile Nav -->
   <div class="mobile-nav">
-    <div class="mn-item active" id="mn-dashboard" onclick="showSection('dashboard')"><span class="mn-icon">🏠</span>Home</div>
-    <div class="mn-item" id="mn-courses" onclick="showSection('courses')"><span class="mn-icon">📚</span>Courses</div>
-    <div class="mn-item" id="mn-downloads" onclick="showSection('downloads')"><span class="mn-icon">📁</span>Files</div>
-    <div class="mn-item" id="mn-certificate" onclick="showSection('certificate')"><span class="mn-icon">🏆</span>Cert</div>
-    <div class="mn-item" id="mn-profile" onclick="showSection('profile')"><span class="mn-icon">👤</span>Profile</div>
+    <div class="nav-item active" id="mn-dashboard" onclick="showSection('dashboard')">Home</div>
+    <div class="nav-item" id="mn-courses" onclick="showSection('courses')">Courses</div>
+    <div class="nav-item" id="mn-downloads" onclick="showSection('downloads')">Files</div>
+    <div class="nav-item" id="mn-certificate" onclick="showSection('certificate')">Cert</div>
+    <div class="nav-item" id="mn-profile" onclick="showSection('profile')">Profile</div>
   </div>
-
 </div>
 
-<script>
-// ══════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════
-const DEMO_CODES = ['EJR-DEMO-2024', 'EJR-TEST-1234'];
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyAvjl2CNBkEP0l285ItxXRN7S8SM5m6zG8',
+  authDomain: 'skill2job-96b9c.firebaseapp.com',
+  databaseURL: 'https://skill2job-96b9c-default-rtdb.firebaseio.com',
+  projectId: 'skill2job-96b9c',
+  storageBucket: 'skill2job-96b9c.firebasestorage.app',
+  messagingSenderId: '414662169688',
+  appId: '1:414662169688:web:a3ba3e70015b9e52e6662d'
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 const MODULES = [
-  {
-    id: 1, title: 'Module 01 — Excel Basics', icon: '📐', duration: '45 min',
-    videoId: 'VbbCcbbtp9M',
-    description: 'Cells, rows, columns, formatting aur file handling.',
-    lessons: [
-      { name: 'Class 1 — Intro & Basics', duration: '10 min', videoId: 'VbbCcbbtp9M' },
-      { name: 'Class 2 — Cells: Insert, Delete, Format', duration: '10 min', videoId: 'upnhfFPa1_Y' },
-      { name: 'Class 3 — Clipboard: Cut, Copy, Paste', duration: '10 min', videoId: 'mHGqeWE5r28' },
-      { name: 'Class 4 — Paste Special: Paste', duration: '10 min', videoId: '7mlZ20SATh4' },
-      { name: 'Class 5 — Paste Special: Operation', duration: '10 min', videoId: 'jyc8zGCKI74' },
-    ]
-  },
-  {
-    id: 2, title: 'Module 02 — Formatting & Styles', icon: '🎨', duration: '40 min',
-    videoId: '5fW9r53RINc',
-    description: 'Font, alignment, conditional formatting aur table styles.',
-    lessons: [
-      { name: 'Class 6 — Font Style, Size, Color, B/I/U, Border', duration: '10 min', videoId: '5fW9r53RINc' },
-      { name: 'Class 7 — Alignment: Merge, Wrap Text, Indent', duration: '10 min', videoId: 'HFaB1StshPk' },
-      { name: 'Class 8 — Conditional Formatting', duration: '10 min', videoId: '4HhwaTjGSSE' },
-      { name: 'Class 9 — Format as Table & Cell Styles', duration: '10 min', videoId: 'C7B7sREp1Q4' },
-    ]
-  },
-  {
-    id: 3, title: 'Module 03 — Sort, Filter & Formulas', icon: '🔢', duration: '45 min',
-    videoId: 'XUEKM43_yLE',
-    description: 'Sort/filter karna aur essential formulas.',
-    lessons: [
-      { name: 'Class 10 — Sort, Filter, Find & Select', duration: '10 min', videoId: 'XUEKM43_yLE' },
-      { name: 'Class 14 — Formulas Deep Dive', duration: '10 min', videoId: 'Ux6XvEZwynY' },
-      { name: 'Class 15 — Formula Auditing & Watch', duration: '10 min', videoId: 'BD0HgUpXGY8' },
-    ]
-  },
-  {
-    id: 4, title: 'Module 04 — Pivot Tables & Charts', icon: '🔄', duration: '50 min',
-    videoId: '02pZq4YMRjs',
-    description: 'Reports in minutes — large data ko easily analyze karo.',
-    lessons: [
-      { name: 'Class 11 — Pivot Table', duration: '15 min', videoId: '02pZq4YMRjs' },
-      { name: 'Class 12 — Charts & Others', duration: '15 min', videoId: 'O2oKqlLVM_8' },
-      { name: 'Class 13 — Slicer', duration: '10 min', videoId: '0G-H_02Xmxg' },
-    ]
-  },
-  {
-    id: 5, title: 'Module 05 — Data Tools', icon: '🔍', duration: '45 min',
-    videoId: 'FhHOiyW836o',
-    description: 'Data import, text to column, validation aur advanced filters.',
-    lessons: [
-      { name: 'Class 16 — From Text, From Web', duration: '10 min', videoId: 'FhHOiyW836o' },
-      { name: 'Class 17 — Filter, Advance Filter, Sort', duration: '10 min', videoId: '5MrS2WgcZaQ' },
-      { name: 'Class 18 — Text To Column', duration: '10 min', videoId: 'UgVIQYg77L8' },
-      { name: 'Class 19 — Data Validation', duration: '10 min', videoId: 'qgI5Dt382NI' },
-    ]
-  },
-  {
-    id: 6, title: 'Module 06 — Review & Protect', icon: '🛡️', duration: '30 min',
-    videoId: 'gDpc2MHBNPM',
-    description: 'Proofing, comments, sheet protection.',
-    lessons: [
-      { name: 'Class 20 — Proofing, Language, Comments, Protect', duration: '15 min', videoId: 'gDpc2MHBNPM' },
-    ]
-  },
-  {
-    id: 7, title: 'Module 07 — Macros & Automation', icon: '⚡', duration: '40 min',
-    videoId: 'I3JCSVRhbas',
-    description: 'Basic macros — ghanton ka kaam minutes mein.',
-    lessons: [
-      { name: 'Class 22 — Macros', duration: '20 min', videoId: 'I3JCSVRhbas' },
-    ]
-  },
-  {
-    id: 8, title: 'Module 08 — Data Analysis', icon: '📊', duration: '45 min',
-    videoId: '4HhwaTjGSSE',
-    description: 'Conditional formatting, data validation aur analysis tools.',
-    lessons: [
-      { name: 'Conditional Formatting Deep Dive', duration: '15 min', videoId: '4HhwaTjGSSE' },
-      { name: 'Advanced Data Validation', duration: '15 min', videoId: 'qgI5Dt382NI' },
-      { name: 'Sort & Filter Advanced', duration: '15 min', videoId: '5MrS2WgcZaQ' },
-    ]
-  },
-  {
-    id: 9, title: 'Module 09 — Real Job Practice ⭐', icon: '💼', duration: '70 min',
-    videoId: 'VbbCcbbtp9M',
-    description: 'CAPSTONE — invoice data, sales reports, MIS. Actual company files.',
-    lessons: [
-      { name: 'Invoice Data Project', duration: '20 min', videoId: 'VbbCcbbtp9M' },
-      { name: 'Sales Report MIS', duration: '20 min', videoId: '02pZq4YMRjs' },
-      { name: 'Attendance Tracker', duration: '15 min', videoId: 'XUEKM43_yLE' },
-      { name: 'Final Dashboard Project', duration: '15 min', videoId: 'O2oKqlLVM_8' },
-    ]
-  }
+  {id:1,icon:'📘',title:'Module 01 Excel Basics',duration:'45 min',description:'Cells, rows, columns, formatting aur file handling.',lessons:[{name:'Class 1 Intro Basics',duration:'10 min',videoId:'VbbCcbbtp9M'},{name:'Class 2 Cells Insert, Delete, Format',duration:'10 min',videoId:'upnhfFPa1Y'},{name:'Class 3 Clipboard Cut, Copy, Paste',duration:'10 min',videoId:'mHGqeWE5r28'},{name:'Class 4 Paste Special Paste',duration:'10 min',videoId:'7mlZ20SATh4'},{name:'Class 5 Paste Special Operation',duration:'10 min',videoId:'jyc8zGCKI74'}]},
+  {id:2,icon:'🎨',title:'Module 02 Formatting Styles',duration:'40 min',description:'Font, alignment, conditional formatting aur table styles.',lessons:[{name:'Class 6 Font Style, Size, Color, BIU, Border',duration:'10 min',videoId:'5fW9r53RINc'},{name:'Class 7 Alignment Merge, Wrap Text, Indent',duration:'10 min',videoId:'HFaB1StshPk'},{name:'Class 8 Conditional Formatting',duration:'10 min',videoId:'4HhwaTjGSSE'},{name:'Class 9 Format as Table / Cell Styles',duration:'10 min',videoId:'C7B7sREp1Q4'}]},
+  {id:3,icon:'🔎',title:'Module 03 Sort, Filter Formulas',duration:'45 min',description:'Sort/filter karna aur essential formulas.',lessons:[{name:'Class 10 Sort, Filter, Find Select',duration:'10 min',videoId:'XUEKM43yLE'},{name:'Class 14 Formulas Deep Dive',duration:'10 min',videoId:'Ux6XvEZwynY'},{name:'Class 15 Formula Auditing Watch',duration:'10 min',videoId:'BD0HgUpXGY8'}]},
+  {id:4,icon:'📊',title:'Module 04 Pivot Tables Charts',duration:'50 min',description:'Reports in minutes, large data ko easily analyze karo.',lessons:[{name:'Class 11 Pivot Table',duration:'15 min',videoId:'02pZq4YMRjs'},{name:'Class 12 Charts Others',duration:'15 min',videoId:'O2oKqlLVM8'},{name:'Class 13 Slicer',duration:'10 min',videoId:'0G-H02Xmxg'}]},
+  {id:5,icon:'🧰',title:'Module 05 Data Tools',duration:'45 min',description:'Data import, text to column, validation aur advanced filters.',lessons:[{name:'Class 16 From Text, From Web',duration:'10 min',videoId:'FhHOiyW836o'},{name:'Class 17 Filter, Advance Filter, Sort',duration:'10 min',videoId:'5MrS2WgcZaQ'},{name:'Class 18 Text To Column',duration:'10 min',videoId:'UgVIQYg77L8'},{name:'Class 19 Data Validation',duration:'10 min',videoId:'qgI5Dt382NI'}]},
+  {id:6,icon:'🛡️',title:'Module 06 Review Protect',duration:'30 min',description:'Proofing, comments, sheet protection.',lessons:[{name:'Class 20 Proofing, Language, Comments, Protect',duration:'15 min',videoId:'gDpc2MHBNPM'}]},
+  {id:7,icon:'⚙️',title:'Module 07 Macros Automation',duration:'40 min',description:'Basic macros ghanton ka kaam minutes mein.',lessons:[{name:'Class 22 Macros',duration:'20 min',videoId:'I3JCSVRhbas'}]},
+  {id:8,icon:'📈',title:'Module 08 Data Analysis',duration:'45 min',description:'Conditional formatting, data validation aur analysis tools.',lessons:[{name:'Conditional Formatting Deep Dive',duration:'15 min',videoId:'4HhwaTjGSSE'},{name:'Advanced Data Validation',duration:'15 min',videoId:'qgI5Dt382NI'},{name:'Sort Filter Advanced',duration:'15 min',videoId:'5MrS2WgcZaQ'}]},
+  {id:9,icon:'💼',title:'Module 09 Real Job Practice',duration:'70 min',description:'CAPSTONE: invoice data, sales reports, attendance, MIS.',lessons:[{name:'Invoice Data Project',duration:'20 min',videoId:'VbbCcbbtp9M'},{name:'Sales Report MIS',duration:'20 min',videoId:'02pZq4YMRjs'},{name:'Attendance Tracker',duration:'15 min',videoId:'XUEKM43yLE'},{name:'Final Dashboard Project',duration:'15 min',videoId:'O2oKqlLVM8'}]}
 ];
 
 const DOWNLOADS = [
-  { icon:'📊', name:'Excel Practice Files', desc:'Saare modules ki practice files — real office data ke saath.', url:'#', type:'xlsx' },
-  { icon:'📄', name:'Formula Cheat Sheet', desc:'Top 50 Excel formulas PDF — quick reference ke liye.', url:'#', type:'pdf' },
-  { icon:'🎯', name:'Interview Questions', desc:'Excel interview ke liye top 30 questions aur answers.', url:'#', type:'pdf' },
-  { icon:'📈', name:'Dashboard Template', desc:'Ready-made MIS dashboard template — apne data se fill karo.', url:'#', type:'xlsx' },
-  { icon:'📋', name:'Class Notes PDF', desc:'Saari 22 classes ke notes — revision ke liye perfect.', url:'#', type:'pdf' },
+  {icon:'📊',name:'Excel Practice Files',desc:'Saare modules ki practice files real office data ke saath.',url:''},
+  {icon:'📘',name:'Formula Cheat Sheet',desc:'Top 50 Excel formulas PDF quick reference ke liye.',url:''},
+  {icon:'🧠',name:'Interview Questions',desc:'Excel interview ke liye top 30 questions aur answers.',url:''},
+  {icon:'📈',name:'Dashboard Template',desc:'Ready-made MIS dashboard template apne data se fill karo.',url:''},
+  {icon:'📝',name:'Class Notes PDF',desc:'Saari classes ke notes revision ke liye perfect.',url:''}
 ];
 
-// ══ STATE ══
 let currentUser = null;
 let completedModules = [];
 let currentModuleId = null;
-let currentLesson = null;
 
-// ══ INIT ══
-(function init() {
-  const saved = localStorage.getItem('s2j_portal_user');
-  if (saved) {
-    try {
-      currentUser = JSON.parse(saved);
-      completedModules = JSON.parse(localStorage.getItem('s2j_completed') || '[]');
-      showPortal();
-    } catch(e) { showAuth(); }
-  } else {
-    showAuth();
-  }
-})();
+window.goHome = () => { window.location.href = '/'; };
+window.doGoogleLogin = () => signInWithPopup(auth, provider).catch(err => showMsg(err.message || 'Google login failed', 'error'));
 
-// ══ AUTH ══
-function switchTab(tab) {
-  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
-  document.getElementById('tabActivate').classList.toggle('active', tab==='activate');
-  document.getElementById('formLogin').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('formActivate').style.display = tab==='activate' ? 'block' : 'none';
-}
-
-function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
+window.doLogin = function() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass = document.getElementById('loginPass').value;
-  const msg = document.getElementById('loginMsg');
-  if (!email || !pass) return showMsg(msg, 'Email aur password dono bharein.', 'error');
-  const saved = JSON.parse(localStorage.getItem('s2j_portal_user') || 'null');
-  if (saved && saved.email === email && saved.password === pass) {
+  const saved = readSavedUser();
+  if (!email || !pass) return showMsg('Email aur password dono bharein.', 'error');
+  if (saved && String(saved.email || '').toLowerCase() === email && saved.password === pass) {
     currentUser = saved;
-    completedModules = JSON.parse(localStorage.getItem('s2j_completed') || '[]');
+    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
     showPortal();
-  } else {
-    showMsg(msg, '❌ Email ya password sahi nahi. Pehli baar? Activate tab use karo.', 'error');
+    return;
   }
+  showMsg('Login failed. Agar homepage se Google sign-in kiya hai to Continue with Google use karo.', 'error');
+};
+
+window.doLogout = async function() {
+  localStorage.removeItem('s2jportaluser');
+  localStorage.removeItem('ejr_user');
+  currentUser = null;
+  try { await signOut(auth); } catch(e) {}
+  location.reload();
+};
+
+function readSavedUser() {
+  try {
+    const s2 = localStorage.getItem('s2jportaluser');
+    if (s2) return JSON.parse(s2);
+  } catch(e) {}
+  try {
+    const old = localStorage.getItem('ejr_user');
+    if (old) return JSON.parse(old);
+  } catch(e) {}
+  return null;
 }
 
-function doActivate() {
-  const name = document.getElementById('actName').value.trim();
-  const email = document.getElementById('actEmail').value.trim();
-  const code = document.getElementById('actCode').value.trim().toUpperCase();
-  const pass = document.getElementById('actPass').value;
-  const msg = document.getElementById('actMsg');
-  if (!name || !email || !code || !pass) return showMsg(msg, 'Saare fields bharein.', 'error');
-  if (!email.includes('@')) return showMsg(msg, 'Valid email enter karo.', 'error');
-  if (pass.length < 6) return showMsg(msg, 'Password kam se kam 6 characters ka hona chahiye.', 'error');
-  if (!DEMO_CODES.includes(code) && !code.startsWith('EJR-')) return showMsg(msg, '❌ Invalid access code. Check karo ya WhatsApp karo: +91 88263 40509', 'error');
-  const plan = code.includes('DEMO') ? 'complete' : 'basic';
-  currentUser = { name, email, password: pass, plan, code, joinDate: new Date().toLocaleDateString('en-IN'), activatedAt: Date.now() };
-  localStorage.setItem('s2j_portal_user', JSON.stringify(currentUser));
-  completedModules = [];
-  showMsg(msg, '✅ Account activated! Redirecting...', 'success');
-  setTimeout(() => showPortal(), 1000);
+function savePortalUser(userObj) {
+  localStorage.setItem('s2jportaluser', JSON.stringify(userObj));
+  if (!localStorage.getItem('s2jcompleted')) localStorage.setItem('s2jcompleted', '[]');
 }
 
-function doLogout() {
-  if (confirm('Logout karna chahte ho?')) {
-    currentUser = null;
-    localStorage.removeItem('s2j_portal_user');
-    location.reload();
-  }
-}
-
-function showMsg(el, text, type) {
+function showMsg(text, type='error') {
+  const el = document.getElementById('authMsg');
   el.textContent = text;
-  el.className = 'auth-msg ' + type;
+  el.className = 'msg show ' + type;
 }
 
-// ══ PORTAL ══
-function showAuth() {
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('portalScreen').style.display = 'none';
+function userKey(email) {
+  return String(email || '').replace(/\./g, '_').replace(/@/g, '_at_');
+}
+
+async function fetchDbUser(email) {
+  const key = userKey(email);
+  const res = await fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`);
+  return await res.json();
+}
+
+function buildPortalUser(firebaseUser, dbUser=null) {
+  const dbPlan = dbUser && dbUser.plan ? String(dbUser.plan).toLowerCase() : 'complete';
+  return {
+    name: firebaseUser.displayName || (dbUser && dbUser.name) || firebaseUser.email.split('@')[0],
+    email: firebaseUser.email,
+    password: 'google-oauth',
+    plan: dbPlan,
+    code: (dbUser && (dbUser.paymentId || dbUser.accessCode)) || 'GOOGLE-LOGIN',
+    joinDate: new Date().toLocaleDateString('en-IN'),
+    activatedAt: Date.now(),
+    firebaseUid: firebaseUser.uid
+  };
+}
+
+function init() {
+  const saved = readSavedUser();
+  if (saved) {
+    currentUser = saved;
+    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+    showPortal();
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+      const dbUser = await fetchDbUser(user.email).catch(() => null);
+      currentUser = buildPortalUser(user, dbUser);
+      savePortalUser(currentUser);
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      showPortal();
+    } catch (e) {
+      currentUser = buildPortalUser(user, null);
+      savePortalUser(currentUser);
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      showPortal();
+    }
+  });
 }
 
 function showPortal() {
@@ -719,56 +290,46 @@ function showPortal() {
 }
 
 function populatePortal() {
-  const u = currentUser;
-  // Nav
-  document.getElementById('navUserName').textContent = '👋 ' + u.name.split(' ')[0];
-  const planText = u.plan.charAt(0).toUpperCase() + u.plan.slice(1);
+  const u = currentUser || {name:'Student',email:'',plan:'complete',code:'—',joinDate:new Date().toLocaleDateString('en-IN')};
+  const firstName = (u.name || 'Student').split(' ')[0];
+  const planText = (u.plan || 'complete').charAt(0).toUpperCase() + (u.plan || 'complete').slice(1);
+  document.getElementById('navUserName').textContent = firstName;
+  document.getElementById('dashName').textContent = firstName;
   document.getElementById('planBadge').textContent = planText;
-  // Dashboard
-  document.getElementById('dashName').textContent = u.name.split(' ')[0];
   document.getElementById('statPlan').textContent = planText;
-  updateProgress();
-  // Modules
-  renderModules();
-  // Downloads
-  renderDownloads();
-  // Profile
-  document.getElementById('profileName').textContent = u.name;
-  document.getElementById('profileEmail').textContent = u.email;
+  document.getElementById('profileName').textContent = u.name || '—';
+  document.getElementById('profileEmail').textContent = u.email || '—';
+  document.getElementById('profilePlan').textContent = planText;
   document.getElementById('profileDate').textContent = u.joinDate || '—';
   document.getElementById('profileCode').textContent = u.code || '—';
-  document.getElementById('profileAvatar').textContent = u.name.charAt(0).toUpperCase();
-  const pb = document.getElementById('profilePlan');
-  pb.textContent = planText;
-  pb.className = 'plan-badge plan-' + u.plan;
-  // Certificate
-  document.getElementById('certName').textContent = u.name;
+  document.getElementById('certName').textContent = u.name || 'Your Name';
   document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-IN');
+  renderModules();
+  renderDownloads();
+  updateProgress();
 }
 
 function updateProgress() {
   const done = completedModules.length;
   const total = MODULES.length;
-  const pct = Math.round(done / total * 100);
-  document.getElementById('statModules').textContent = done + '/' + total;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('statModules').textContent = `${done}/${total}`;
   document.getElementById('sidebarProgress').style.width = pct + '%';
-  document.getElementById('sidebarProgressText').textContent = done + ' of ' + total + ' modules done';
-  document.getElementById('profileProgress').textContent = done + '/' + total;
-  // Streak
-  const streak = JSON.parse(localStorage.getItem('s2j_streak') || '{"count":0,"lastDate":""}');
-  document.getElementById('statStreak').textContent = '🔥 ' + streak.count;
-  // Continue desc
-  if (done === 0) document.getElementById('continueDesc').textContent = 'Module 1 se shuru karo';
-  else if (done < total) document.getElementById('continueDesc').textContent = 'Module ' + (done + 1) + ' continue karo';
-  else document.getElementById('continueDesc').textContent = '🎉 Course complete! Certificate download karo';
-  // Certificate
+  document.getElementById('sidebarProgressText').textContent = `${done} of ${total} modules done`;
+  document.getElementById('profileProgress').textContent = `${done}/${total}`;
+  const streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0,"lastDate":""}');
+  document.getElementById('statStreak').textContent = streak.count || 0;
+  if (done === 0) document.getElementById('continueDesc').textContent = 'Start from Module 1.';
+  else if (done < total) document.getElementById('continueDesc').textContent = `Module ${done + 1} se continue karo.`;
+  else document.getElementById('continueDesc').textContent = 'Course complete! Certificate download karo.';
   if (done === total) {
     document.getElementById('certBtn').disabled = false;
-    document.getElementById('certBtn').textContent = '⬇️ Download Certificate';
-    document.getElementById('certLockMsg').textContent = '🎉 Congratulations! Certificate ready hai.';
-    document.getElementById('certPreview').classList.remove('cert-locked');
+    document.getElementById('certBtn').textContent = 'Download Certificate';
+    document.getElementById('certLockMsg').textContent = 'Congratulations! Certificate ready hai.';
   } else {
-    document.getElementById('certPreview').classList.add('cert-locked');
+    document.getElementById('certBtn').disabled = true;
+    document.getElementById('certBtn').textContent = 'Complete Course to Unlock';
+    document.getElementById('certLockMsg').textContent = 'Complete all 9 modules to unlock your certificate';
   }
 }
 
@@ -776,153 +337,187 @@ function renderModules() {
   const list = document.getElementById('modulesList');
   list.innerHTML = MODULES.map(m => {
     const done = completedModules.includes(m.id);
-    return `<div class="module-card ${done ? 'completed' : ''}" onclick="openModule(${m.id})">
-      <div class="mc-icon">${m.icon}</div>
-      <div class="mc-info">
-        <div class="mc-title">${m.title}</div>
-        <div class="mc-meta"><span>⏱️ ${m.duration}</span><span>📹 ${m.lessons.length} lessons</span></div>
-        <div class="mc-lessons">${m.description}</div>
-      </div>
-      <div class="mc-status">
-        ${done ? '<div class="mc-done">✓</div>' : '<div class="mc-play">▶</div>'}
-      </div>
-    </div>`;
+    return `<div class="module ${done ? 'done' : ''}" onclick="openModule(${m.id})"><div class="micon">${m.icon}</div><div class="mmeta"><h4>${m.title}</h4><p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p></div><div class="mplay">${done ? '✓' : '▶'}</div></div>`;
   }).join('');
 }
 
-function openModule(id) {
+window.openModule = function(id) {
   const mod = MODULES.find(m => m.id === id);
   if (!mod) return;
   currentModuleId = id;
   document.getElementById('videoSection').style.display = 'block';
-  document.getElementById('videoTitle').textContent = mod.title;
-  document.getElementById('videoModule').textContent = '📚 ' + mod.title;
-  document.getElementById('videoDuration').textContent = '⏱️ ' + mod.duration;
-  // Load first lesson
-  playLesson(mod.lessons[0], mod);
-  // Render lessons
-  const ll = document.getElementById('lessonsList');
-  ll.innerHTML = mod.lessons.map((l, i) => `
-    <div class="lesson-item ${i===0?'active-lesson':''}" id="lesson-${i}" onclick="playLesson(${JSON.stringify(l).replace(/"/g,'&quot;')}, null, ${i})">
-      <div class="li-num">${i+1}</div>
-      <div class="li-name">${l.name}</div>
-      <div class="li-dur">${l.duration}</div>
-    </div>
-  `).join('');
-  // Update mark done button
-  const done = completedModules.includes(id);
-  document.getElementById('markDoneBtn').textContent = done ? '✅ Completed!' : '✅ Mark Module Complete';
-  document.getElementById('markDoneBtn').style.color = done ? 'var(--t3)' : 'var(--em)';
-  // Scroll to player
-  document.getElementById('videoSection').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('videoModule').textContent = mod.title;
+  renderLessons(mod, 0);
+  playLesson(mod, 0);
+  document.getElementById('videoSection').scrollIntoView({behavior:'smooth'});
+};
+
+function renderLessons(mod, activeIdx) {
+  const el = document.getElementById('lessonsList');
+  el.innerHTML = mod.lessons.map((l, i) => `<div class="lesson ${i===activeIdx ? 'active' : ''}" onclick="playLessonById(${mod.id},${i})"><div class="lesson-num">${i+1}</div><div class="lesson-name">${l.name}</div><div class="lesson-dur">${l.duration}</div></div>`).join('');
 }
 
-function playLesson(lesson, mod, idx) {
-  if (typeof lesson === 'string') lesson = JSON.parse(lesson);
-  document.getElementById('ytPlayer').src = 'https://www.youtube.com/embed/' + lesson.videoId + '?rel=0&modestbranding=1';
+window.playLessonById = function(moduleId, idx) {
+  const mod = MODULES.find(m => m.id === moduleId);
+  if (!mod) return;
+  renderLessons(mod, idx);
+  playLesson(mod, idx);
+};
+
+function playLesson(mod, idx) {
+  const lesson = mod.lessons[idx];
+  document.getElementById('ytPlayer').src = `https://www.youtube.com/embed/${lesson.videoId}?rel=0&modestbranding=1`;
   document.getElementById('videoTitle').textContent = lesson.name;
-  document.getElementById('videoDuration').textContent = '⏱️ ' + lesson.duration;
-  // Update active lesson
-  document.querySelectorAll('.lesson-item').forEach((el, i) => {
-    el.classList.toggle('active-lesson', i === (idx || 0));
-  });
-  // Update streak
+  document.getElementById('videoDuration').textContent = lesson.duration;
   updateStreak();
 }
 
-function markModuleDone() {
+window.markModuleDone = function() {
   if (!currentModuleId) return;
   if (!completedModules.includes(currentModuleId)) {
     completedModules.push(currentModuleId);
-    localStorage.setItem('s2j_completed', JSON.stringify(completedModules));
+    localStorage.setItem('s2jcompleted', JSON.stringify(completedModules));
+    renderModules();
+    updateProgress();
   }
-  updateProgress();
-  renderModules();
-  document.getElementById('markDoneBtn').textContent = '✅ Completed!';
-  document.getElementById('markDoneBtn').style.color = 'var(--t3)';
-}
+};
 
 function updateStreak() {
   const today = new Date().toDateString();
-  let streak = JSON.parse(localStorage.getItem('s2j_streak') || '{"count":0,"lastDate":""}');
+  let streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0,"lastDate":""}');
   const yesterday = new Date(Date.now() - 86400000).toDateString();
   if (streak.lastDate === today) return;
-  if (streak.lastDate === yesterday) streak.count++;
-  else if (streak.lastDate !== today) streak.count = 1;
+  if (streak.lastDate === yesterday) streak.count += 1;
+  else streak.count = 1;
   streak.lastDate = today;
-  localStorage.setItem('s2j_streak', JSON.stringify(streak));
-  document.getElementById('statStreak').textContent = '🔥 ' + streak.count;
+  localStorage.setItem('s2jstreak', JSON.stringify(streak));
+  document.getElementById('statStreak').textContent = streak.count;
 }
 
 function renderDownloads() {
   const grid = document.getElementById('downloadsGrid');
-  grid.innerHTML = DOWNLOADS.map(d => `
-    <div class="dl-card">
-      <div class="dl-icon">${d.icon}</div>
-      <div class="dl-name">${d.name}</div>
-      <div class="dl-desc">${d.desc}</div>
-      <a href="${d.url}" class="dl-btn" ${d.url==='#'?'onclick="alert(\'Coming soon! Files jald upload honge.\')"':''}>
-        ⬇️ Download ${d.type.toUpperCase()}
-      </a>
-    </div>
-  `).join('');
+  grid.innerHTML = DOWNLOADS.map(d => `<div class="dl"><div style="font-size:1.8rem">${d.icon}</div><h4>${d.name}</h4><p>${d.desc}</p><a href="${d.url || 'javascript:void(0)'}" onclick="${d.url ? '' : "alert('Coming soon! Files jald upload honge.')"}">Download</a></div>`).join('');
 }
 
-// ══ NAVIGATION ══
-function showSection(name) {
+window.showSection = function(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('active');
-  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-  const navEl = document.getElementById('nav-' + name);
-  if (navEl) navEl.classList.add('active');
-  document.querySelectorAll('.mn-item').forEach(s => s.classList.remove('active'));
-  const mnEl = document.getElementById('mn-' + name);
-  if (mnEl) mnEl.classList.add('active');
-}
+  document.querySelectorAll('.sidebar .nav-item, .mobile-nav .nav-item').forEach(n => n.classList.remove('active'));
+  const a = document.getElementById('nav-' + name); if (a) a.classList.add('active');
+  const b = document.getElementById('mn-' + name); if (b) b.classList.add('active');
+};
 
-// ══ CERTIFICATE ══
-function downloadCert() {
+window.downloadCert = function() {
   if (!currentUser || completedModules.length < MODULES.length) return;
-  const name = currentUser.name;
-  const date = new Date().toLocaleDateString('en-IN', {year:'numeric',month:'long',day:'numeric'});
-  const certHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificate — ${name}</title>
-  <style>
-    body{margin:0;background:#080a0f;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Georgia,serif;}
-    .cert{width:800px;padding:60px;background:linear-gradient(135deg,#0d1117,#131920);border:2px solid #00e87a;border-radius:24px;text-align:center;box-shadow:0 0 80px rgba(0,232,122,.2);}
-    h1{font-size:2rem;color:#f0f6fc;margin:16px 0 8px;}
-    .name{font-size:2.8rem;color:#00e87a;margin:20px 0;font-style:italic;}
-    .course{font-size:1.1rem;color:#8b949e;margin-bottom:20px;}
-    .meta{display:flex;justify-content:center;gap:48px;margin:24px 0;padding:16px;background:rgba(255,255,255,.03);border-radius:12px;}
-    .meta-item label{display:block;font-size:.7rem;color:#484f58;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
-    .meta-item span{font-size:1rem;color:#f0f6fc;font-weight:bold;}
-    .footer{font-size:.75rem;color:#484f58;margin-top:24px;}
-  </style></head>
-  <body><div class="cert">
-    <div style="font-size:3rem">🏆</div>
-    <h1>Certificate of Completion</h1>
-    <div style="color:#8b949e;font-size:.9rem">This is to certify that</div>
-    <div class="name">${name}</div>
-    <div class="course">has successfully completed<br><strong style="color:#f0f6fc">Excel Job Ready Course</strong></div>
-    <div class="meta">
-      <div class="meta-item"><label>Modules</label><span>9/9</span></div>
-      <div class="meta-item"><label>Platform</label><span>Skill2Job</span></div>
-      <div class="meta-item"><label>Date</label><span>${date}</span></div>
-    </div>
-    <div class="footer">skill2jobai.com · Issued by Skill2Job India</div>
-  </div></body></html>`;
+  const name = currentUser.name || 'Student';
+  const date = new Date().toLocaleDateString('en-IN', {year:'numeric', month:'long', day:'numeric'});
+  const certHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificate</title><style>body{margin:0;background:#080a0f;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Georgia,serif}.cert{width:800px;padding:60px;background:linear-gradient(135deg,#0d1117,#131920);border:2px solid #00e87a;border-radius:24px;text-align:center;color:#f0f6fc;box-shadow:0 0 80px rgba(0,232,122,.2)}.name{font-size:2.8rem;color:#00e87a;margin:20px 0;font-style:italic}.meta{display:flex;justify-content:center;gap:40px;margin:24px 0;padding:16px;background:rgba(255,255,255,.03);border-radius:12px}.meta-item label{display:block;font-size:.7rem;color:#8b949e;margin-bottom:4px}.meta-item span{font-size:1rem;font-weight:bold}.f{font-size:.8rem;color:#8b949e;margin-top:20px}</style></head><body><div class="cert"><div style="font-size:3rem">🏆</div><h1>Certificate of Completion</h1><div>This is to certify that</div><div class="name">${name}</div><div>has successfully completed <strong>Excel Job Ready Course</strong></div><div class="meta"><div class="meta-item"><label>Modules</label><span>9/9</span></div><div class="meta-item"><label>Platform</label><span>Skill2Job</span></div><div class="meta-item"><label>Date</label><span>${date}</span></div></div><div class="f">skill2jobai.com</div></div></body></html>`;
   const blob = new Blob([certHTML], {type:'text/html'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Skill2Job_Certificate_${name.replace(/\s/g,'_')}.html`;
+  a.download = `Skill2Job-Certificate-${name.replace(/\s+/g,'-')}.html`;
   a.click();
   URL.revokeObjectURL(url);
-}
+};
 
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('ytPlayer').src = '';
-});
-</script>
+
+
+    const PORTAL_URL = '/student-portal/';
+
+    function init() {
+      requireAuth();
+    }
+
+    async function requireAuth() {
+      try {
+        const user = await loadCurrentUser();
+        if (!user) {
+          showAuth();
+          return;
+        }
+        currentUser = user;
+        completedModules = Array.isArray(user.completedModules) ? user.completedModules : [];
+        openPortalUI();
+      } catch (err) {
+        showAuth();
+      }
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      const msg = document.getElementById('loginMsg');
+
+      if (!email || !pass) {
+        return showMsg(msg, 'Email aur password dono bharein.', 'error');
+      }
+
+      try {
+        await signInUser(email, pass);
+        window.location.href = PORTAL_URL;
+      } catch (err) {
+        showMsg(msg, err.message || 'Login failed. Please try again.', 'error');
+      }
+    }
+
+    async function doActivate() {
+      const name = document.getElementById('actName').value.trim();
+      const email = document.getElementById('actEmail').value.trim();
+      const code = document.getElementById('actCode').value.trim().toUpperCase();
+      const pass = document.getElementById('actPass').value;
+      const msg = document.getElementById('actMsg');
+
+      if (!name || !email || !code || !pass) {
+        return showMsg(msg, 'Saare fields bharein.', 'error');
+      }
+
+      try {
+        await activateUserAccount({ name, email, code, password: pass });
+        showMsg(msg, 'Account created. Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.href = PORTAL_URL;
+        }, 800);
+      } catch (err) {
+        showMsg(msg, err.message || 'Activation failed.', 'error');
+      }
+    }
+
+    function showPortal() {
+      window.location.href = PORTAL_URL;
+    }
+
+    function openPortalUI() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('portalScreen').style.display = 'block';
+      populatePortal();
+    }
+
+    async function doLogout() {
+      try {
+        await logoutUser();
+      } finally {
+        window.location.href = '/';
+      }
+    }
+
+    async function loadCurrentUser() {
+      return null;
+    }
+
+    async function signInUser(email, password) {
+      throw new Error('Firebase auth not connected yet');
+    }
+
+    async function activateUserAccount(payload) {
+      throw new Error('Firebase auth not connected yet');
+    }
+
+    async function logoutUser() {
+      return true;
+    }
+
+    init();
+  </script>
 </body>
 </html>
