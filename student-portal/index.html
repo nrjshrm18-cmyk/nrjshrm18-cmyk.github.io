@@ -215,6 +215,7 @@ window.doGoogleLogin = async function () {
     showMsg(err?.message || 'Google login failed.', 'error');
   }
 };
+window.googleSignIn = window.doGoogleLogin;
 
 window.doLogin = function () {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
