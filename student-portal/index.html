@@ -258,30 +258,7 @@ function buildPortalUser(firebaseUser, dbUser=null) {
   };
 }
 
-function init() {
-  const saved = readSavedUser();
-  if (saved) {
-    currentUser = saved;
-    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-    showPortal();
-  }
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
-    try {
-      const dbUser = await fetchDbUser(user.email).catch(() => null);
-      currentUser = buildPortalUser(user, dbUser);
-      savePortalUser(currentUser);
-      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      showPortal();
-    } catch (e) {
-      currentUser = buildPortalUser(user, null);
-      savePortalUser(currentUser);
-      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      showPortal();
-    }
-  });
-}
 
 function showPortal() {
   document.getElementById('authScreen').style.display = 'none';
@@ -515,6 +492,18 @@ window.downloadCert = function() {
 
     async function logoutUser() {
       return true;
+    }
+
+    async function doGoogleLogin() {
+      const msg = document.getElementById('authMsg') || document.getElementById('loginMsg');
+      try {
+        showMsg(msg, 'Google login Firebase setup ke baad chalega.', 'error');
+      } catch (err) {}
+      throw new Error('Google auth not connected yet');
+    }
+
+    function goHome() {
+      window.location.href = '/';
     }
 
     init();
