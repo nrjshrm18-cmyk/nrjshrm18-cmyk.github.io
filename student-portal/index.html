@@ -400,37 +400,30 @@ window.doGoogleLogin = async function() {
     const fbUser = result.user;
     const dbUser = await fetchDbUser(fbUser.email);
 
-    if (dbUser && dbUser.plan) {
-      // ✅ Purchased — save & show portal
-      const user = {
-        name:     fbUser.displayName || fbUser.email.split('@')[0],
-        email:    fbUser.email.toLowerCase(),
-        plan:     dbUser.plan,
-        code:     dbUser.paymentId || dbUser.accessCode || 'GOOGLE',
-        joinDate: dbUser.createdAt ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
-        provider: 'google'
-      };
-      localStorage.setItem('s2jportaluser', JSON.stringify(user));
-      currentUser = user;
-      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      showPortal();
-    } else {
-      // ❌ Not purchased — create/update DB entry, show no-plan screen
-      const newUser = {
-        name: fbUser.displayName || fbUser.email.split('@')[0],
-        email: fbUser.email,
-        plan: null,
-        createdAt: new Date().toISOString()
-      };
-      if (!dbUser) {
-        await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + dbKey(fbUser.email) + '.json', {
-          method: 'PUT',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(newUser)
-        });
-      }
-      showNoPlanScreen(fbUser.displayName || fbUser.email, fbUser.email);
+    const hasPlan = !!(dbUser && dbUser.plan);
+    const user = {
+      name:     fbUser.displayName || fbUser.email.split('@')[0],
+      email:    fbUser.email.toLowerCase(),
+      plan:     hasPlan ? dbUser.plan : null,
+      code:     (dbUser && (dbUser.paymentId || dbUser.accessCode)) || null,
+      joinDate: (dbUser && dbUser.createdAt) ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
+      provider: 'google'
+    };
+
+    // Create DB entry if new user
+    if (!dbUser) {
+      await fetch('https://skill2job-96b9c-default-rtdb.firebaseio.com/users/' + dbKey(fbUser.email) + '.json', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name: user.name, email: fbUser.email, plan: null, createdAt: new Date().toISOString() })
+      });
     }
+
+    localStorage.setItem('s2jportaluser', JSON.stringify(user));
+    currentUser = user;
+    completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+    // Always go to portal — purchased or not
+    showPortal();
   } catch(err) {
     showMsg(err?.message || 'Google login failed.', 'error');
   }
@@ -470,32 +463,26 @@ window.goHome = function() { window.location.href = '/'; };
 
 // ── INIT ─────────────────────────────────────────────────────────
 window.init = function() {
-  // ALWAYS verify with Firebase DB — never trust localStorage plan alone
-  // This prevents stale/fake plan data from granting access
+  // Verify with Firebase DB on every load
   _auth.onAuthStateChanged(async function(fbUser) {
     if (fbUser) {
       const dbUser = await fetchDbUser(fbUser.email);
-      if (dbUser && dbUser.plan) {
-        // ✅ Verified from DB — grant access
-        const user = {
-          name:     fbUser.displayName || fbUser.email.split('@')[0],
-          email:    fbUser.email.toLowerCase(),
-          plan:     dbUser.plan,
-          code:     dbUser.paymentId || dbUser.accessCode || 'GOOGLE',
-          joinDate: dbUser.createdAt ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
-          provider: 'google'
-        };
-        localStorage.setItem('s2jportaluser', JSON.stringify(user));
-        currentUser = user;
-        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-        showPortal();
-      } else {
-        // ❌ No valid plan in DB — clear stale localStorage and show no-plan screen
-        localStorage.removeItem('s2jportaluser');
-        showNoPlanScreen(fbUser.displayName || fbUser.email, fbUser.email);
-      }
+      const hasPlan = !!(dbUser && dbUser.plan);
+      const user = {
+        name:     fbUser.displayName || fbUser.email.split('@')[0],
+        email:    fbUser.email.toLowerCase(),
+        plan:     hasPlan ? dbUser.plan : null,
+        code:     (dbUser && (dbUser.paymentId || dbUser.accessCode)) || null,
+        joinDate: (dbUser && dbUser.createdAt) ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
+        provider: 'google'
+      };
+      localStorage.setItem('s2jportaluser', JSON.stringify(user));
+      currentUser = user;
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      // Always open portal — course access gated inside
+      showPortal();
     }
-    // else: not logged in — stay on auth screen (default)
+    // else: not logged in — stay on auth screen
   });
 };
 
@@ -531,6 +518,17 @@ function populatePortal() {
   document.getElementById('profileCode').textContent  = u.code || '—';
   document.getElementById('certName').textContent     = u.name || 'Your Name';
   document.getElementById('certDate').textContent     = new Date().toLocaleDateString('en-IN');
+
+  // Show/hide enroll banner on dashboard based on plan
+  const banner = document.getElementById('enrollBanner');
+  if (banner) banner.style.display = u.plan ? 'none' : 'flex';
+
+  // Gate certificate button
+  if (!u.plan) {
+    document.getElementById('certBtn').disabled = true;
+    document.getElementById('certBtn').textContent = '🔒 Purchase Course to Unlock';
+    document.getElementById('certLockMsg').textContent = 'Course purchase karo to certificate unlock hoga.';
+  }
 
   renderModules();
   renderDownloads();
@@ -569,7 +567,44 @@ function updateProgress() {
 
 // ── MODULES ───────────────────────────────────────────────────────
 function renderModules() {
+  const hasPlan = !!(currentUser && currentUser.plan);
   const list = document.getElementById('modulesList');
+
+  if (!hasPlan) {
+    // Show locked preview + purchase wall
+    list.innerHTML = MODULES.slice(0,2).map(m => `
+      <div class="module" style="opacity:.45;cursor:not-allowed;pointer-events:none">
+        <div class="micon">${m.icon}</div>
+        <div class="mmeta">
+          <h4>${m.title}</h4>
+          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+        </div>
+        <div class="mplay">🔒</div>
+      </div>`).join('') +
+      `<div style="margin-top:8px;background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.03));border:1px solid rgba(0,232,122,.25);border-radius:18px;padding:32px;text-align:center">
+        <div style="font-size:2rem;margin-bottom:10px">🔒</div>
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--t1);margin-bottom:8px">Course Access Locked</div>
+        <div style="font-size:.85rem;color:var(--t2);margin-bottom:20px;line-height:1.7">
+          Saare <strong style="color:var(--t1)">9 modules</strong> aur <strong style="color:var(--t1)">22 classes</strong> unlock karne ke liye<br>
+          course purchase karo. Sirf <strong style="color:var(--em)">₹799</strong> — lifetime access.
+        </div>
+        <a href="/" style="display:inline-block;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;padding:13px 32px;border-radius:12px;text-decoration:none;font-size:.95rem">
+          🛒 Abhi Purchase Karo — ₹799
+        </a>
+        <div style="margin-top:12px;font-size:.72rem;color:var(--t3)">✅ Money-back guarantee &nbsp;|&nbsp; ✅ Lifetime access &nbsp;|&nbsp; ✅ Mobile friendly</div>
+      </div>` +
+      MODULES.slice(2).map(m => `
+      <div class="module" style="opacity:.25;cursor:not-allowed;pointer-events:none">
+        <div class="micon">${m.icon}</div>
+        <div class="mmeta">
+          <h4>${m.title}</h4>
+          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+        </div>
+        <div class="mplay">🔒</div>
+      </div>`).join('');
+    return;
+  }
+
   list.innerHTML = MODULES.map(m => {
     const done = completedModules.includes(m.id);
     return `<div class="module${done?' done':''}" onclick="openModule(${m.id})">
@@ -584,6 +619,12 @@ function renderModules() {
 }
 
 window.openModule = function(id) {
+  if (!(currentUser && currentUser.plan)) {
+    // Not purchased — scroll to purchase wall
+    document.getElementById('sec-courses').querySelector('a[href="/"]') &&
+    document.getElementById('sec-courses').querySelector('a[href="/"]').scrollIntoView({behavior:'smooth'});
+    return;
+  }
   const mod = MODULES.find(m => m.id === id);
   if (!mod) return;
   currentModuleId = id;
