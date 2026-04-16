@@ -2066,14 +2066,12 @@ function openStudentLoginModal() {
   handleNavLogin();
 }
 function handleNavLogin() {
-  function handleNavLogin() {
   // 👇 YE ADD KARO
   if (window.currentFirebaseUser) {
     window.location.href = '/student-portal/';
     return;
   }
   
-  var modal = document.getElementById('studentLoginModal');
   var modal = document.getElementById('studentLoginModal');
   if (modal) {
     modal.classList.add('open');
@@ -2134,10 +2132,7 @@ function slDoActivate() {
   const name = document.getElementById('regName')?.value.trim() || 'User';
 const identifierRaw = document.getElementById('regIdentifier')?.value.trim();
 const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierRaw);
-  console.log('🔍 DEBUG START');
-console.log('name:', name);
-console.log('identifierRaw:', identifierRaw);
-console.log('isEmail:', isEmail);
+
 console.log('emailForDb:', emailForDb);
 console.log('phoneForDb:', phoneForDb);
 console.log('key:', key);
