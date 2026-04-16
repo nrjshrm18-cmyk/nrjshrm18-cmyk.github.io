@@ -2066,6 +2066,14 @@ function openStudentLoginModal() {
   handleNavLogin();
 }
 function handleNavLogin() {
+  function handleNavLogin() {
+  // 👇 YE ADD KARO
+  if (window.currentFirebaseUser) {
+    window.location.href = '/student-portal/';
+    return;
+  }
+  
+  var modal = document.getElementById('studentLoginModal');
   var modal = document.getElementById('studentLoginModal');
   if (modal) {
     modal.classList.add('open');
