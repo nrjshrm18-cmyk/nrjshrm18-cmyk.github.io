@@ -2156,6 +2156,7 @@ function slDoActivate() {
   _saveAuthUsers(users);
         const emailForDb = isEmail ? identifierRaw.toLowerCase() : "";
 const phoneForDb = isEmail ? "" : identifierRaw;
+const key = emailForDb.replace(/\./g, "_").replace(/@/g, "_at_");
 
 if (emailForDb) {
   const key = emailForDb.replace(/\./g, "_").replace(/@/g, "_at_");
