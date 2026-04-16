@@ -2154,7 +2154,24 @@ function slDoActivate() {
     createdAt: new Date().toISOString()
   };
   _saveAuthUsers(users);
-        const key = email.replace(/\./g, "_").replace(/@/g, "_at_");
+        const emailForDb = isEmail ? identifierRaw.toLowerCase() : "";
+const phoneForDb = isEmail ? "" : identifierRaw;
+
+if (emailForDb) {
+  const key = emailForDb.replace(/\./g, "_").replace(/@/g, "_at_");
+  fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      email: emailForDb,
+      phone: phoneForDb,
+      plan: null,
+      createdAt: new Date().toISOString(),
+      source: "homepage_register"
+    })
+  }).catch(() => {});
+}
       fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
