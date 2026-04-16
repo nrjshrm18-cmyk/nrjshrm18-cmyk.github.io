@@ -2123,10 +2123,19 @@ function slDoLogin() {
   msg.textContent = '❌ Account nahi mila ya password galat hai. Pehle register karo.';
 }
 function slDoActivate() {
+  const name = document.getElementById('regName')?.value.trim() || 'User';
+const identifierRaw = document.getElementById('regIdentifier')?.value.trim();
+const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifierRaw);
   console.log('🔍 DEBUG START');
 console.log('name:', name);
 console.log('identifierRaw:', identifierRaw);
 console.log('isEmail:', isEmail);
+console.log('emailForDb:', emailForDb);
+console.log('phoneForDb:', phoneForDb);
+console.log('key:', key);
+const emailForDb = isEmail ? identifierRaw.toLowerCase() : "";
+const phoneForDb = isEmail ? "" : identifierRaw;
+const key = emailForDb.replace(/\./g, "_").replace(/@/g, "_at_");
 console.log('emailForDb:', emailForDb);
 console.log('phoneForDb:', phoneForDb);
 console.log('key:', key);
