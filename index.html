@@ -2123,6 +2123,13 @@ function slDoLogin() {
   msg.textContent = '❌ Account nahi mila ya password galat hai. Pehle register karo.';
 }
 function slDoActivate() {
+  console.log('🔍 DEBUG START');
+console.log('name:', name);
+console.log('identifierRaw:', identifierRaw);
+console.log('isEmail:', isEmail);
+console.log('emailForDb:', emailForDb);
+console.log('phoneForDb:', phoneForDb);
+console.log('key:', key);
   var name = document.getElementById('slName').value.trim();
   var identifierRaw = document.getElementById('slRegIdentifier').value.trim();
   var identifier = _normalizeIdentifier(identifierRaw);
@@ -2171,7 +2178,12 @@ if (emailForDb) {
       createdAt: new Date().toISOString(),
       source: "homepage_register"
     })
-  }).catch(() => {});
+  })
+  .then(r => r.json())
+.then(data => {
+  console.log('✅ Firebase response:', data);
+  alert('Account ban gaya!');
+}).catch(() => {});
 }
       fetch(`https://skill2job-96b9c-default-rtdb.firebaseio.com/users/${key}.json`, {
         method: "PATCH",
