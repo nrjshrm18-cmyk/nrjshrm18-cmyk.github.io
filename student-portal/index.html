@@ -519,7 +519,7 @@ function startActivationPoller(email) {
 function showActivationSuccess(plan) {
   const msg = document.createElement('div');
   msg.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:Clash Display,sans-serif;font-weight:700;padding:16px 28px;border-radius:14px;box-shadow:0 8px 32px rgba(0,232,122,.4);font-size:.95rem;text-align:center;animation:fadeInDown .4s ease';
-  msg.innerHTML = '🎉 Course Activate Ho Gaya! Welcome aboard! Refresh kar ke enjoy karo.';
+  msg.innerHTML = '🎉 Course Activate Ho Gaya! Welcome aboard! Refresh karo and start karo seekhna.';
   document.body.appendChild(msg);
   setTimeout(() => { msg.style.opacity='0'; msg.style.transition='opacity .5s'; setTimeout(()=>msg.remove(), 500); }, 5000);
 }
