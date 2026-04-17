@@ -501,7 +501,7 @@ window.doLogout = async function() {
   localStorage.removeItem('ejr_user');
   currentUser = null;
   try { await _auth.signOut(); } catch(e) {}
-  location.reload();
+  window.location.href = '/';
 };
 
 window.goHome = function() { window.location.href = '/'; };
