@@ -379,11 +379,12 @@ function bridgePortalUser(raw){
   var name = raw.name || 'Student';
   var email = (raw.email || '').toLowerCase();
   var identifier = normalizeId(raw.identifier || raw.email || raw.phone || '');
+  var hasPlan = !!raw.plan;
   var user = {
     name: name,
     email: email || (identifier.indexOf('@') !== -1 ? identifier : ''),
-    plan: raw.plan || 'complete',
-    code: raw.code || raw.accessCode || raw.paymentId || 'PORTAL-ACCESS',
+    plan: hasPlan ? raw.plan : null,
+    code: hasPlan ? (raw.code || raw.accessCode || raw.paymentId || 'PORTAL-ACCESS') : null,
     joinDate: raw.joinDate || new Date().toLocaleDateString('en-IN'),
     provider: raw.provider || raw.method || 'local',
     password: raw.password || '',
@@ -477,6 +478,7 @@ window.doLogin = function() {
     if (localUser) {
       currentUser = bridgePortalUser(localUser);
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || identifier); return; }
       showPortal();
       return;
     }
@@ -486,6 +488,7 @@ window.doLogin = function() {
     if (saved && savedId === identifier && saved.password === pass) {
       currentUser = bridgePortalUser(saved);
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || identifier); return; }
       showPortal();
       return;
     }
@@ -517,8 +520,8 @@ window.init = function() {
       const user = {
         name:     fbUser.displayName || fbUser.email.split('@')[0],
         email:    fbUser.email.toLowerCase(),
-        plan:     hasPlan ? dbUser.plan : 'complete',
-        code:     (dbUser && (dbUser.paymentId || dbUser.accessCode)) || 'GOOGLE-ACCESS',
+        plan:     hasPlan ? dbUser.plan : null,
+        code:     hasPlan ? ((dbUser && (dbUser.paymentId || dbUser.accessCode)) || 'GOOGLE-ACCESS') : null,
         joinDate: (dbUser && dbUser.createdAt) ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
         provider: 'google'
       };
@@ -535,6 +538,7 @@ window.init = function() {
       if (portalSaved) {
         currentUser = bridgePortalUser(portalSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        if (!currentUser.plan && currentUser.provider !== 'google') { showNoPlanScreen(currentUser.name, currentUser.email || ''); return; }
         showPortal();
         return;
       }
@@ -545,6 +549,7 @@ window.init = function() {
       if (homepageSaved) {
         currentUser = bridgePortalUser(homepageSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || ''); return; }
         showPortal();
         return;
       }
