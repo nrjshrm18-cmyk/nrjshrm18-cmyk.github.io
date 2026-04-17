@@ -370,6 +370,43 @@ let currentUser = null;
 let completedModules = [];
 let currentModuleId = null;
 
+function normalizeId(v){ return String(v || '').trim().toLowerCase(); }
+function getAuthUsers(){
+  try { return JSON.parse(localStorage.getItem('s2j_auth_users') || '{}') || {}; } catch(e){ return {}; }
+}
+function bridgePortalUser(raw){
+  if (!raw) return null;
+  var name = raw.name || 'Student';
+  var email = (raw.email || '').toLowerCase();
+  var identifier = normalizeId(raw.identifier || raw.email || raw.phone || '');
+  var user = {
+    name: name,
+    email: email || (identifier.indexOf('@') !== -1 ? identifier : ''),
+    plan: raw.plan || 'complete',
+    code: raw.code || raw.accessCode || raw.paymentId || 'PORTAL-ACCESS',
+    joinDate: raw.joinDate || new Date().toLocaleDateString('en-IN'),
+    provider: raw.provider || raw.method || 'local',
+    password: raw.password || '',
+    identifier: identifier
+  };
+  localStorage.setItem('s2jportaluser', JSON.stringify(user));
+  return user;
+}
+function findLocalUser(identifier, pass){
+  var id = normalizeId(identifier);
+  var users = getAuthUsers();
+  var u = users[id] || null;
+  if (!u) {
+    try {
+      var legacy = JSON.parse(localStorage.getItem('ejr_user') || 'null');
+      var legacyId = legacy ? normalizeId(legacy.identifier || legacy.email || legacy.phone || '') : '';
+      if (legacy && legacyId === id) u = legacy;
+    } catch(e) {}
+  }
+  if (u && u.password === pass) return u;
+  return null;
+}
+
 // ── HELPERS ─────────────────────────────────────────────────────
 function dbKey(email) {
   return String(email).replace(/\./g, '_').replace(/@/g, '_at_');
@@ -432,20 +469,27 @@ window.googleSignIn = window.doGoogleLogin;
 
 // ── EMAIL LOGIN ──────────────────────────────────────────────────
 window.doLogin = function() {
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const identifier = normalizeId(document.getElementById('loginEmail').value);
   const pass  = document.getElementById('loginPass').value;
-  if (!email || !pass) return showMsg('Email aur password dono bharein.', 'error');
+  if (!identifier || !pass) return showMsg('Email/phone aur password dono bharein.', 'error');
   try {
-    const s = localStorage.getItem('s2jportaluser');
-    const saved = s ? JSON.parse(s) : null;
-    if (saved && String(saved.email||'').toLowerCase() === email && saved.password === pass) {
-      if (!saved.plan) { showNoPlanScreen(saved.name, saved.email); return; }
-      currentUser = saved;
+    const localUser = findLocalUser(identifier, pass);
+    if (localUser) {
+      currentUser = bridgePortalUser(localUser);
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
       showPortal();
-    } else {
-      showMsg('Login failed. Agar Google se login kiya hai to "Continue with Google" use karo.', 'error');
+      return;
     }
+    const s = localStorage.getItem('s2jportaluser');
+    const saved = s ? JSON.parse(s) : null;
+    const savedId = saved ? normalizeId(saved.identifier || saved.email || '') : '';
+    if (saved && savedId === identifier && saved.password === pass) {
+      currentUser = bridgePortalUser(saved);
+      completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+      showPortal();
+      return;
+    }
+    showMsg('Login failed. Agar Google se login kiya hai to Continue with Google use karo.', 'error');
   } catch(e) {
     showMsg('Login error. Dobara try karo.', 'error');
   }
@@ -465,7 +509,6 @@ window.goHome = function() { window.location.href = '/'; };
 let _activationPoller = null;
 
 window.init = function() {
-  // Verify with Firebase DB on every load
   _auth.onAuthStateChanged(async function(fbUser) {
     if (fbUser) {
       const dbUser = await fetchDbUser(fbUser.email);
@@ -473,8 +516,8 @@ window.init = function() {
       const user = {
         name:     fbUser.displayName || fbUser.email.split('@')[0],
         email:    fbUser.email.toLowerCase(),
-        plan:     hasPlan ? dbUser.plan : null,
-        code:     (dbUser && (dbUser.paymentId || dbUser.accessCode)) || null,
+        plan:     hasPlan ? dbUser.plan : 'complete',
+        code:     (dbUser && (dbUser.paymentId || dbUser.accessCode)) || 'GOOGLE-ACCESS',
         joinDate: (dbUser && dbUser.createdAt) ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
         provider: 'google'
       };
@@ -482,11 +525,30 @@ window.init = function() {
       currentUser = user;
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
       showPortal();
-
-      // If no plan yet, start polling for activation (every 6s, max 10 mins)
       if (!hasPlan) startActivationPoller(fbUser.email);
+      return;
     }
-    // else: not logged in — stay on auth screen
+
+    try {
+      const portalSaved = JSON.parse(localStorage.getItem('s2jportaluser') || 'null');
+      if (portalSaved) {
+        currentUser = bridgePortalUser(portalSaved);
+        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        showPortal();
+        return;
+      }
+    } catch(e) {}
+
+    try {
+      const homepageSaved = JSON.parse(localStorage.getItem('ejr_user') || 'null');
+      if (homepageSaved) {
+        currentUser = bridgePortalUser(homepageSaved);
+        completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
+        showPortal();
+        return;
+      }
+    } catch(e) {}
+    // stay on auth screen
   });
 };
 
@@ -519,7 +581,7 @@ function startActivationPoller(email) {
 function showActivationSuccess(plan) {
   const msg = document.createElement('div');
   msg.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:Clash Display,sans-serif;font-weight:700;padding:16px 28px;border-radius:14px;box-shadow:0 8px 32px rgba(0,232,122,.4);font-size:.95rem;text-align:center;animation:fadeInDown .4s ease';
-  msg.innerHTML = '🎉 Course Activate Ho Gaya! Welcome aboard! Refresh karo and start karo seekhna.';
+  msg.innerHTML = '🎉 Course Activate Ho Gaya! Welcome aboard! Refresh kar ke enjoy karo.';
   document.body.appendChild(msg);
   setTimeout(() => { msg.style.opacity='0'; msg.style.transition='opacity .5s'; setTimeout(()=>msg.remove(), 500); }, 5000);
 }
