@@ -478,7 +478,6 @@ window.doLogin = function() {
     if (localUser) {
       currentUser = bridgePortalUser(localUser);
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || identifier); return; }
       showPortal();
       return;
     }
@@ -488,7 +487,6 @@ window.doLogin = function() {
     if (saved && savedId === identifier && saved.password === pass) {
       currentUser = bridgePortalUser(saved);
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-      if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || identifier); return; }
       showPortal();
       return;
     }
@@ -538,7 +536,6 @@ window.init = function() {
       if (portalSaved) {
         currentUser = bridgePortalUser(portalSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-        if (!currentUser.plan && currentUser.provider !== 'google') { showNoPlanScreen(currentUser.name, currentUser.email || ''); return; }
         showPortal();
         return;
       }
@@ -549,7 +546,6 @@ window.init = function() {
       if (homepageSaved) {
         currentUser = bridgePortalUser(homepageSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
-        if (!currentUser.plan) { showNoPlanScreen(currentUser.name, currentUser.email || ''); return; }
         showPortal();
         return;
       }
