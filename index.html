@@ -3229,19 +3229,6 @@ function closeInfoPage(){
     <div style="font-size:.68rem;color:var(--t3);margin-top:16px">🔒 Secure login · Koi password nahi chahiye</div>
   </div>
 </div>
-<script>
-window.handleNavLogin = function () {
-  if (window.currentFirebaseUser) {
-    window.location.href = '/student-portal/';
-    return;
-  }
 
-  var modal = document.getElementById('studentLoginModal');
-  if (modal) {
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-};
-</script>
 </body>
 </html>
