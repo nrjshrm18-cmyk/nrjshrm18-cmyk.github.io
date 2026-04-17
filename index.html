@@ -2038,6 +2038,10 @@ function openStudentLoginModal() {
   handleNavLogin();
 }
 function handleNavLogin() {
+  if (window.currentFirebaseUser) {
+    window.location.href = '/student-portal/';
+    return;
+  }
   var modal = document.getElementById('studentLoginModal');
   if (modal) {
     modal.classList.add('open');
