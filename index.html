@@ -2066,19 +2066,20 @@ function openStudentLoginModal() {
   handleNavLogin();
 }
 function handleNavLogin() {
-  // 👇 YE ADD KARO
   if (window.currentFirebaseUser) {
     window.location.href = '/student-portal/';
     return;
   }
-  
+
   var modal = document.getElementById('studentLoginModal');
   if (modal) {
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
     slSwitch('login');
+
     var saved = null;
-    try { saved = JSON.parse(localStorage.getItem('ejr_user') || 'null'); } catch(e) {}
+    try { saved = JSON.parse(localStorage.getItem('ejr_user') || 'null'); } catch (e) {}
+
     if (saved) {
       var pref = (saved.email || saved.phone || '');
       var field = document.getElementById('slIdentifier');
