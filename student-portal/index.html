@@ -183,7 +183,7 @@
     </div>
     <div class="top-right">
       <div id="navUserName" style="color:var(--t2);font-size:.8rem">Welcome</div>
-      <button class="logout" onclick="window.location.href='https://rzp.io/rzp/Noktx055' target='_blank'" style="margin-right:4px">🏠 Home</button>
+      <button class="logout" onclick="goHome()" style="margin-right:4px">🏠 Home</button>
       <button class="logout" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -498,6 +498,7 @@ window.doLogin = function() {
 // ── LOGOUT ───────────────────────────────────────────────────────
 window.doLogout = async function() {
   localStorage.removeItem('s2jportaluser');
+  localStorage.removeItem('ejr_user');
   currentUser = null;
   try { await _auth.signOut(); } catch(e) {}
   location.reload();
