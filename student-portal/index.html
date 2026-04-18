@@ -671,47 +671,120 @@ function updateProgress() {
 function renderModules() {
   const hasPlan = !!(currentUser && currentUser.plan);
   const list = document.getElementById('modulesList');
-  const products = [
-    { id: 'excel', title: 'Excel Job Ready', badge: 'Core Course', price: '₹799', oldPrice: '₹4,999', desc: 'Real office Excel skills, MIS reports, formulas aur dashboards.', icon: '📊', color: 'green', status: hasPlan ? 'Unlocked' : 'Locked', cta: hasPlan ? 'Open Course' : 'Buy & Unlock', href: hasPlan ? '#spotlight' : 'https://rzp.io/rzp/Noktx055' },
-    { id: 'taskflow', title: 'TaskFlow App', badge: 'Coming Soon', price: 'Free Beta', oldPrice: '', desc: 'Task tracking, team work aur productivity ke liye app.', icon: '🧩', color: 'violet', status: 'Coming Soon', cta: 'Join Waitlist', href: 'https://wa.me/918826340509?text=Hi%20I%20want%20to%20join%20TaskFlow%20beta' },
-    { id: 'bundle', title: 'Product Bundle', badge: 'Bundle', price: '₹1,499', oldPrice: '₹2,998', desc: 'Excel + future products ka combined access bundle.', icon: '🎁', color: 'blue', status: hasPlan ? 'Unlocked' : 'Locked', cta: hasPlan ? 'View Bundle' : 'Buy Bundle', href: hasPlan ? '#pricing' : 'https://rzp.io/rzp/Noktx055' }
-  ];
 
-  const card = (p, wide=false) => `
-    <a href="${p.href}" class="pcard ${wide ? 'wide ' : ''}c-${p.color}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} style="${p.href.startsWith('#') || p.href.startsWith('http') ? '' : 'pointer-events:none;opacity:.55;'}">
-      <div class="pcard-left">
-        <div class="pcard-badge">${p.badge}</div>
-        <div class="pcard-name">${p.icon} ${p.title}</div>
-        <div class="pcard-desc">${p.desc}</div>
-        <div class="pcard-tags">
-          <span class="pcard-tag">${p.status}</span>
-          <span class="pcard-tag">${hasPlan ? 'Lifetime access' : 'Locked until payment'}</span>
+  if (!hasPlan) {
+    // Show locked preview + purchase wall
+    list.innerHTML = MODULES.slice(0,2).map(m => `
+      <div class="module" style="opacity:.45;cursor:not-allowed;pointer-events:none">
+        <div class="micon">${m.icon}</div>
+        <div class="mmeta">
+          <h4>${m.title}</h4>
+          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
         </div>
-        <div class="pcard-foot">
-          <div>
-            ${p.oldPrice ? `<span class="pcard-price-old">${p.oldPrice}</span>` : ''}
-            <span class="pcard-price-new">${p.price}</span>
-          </div>
-          <div class="pcard-arrow">→</div>
+        <div class="mplay">🔒</div>
+      </div>`).join('') +
+      `<div style="margin-top:8px;background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.03));border:1px solid rgba(0,232,122,.25);border-radius:18px;padding:32px;text-align:center">
+        <div style="font-size:2rem;margin-bottom:10px">🔒</div>
+        <div style="font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--t1);margin-bottom:8px">Course Access Locked</div>
+        <div style="font-size:.85rem;color:var(--t2);margin-bottom:20px;line-height:1.7">
+          Saare <strong style="color:var(--t1)">9 modules</strong> aur <strong style="color:var(--t1)">22 classes</strong> unlock karne ke liye<br>
+          course purchase karo. Sirf <strong style="color:var(--em)">₹799</strong> — lifetime access.
         </div>
-      </div>
-      <div class="pcard-right">
-        <div style="font-family:'Clash Display',sans-serif;font-size:2rem;line-height:1;opacity:.9">${p.icon}</div>
-      </div>
-    </a>`;
+        <a href="https://rzp.io/rzp/Noktx055" target="_blank" style="display:inline-block;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;padding:13px 32px;border-radius:12px;text-decoration:none;font-size:.95rem">
+          🛒 Abhi Purchase Karo — ₹799
+        </a>
+        <div style="margin-top:12px;font-size:.72rem;color:var(--t3)">✅ Money-back guarantee &nbsp;|&nbsp; ✅ Lifetime access &nbsp;|&nbsp; ✅ Mobile friendly</div>
+      </div>` +
+      MODULES.slice(2).map(m => `
+      <div class="module" style="opacity:.25;cursor:not-allowed;pointer-events:none">
+        <div class="micon">${m.icon}</div>
+        <div class="mmeta">
+          <h4>${m.title}</h4>
+          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+        </div>
+        <div class="mplay">🔒</div>
+      </div>`).join('');
+    return;
+  }
 
-  list.innerHTML = `
-    <div class="prod-grid-v2">
-      ${card(products[0], true)}
-      ${card(products[1])}
-      ${card(products[2])}
-    </div>
-    <div style="margin-top:12px;background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.03));border:1px solid rgba(0,232,122,.25);border-radius:18px;padding:22px;text-align:center">
-      <div style="font-size:1.5rem;margin-bottom:8px">🔒</div>
-      <div style="font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--t1);margin-bottom:6px">${hasPlan ? 'Aapke products ready hain' : 'Course Access Locked'}</div>
-      <div style="font-size:.82rem;color:var(--t2);line-height:1.7">${hasPlan ? 'Aap ab saare unlocked products open kar sakte ho.' : 'Saare courses/products unlock karne ke liye purchase required hai. Payment ke baad cards open ho jayenge.'}</div>
+  list.innerHTML = MODULES.map(m => {
+    const done = completedModules.includes(m.id);
+    return `<div class="module${done?' done':''}" onclick="openModule(${m.id})">
+      <div class="micon">${m.icon}</div>
+      <div class="mmeta">
+        <h4>${m.title}</h4>
+        <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+      </div>
+      <div class="mplay">${done ? '✓' : '▶'}</div>
     </div>`;
+  }).join('');
 }
+
+window.openModule = function(id) {
+  if (!(currentUser && currentUser.plan)) {
+    // Not purchased — scroll to purchase wall
+    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]') &&
+    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  const mod = MODULES.find(m => m.id === id);
+  if (!mod) return;
+  currentModuleId = id;
+  document.getElementById('videoSection').style.display = 'block';
+  document.getElementById('videoModule').textContent = mod.title;
+  renderLessons(mod, 0);
+  playLesson(mod, 0);
+  document.getElementById('videoSection').scrollIntoView({behavior:'smooth'});
+  document.getElementById('markDoneBtn').textContent = completedModules.includes(id) ? '✓ Already Completed' : 'Mark Module Complete';
+};
+
+function renderLessons(mod, activeIdx) {
+  document.getElementById('lessonsList').innerHTML = mod.lessons.map((l, i) => `
+    <div class="lesson${i===activeIdx?' active':''}" onclick="playLessonById(${mod.id},${i})">
+      <div class="lesson-num">${i+1}</div>
+      <div class="lesson-name">${l.name}</div>
+      <div class="lesson-dur">${l.duration}</div>
+    </div>`).join('');
+}
+
+window.playLessonById = function(moduleId, idx) {
+  const mod = MODULES.find(m => m.id === moduleId);
+  if (!mod) return;
+  renderLessons(mod, idx);
+  playLesson(mod, idx);
+};
+
+function playLesson(mod, idx) {
+  const lesson = mod.lessons[idx];
+  document.getElementById('ytPlayer').src =
+    'https://www.youtube.com/embed/' + lesson.videoId + '?rel=0&modestbranding=1';
+  document.getElementById('videoTitle').textContent    = lesson.name;
+  document.getElementById('videoDuration').textContent = lesson.duration;
+  updateStreak();
+}
+
+window.markModuleDone = function() {
+  if (!currentModuleId) return;
+  if (!completedModules.includes(currentModuleId)) {
+    completedModules.push(currentModuleId);
+    localStorage.setItem('s2jcompleted', JSON.stringify(completedModules));
+  }
+  renderModules();
+  updateProgress();
+  document.getElementById('markDoneBtn').textContent = '✓ Already Completed';
+};
+
+function updateStreak() {
+  const today     = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  let streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0,"lastDate":""}');
+  if (streak.lastDate === today) return;
+  streak.count    = streak.lastDate === yesterday ? streak.count + 1 : 1;
+  streak.lastDate = today;
+  localStorage.setItem('s2jstreak', JSON.stringify(streak));
+  document.getElementById('statStreak').textContent = streak.count;
+}
+
 // ── DOWNLOADS ─────────────────────────────────────────────────────
 function renderDownloads() {
   document.getElementById('downloadsGrid').innerHTML = DOWNLOADS.map(d => `
