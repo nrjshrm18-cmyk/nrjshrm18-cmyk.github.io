@@ -407,7 +407,7 @@ function bridgePortalUser(raw){
     password: raw.password || '',
     identifier: identifier
   };
-  localStorage.setItem('auth_user', JSON.stringify(user));
+  localStorage.setItem('s2jportaluser', JSON.stringify(user));
   return user;
 }
 function findLocalUser(identifier, pass){
@@ -416,7 +416,7 @@ function findLocalUser(identifier, pass){
   var u = users[id] || null;
   if (!u) {
     try {
-      var legacy = JSON.parse(localStorage.getItem('auth_user') || 'null');
+      var legacy = JSON.parse(localStorage.getItem('ejr_user') || 'null');
       var legacyId = legacy ? normalizeId(legacy.identifier || legacy.email || legacy.phone || '') : '';
       if (legacy && legacyId === id) u = legacy;
     } catch(e) {}
@@ -474,7 +474,7 @@ window.doGoogleLogin = async function() {
       });
     }
 
-    localStorage.setItem('auth_user', JSON.stringify(user));
+    localStorage.setItem('s2jportaluser', JSON.stringify(user));
     currentUser = user;
     completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
     // Always go to portal — purchased or not
@@ -498,7 +498,7 @@ window.doLogin = function() {
       showPortal();
       return;
     }
-    const s = localStorage.getItem('auth_user');
+    const s = localStorage.getItem('s2jportaluser');
     const saved = s ? JSON.parse(s) : null;
     const savedId = saved ? normalizeId(saved.identifier || saved.email || '') : '';
     if (saved && savedId === identifier && saved.password === pass) {
@@ -515,8 +515,8 @@ window.doLogin = function() {
 
 // ── LOGOUT ───────────────────────────────────────────────────────
 window.doLogout = async function() {
-  localStorage.removeItem('auth_user');
-  localStorage.removeItem('auth_user');
+  localStorage.removeItem('s2jportaluser');
+  localStorage.removeItem('ejr_user'); localStorage.removeItem('s2jportaluser'); sessionStorage.removeItem('ejr_session');
   currentUser = null;
   try { await _auth.signOut(); } catch(e) {}
   window.location.href = '/';
@@ -540,7 +540,7 @@ window.init = function() {
         joinDate: (dbUser && dbUser.createdAt) ? new Date(dbUser.createdAt).toLocaleDateString('en-IN') : new Date().toLocaleDateString('en-IN'),
         provider: 'google'
       };
-      localStorage.setItem('auth_user', JSON.stringify(user));
+      localStorage.setItem('s2jportaluser', JSON.stringify(user));
       currentUser = user;
       completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
       showPortal();
@@ -549,7 +549,7 @@ window.init = function() {
     }
 
     try {
-      const portalSaved = JSON.parse(localStorage.getItem('auth_user') || 'null');
+      const portalSaved = JSON.parse(localStorage.getItem('s2jportaluser') || 'null');
       if (portalSaved) {
         currentUser = bridgePortalUser(portalSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
@@ -559,7 +559,7 @@ window.init = function() {
     } catch(e) {}
 
     try {
-      const homepageSaved = JSON.parse(localStorage.getItem('auth_user') || 'null');
+      const homepageSaved = JSON.parse(localStorage.getItem('ejr_user') || 'null');
       if (homepageSaved) {
         currentUser = bridgePortalUser(homepageSaved);
         completedModules = JSON.parse(localStorage.getItem('s2jcompleted') || '[]');
@@ -585,7 +585,7 @@ function startActivationPoller(email) {
       // Plan activated! Update user and refresh portal
       currentUser.plan    = dbUser.plan;
       currentUser.code    = dbUser.paymentId || dbUser.accessCode || 'PAID';
-      localStorage.setItem('auth_user', JSON.stringify(currentUser));
+      localStorage.setItem('s2jportaluser', JSON.stringify(currentUser));
       // Show activation success banner
       showActivationSuccess(dbUser.plan);
       // Re-render courses and portal
