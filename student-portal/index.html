@@ -122,7 +122,24 @@
       .mobile-nav .nav-item { flex: 1; justify-content: center; border-radius: 0; margin: 0; padding: 12px 8px; font-size: .74rem; }
       body { padding-bottom: 64px; }
     }
-  </style>
+  
+.progress-dash{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(0,232,122,.06),rgba(96,165,250,.05));border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:18px 18px 18px 14px;margin-bottom:14px}
+.progress-pie-wrap{width:96px;flex-shrink:0}
+.progress-pie{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--em) calc(var(--pct)*1%), rgba(255,255,255,.08) 0);display:grid;place-items:center;position:relative}
+.progress-pie:after{content:'';position:absolute;inset:10px;background:var(--bg2);border-radius:50%;border:1px solid rgba(255,255,255,.06)}
+.progress-pie-center{position:relative;z-index:1;text-align:center}
+.progress-pie-center span{display:block;font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--t1);line-height:1}
+.progress-pie-center small{display:block;font-size:.55rem;color:var(--t3);margin-top:2px;letter-spacing:.06em;text-transform:uppercase}
+.progress-meta{min-width:0}
+.progress-title{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:var(--t1);margin-bottom:4px}
+.progress-stat{font-size:.82rem;color:var(--t2);margin-bottom:4px}
+.progress-sub{font-size:.72rem;color:var(--t3)}
+.course-topnav{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.course-chip{border:1px solid var(--b1);background:var(--bg3);color:var(--t2);padding:9px 14px;border-radius:999px;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s}
+.course-chip.active{background:var(--em);color:#000;border-color:var(--em)}
+.course-chip:hover{transform:translateY(-1px)}
+
+</style>
 </head>
 <body>
 
@@ -671,120 +688,115 @@ function updateProgress() {
 function renderModules() {
   const hasPlan = !!(currentUser && currentUser.plan);
   const list = document.getElementById('modulesList');
+  const products = [
+    { id: 'excel', title: 'Excel Job Ready', badge: 'Core Course', price: '₹799', oldPrice: '₹4,999', desc: 'Real office Excel skills, MIS reports, formulas aur dashboards.', icon: '📊', color: 'green', status: hasPlan ? 'Unlocked' : 'Locked', href: 'javascript:void(0)', open: () => openModule(1), featured: true },
+    { id: 'taskflow', title: 'TaskFlow App', badge: 'Coming Soon', price: 'Free Beta', oldPrice: '', desc: 'Task tracking, team work aur productivity ke liye app.', icon: '🧩', color: 'violet', status: 'Coming Soon', href: 'https://wa.me/918826340509?text=Hi%20I%20want%20to%20join%20TaskFlow%20beta' },
+    { id: 'bundle', title: 'Product Bundle', badge: 'Bundle', price: '₹1,499', oldPrice: '₹2,998', desc: 'Excel + future products ka combined access bundle.', icon: '🎁', color: 'blue', status: hasPlan ? 'Unlocked' : 'Locked', href: hasPlan ? '#pricing' : 'https://rzp.io/rzp/Noktx055' }
+  ];
 
-  if (!hasPlan) {
-    // Show locked preview + purchase wall
-    list.innerHTML = MODULES.slice(0,2).map(m => `
-      <div class="module" style="opacity:.45;cursor:not-allowed;pointer-events:none">
-        <div class="micon">${m.icon}</div>
-        <div class="mmeta">
-          <h4>${m.title}</h4>
-          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
+  const total = MODULES.length;
+  const done = completedModules.length;
+  const pct = Math.max(0, Math.min(100, Math.round((done / total) * 100 || 0)));
+  const rem = 100 - pct;
+  const dash = `
+    <div class="progress-dash">
+      <div class="progress-pie-wrap">
+        <div class="progress-pie" style="--pct:${pct}">
+          <div class="progress-pie-center"><span>${pct}%</span><small>Done</small></div>
         </div>
-        <div class="mplay">🔒</div>
-      </div>`).join('') +
-      `<div style="margin-top:8px;background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.03));border:1px solid rgba(0,232,122,.25);border-radius:18px;padding:32px;text-align:center">
-        <div style="font-size:2rem;margin-bottom:10px">🔒</div>
-        <div style="font-family:'Clash Display',sans-serif;font-size:1.15rem;font-weight:700;color:var(--t1);margin-bottom:8px">Course Access Locked</div>
-        <div style="font-size:.85rem;color:var(--t2);margin-bottom:20px;line-height:1.7">
-          Saare <strong style="color:var(--t1)">9 modules</strong> aur <strong style="color:var(--t1)">22 classes</strong> unlock karne ke liye<br>
-          course purchase karo. Sirf <strong style="color:var(--em)">₹799</strong> — lifetime access.
-        </div>
-        <a href="https://rzp.io/rzp/Noktx055" target="_blank" style="display:inline-block;background:linear-gradient(135deg,var(--em),#00b36b);color:#000;font-family:'Clash Display',sans-serif;font-weight:700;padding:13px 32px;border-radius:12px;text-decoration:none;font-size:.95rem">
-          🛒 Abhi Purchase Karo — ₹799
-        </a>
-        <div style="margin-top:12px;font-size:.72rem;color:var(--t3)">✅ Money-back guarantee &nbsp;|&nbsp; ✅ Lifetime access &nbsp;|&nbsp; ✅ Mobile friendly</div>
-      </div>` +
-      MODULES.slice(2).map(m => `
-      <div class="module" style="opacity:.25;cursor:not-allowed;pointer-events:none">
-        <div class="micon">${m.icon}</div>
-        <div class="mmeta">
-          <h4>${m.title}</h4>
-          <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
-        </div>
-        <div class="mplay">🔒</div>
-      </div>`).join('');
-    return;
-  }
-
-  list.innerHTML = MODULES.map(m => {
-    const done = completedModules.includes(m.id);
-    return `<div class="module${done?' done':''}" onclick="openModule(${m.id})">
-      <div class="micon">${m.icon}</div>
-      <div class="mmeta">
-        <h4>${m.title}</h4>
-        <p>${m.description}<br>${m.lessons.length} lessons · ${m.duration}</p>
       </div>
-      <div class="mplay">${done ? '✓' : '▶'}</div>
+      <div class="progress-meta">
+        <div class="progress-title">Overall Progress</div>
+        <div class="progress-stat">${done}/${total} modules completed</div>
+        <div class="progress-sub">Remaining ${rem}% unlock / complete</div>
+      </div>
     </div>`;
-  }).join('');
+
+  const nav = `
+    <div class="course-topnav">
+      ${products.map((p, i) => `<button class="course-chip ${i===0?'active':''}" data-course="${p.id}">${p.title}</button>`).join('')}
+    </div>`;
+
+  const featured = (p) => `
+    <a href="${p.href}" class="pcard wide c-${p.color} featured-card" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} style="${p.href.startsWith('#') || p.href.startsWith('http') || p.href==='javascript:void(0)' ? '' : 'pointer-events:none;opacity:.55;'}">
+      <div class="pcard-left">
+        <div class="pcard-badge">${p.badge}</div>
+        <div class="pcard-name">${p.icon} ${p.title}</div>
+        <div class="pcard-desc">${p.desc}</div>
+        <div class="pcard-tags">
+          <span class="pcard-tag">${p.status}</span>
+          <span class="pcard-tag">${hasPlan ? 'Lifetime access' : 'Locked until payment'}</span>
+        </div>
+        <div class="pcard-foot">
+          <div>
+            ${p.oldPrice ? `<span class="pcard-price-old">${p.oldPrice}</span>` : ''}
+            <span class="pcard-price-new">${p.price}</span>
+          </div>
+          <div class="pcard-arrow">→</div>
+        </div>
+      </div>
+      <div class="pcard-right">
+        <div style="font-family:'Clash Display',sans-serif;font-size:2rem;line-height:1;opacity:.9">${p.icon}</div>
+      </div>
+    </a>`;
+
+  const card = (p) => `
+    <a href="${p.href}" class="pcard c-${p.color}" ${p.href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} style="${p.href.startsWith('#') || p.href.startsWith('http') ? '' : 'pointer-events:none;opacity:.55;'}">
+      <div class="pcard-left">
+        <div class="pcard-badge">${p.badge}</div>
+        <div class="pcard-name">${p.icon} ${p.title}</div>
+        <div class="pcard-desc">${p.desc}</div>
+        <div class="pcard-tags"><span class="pcard-tag">${p.status}</span></div>
+        <div class="pcard-foot">
+          <div>
+            ${p.oldPrice ? `<span class="pcard-price-old">${p.oldPrice}</span>` : ''}
+            <span class="pcard-price-new">${p.price}</span>
+          </div>
+          <div class="pcard-arrow">→</div>
+        </div>
+      </div>
+      <div class="pcard-right"><div style="font-family:'Clash Display',sans-serif;font-size:2rem;line-height:1;opacity:.9">${p.icon}</div></div>
+    </a>`;
+
+  list.innerHTML = `
+    ${dash}
+    ${nav}
+    <div class="prod-grid-v2">
+      ${featured(products[0])}
+      ${card(products[1])}
+      ${card(products[2])}
+    </div>
+    <div style="margin-top:12px;background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,232,122,.03));border:1px solid rgba(0,232,122,.25);border-radius:18px;padding:22px;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:8px">🔒</div>
+      <div style="font-family:'Clash Display',sans-serif;font-size:1.05rem;font-weight:700;color:var(--t1);margin-bottom:6px">${hasPlan ? 'Aapke products ready hain' : 'Course Access Locked'}</div>
+      <div style="font-size:.82rem;color:var(--t2);line-height:1.7">${hasPlan ? 'Aap ab saare unlocked products open kar sakte ho.' : 'Saare courses/products unlock karne ke liye purchase required hai. Payment ke baad cards open ho jayenge.'}</div>
+    </div>`;
+
+  const chips = list.querySelectorAll('.course-chip');
+  chips.forEach((btn, idx) => btn.addEventListener('click', () => {
+    chips.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const p = products[idx];
+    const feat = list.querySelector('.featured-card');
+    if (feat && p) {
+      feat.querySelector('.pcard-badge').textContent = p.badge;
+      feat.querySelector('.pcard-name').textContent = `${p.icon} ${p.title}`;
+      feat.querySelector('.pcard-desc').textContent = p.desc;
+      feat.querySelector('.pcard-price-new').textContent = p.price;
+      const old = feat.querySelector('.pcard-price-old');
+      if (p.oldPrice) { if (old) old.textContent = p.oldPrice; else feat.querySelector('.pcard-foot > div').insertAdjacentHTML('afterbegin', `<span class="pcard-price-old">${p.oldPrice}</span>`); }
+      else if (old) old.remove();
+      feat.querySelector('.pcard-tag').textContent = p.status;
+      const tags = feat.querySelectorAll('.pcard-tag');
+      if (tags[1]) tags[1].textContent = hasPlan ? 'Lifetime access' : 'Locked until payment';
+      const arrow = feat.querySelector('.pcard-arrow'); if (arrow) arrow.textContent = '→';
+      feat.href = p.href;
+      feat.style.pointerEvents = (p.href.startsWith('http') || p.href.startsWith('#') || p.href==='javascript:void(0)') ? 'auto' : 'none';
+      feat.style.opacity = (p.href.startsWith('http') || p.href.startsWith('#') || p.href==='javascript:void(0)') ? '1' : '.55';
+    }
+    if (p.open) feat.addEventListener('click', (e) => { if (p.open) { e.preventDefault(); p.open(); } }, { once: true });
+  }));
 }
-
-window.openModule = function(id) {
-  if (!(currentUser && currentUser.plan)) {
-    // Not purchased — scroll to purchase wall
-    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]') &&
-    document.getElementById('sec-courses').querySelector('a[href="https://rzp.io/rzp/Noktx055" target="_blank"]').scrollIntoView({behavior:'smooth'});
-    return;
-  }
-  const mod = MODULES.find(m => m.id === id);
-  if (!mod) return;
-  currentModuleId = id;
-  document.getElementById('videoSection').style.display = 'block';
-  document.getElementById('videoModule').textContent = mod.title;
-  renderLessons(mod, 0);
-  playLesson(mod, 0);
-  document.getElementById('videoSection').scrollIntoView({behavior:'smooth'});
-  document.getElementById('markDoneBtn').textContent = completedModules.includes(id) ? '✓ Already Completed' : 'Mark Module Complete';
-};
-
-function renderLessons(mod, activeIdx) {
-  document.getElementById('lessonsList').innerHTML = mod.lessons.map((l, i) => `
-    <div class="lesson${i===activeIdx?' active':''}" onclick="playLessonById(${mod.id},${i})">
-      <div class="lesson-num">${i+1}</div>
-      <div class="lesson-name">${l.name}</div>
-      <div class="lesson-dur">${l.duration}</div>
-    </div>`).join('');
-}
-
-window.playLessonById = function(moduleId, idx) {
-  const mod = MODULES.find(m => m.id === moduleId);
-  if (!mod) return;
-  renderLessons(mod, idx);
-  playLesson(mod, idx);
-};
-
-function playLesson(mod, idx) {
-  const lesson = mod.lessons[idx];
-  document.getElementById('ytPlayer').src =
-    'https://www.youtube.com/embed/' + lesson.videoId + '?rel=0&modestbranding=1';
-  document.getElementById('videoTitle').textContent    = lesson.name;
-  document.getElementById('videoDuration').textContent = lesson.duration;
-  updateStreak();
-}
-
-window.markModuleDone = function() {
-  if (!currentModuleId) return;
-  if (!completedModules.includes(currentModuleId)) {
-    completedModules.push(currentModuleId);
-    localStorage.setItem('s2jcompleted', JSON.stringify(completedModules));
-  }
-  renderModules();
-  updateProgress();
-  document.getElementById('markDoneBtn').textContent = '✓ Already Completed';
-};
-
-function updateStreak() {
-  const today     = new Date().toDateString();
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
-  let streak = JSON.parse(localStorage.getItem('s2jstreak') || '{"count":0,"lastDate":""}');
-  if (streak.lastDate === today) return;
-  streak.count    = streak.lastDate === yesterday ? streak.count + 1 : 1;
-  streak.lastDate = today;
-  localStorage.setItem('s2jstreak', JSON.stringify(streak));
-  document.getElementById('statStreak').textContent = streak.count;
-}
-
 // ── DOWNLOADS ─────────────────────────────────────────────────────
 function renderDownloads() {
   document.getElementById('downloadsGrid').innerHTML = DOWNLOADS.map(d => `
